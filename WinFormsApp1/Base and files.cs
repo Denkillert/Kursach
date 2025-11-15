@@ -53,8 +53,8 @@ namespace RowingBaseAccounting
             return Role switch
             {
                 "Admin" => true,
-                "Manager" => permission != "create_admin",
-                "Analyst" => permission == "view_reports",
+                "Менеджер" => permission != "create_admin",
+                "Кассир" => permission == "view_reports",
                 _ => false
             };
         }
@@ -166,3 +166,4 @@ namespace RowingBaseAccounting
         }
     }
 }
+
