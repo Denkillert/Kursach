@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PolesSU_Sports")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5287b4e9cfe31f4097afd5c76d61cdb97b2b071c")]
 [assembly: System.Reflection.AssemblyProductAttribute("PolesSU_Sports")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PolesSU_Sports")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

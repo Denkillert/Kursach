@@ -1,5 +1,5 @@
 ﻿using PolesSU_Sports.Admin;
-using PolesSU_Sports.Manager;
+using PolesSU_Sports.Management;
 using PolesSU_Sports.Shared.DB;
 using PolesSU_Sports.Shared.Model;
 using System;
