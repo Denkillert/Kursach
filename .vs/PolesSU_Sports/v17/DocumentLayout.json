@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\management\\customreportform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\customreportform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\management\\managerform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\managerform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -58,7 +62,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 11,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -66,7 +70,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 0,
+              "Title": "CustomReportForm.cs",
+              "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\CustomReportForm.cs",
+              "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\CustomReportForm.cs",
+              "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\CustomReportForm.cs*",
+              "RelativeToolTip": "PolesSU_Sports\\Management\\CustomReportForm.cs*",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAYwJIAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T18:33:40.887Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "BackupForm.Designer.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\BackupForm.Designer.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\BackupForm.Designer.cs",
@@ -79,7 +96,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "BackupForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\BackupForm.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\BackupForm.cs",
@@ -92,7 +109,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "ReportSettingsForm.Designer.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.Designer.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.Designer.cs",
@@ -104,7 +121,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "ReportSettingsForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.cs",
@@ -117,7 +134,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "AccessRightsForm.Designer.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.Designer.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.Designer.cs",
@@ -129,7 +146,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "AccessRightsForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.cs",
@@ -142,7 +159,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "UserManagementForm.Designer.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.Designer.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.Designer.cs",
@@ -154,7 +171,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "UserManagementForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.cs",
@@ -167,7 +184,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "LoginForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\LoginForm.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\LoginForm.cs",
@@ -179,7 +196,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "ManagerForm.Designer.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\ManagerForm.Designer.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\ManagerForm.Designer.cs",
@@ -191,20 +208,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ManagerForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\ManagerForm.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\ManagerForm.cs",
               "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\ManagerForm.cs",
               "RelativeToolTip": "PolesSU_Sports\\Management\\ManagerForm.cs",
-              "ViewState": "AgIAAA8DAAAAAAAAAAAkwIQDAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAKYBAAAAAAAAAAAYwLIBAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-01T06:36:25.39Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Program.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Program.cs",

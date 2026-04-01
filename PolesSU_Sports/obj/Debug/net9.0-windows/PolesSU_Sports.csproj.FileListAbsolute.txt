@@ -141,3 +141,4 @@ C:\Users\user\source\repos\Denkillert\Kursach\PolesSU_Sports\bin\Debug\net9.0-wi
 C:\Users\user\source\repos\Denkillert\Kursach\PolesSU_Sports\obj\Debug\net9.0-windows\PolesSU_.93B6E8A0.Up2Date
 C:\Users\user\source\repos\Denkillert\Kursach\PolesSU_Sports\obj\Debug\net9.0-windows\PolesSU_Sports.genruntimeconfig.cache
 C:\Users\user\source\repos\Denkillert\Kursach\PolesSU_Sports\obj\Debug\net9.0-windows\ref\PolesSU_Sports.dll
+C:\Users\user\source\repos\Denkillert\Kursach\PolesSU_Sports\obj\Debug\net9.0-windows\PolesSU_Sports.Management.CustomReportForm.resources
