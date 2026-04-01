@@ -488,7 +488,7 @@ namespace PolesSU_Sports.Management
                     COUNT(DISTINCT sec.SectionID) AS [Количество секций],
                     COUNT(DISTINCT a.AttendanceID) AS [Всего посещений],
                     CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
-                         NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Успеваемость %]
+                         NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
                 FROM Faculties f
                 LEFT JOIN Students s ON f.FacultyID = s.FacultyID
                 LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
@@ -660,90 +660,9 @@ namespace PolesSU_Sports.Management
             headerLabel.Text = "🎓 Отчёты по факультетам";
             contentPanel.Controls.Clear();
 
-            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
+            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(30) };
 
-            var filterPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 100,
-                BackColor = Color.White,
-                Padding = new Padding(15),
-                BorderStyle = BorderStyle.FixedSingle
-            };
-
-            var lblFaculty = new Label { Text = "Факультет:", Location = new Point(15, 30), AutoSize = true };
-            var cmbFaculty = new ComboBox { Name = "cmbFaculty", Location = new Point(90, 27), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
-            LoadFacultiesToComboBox(cmbFaculty);
-
-            var btnShow = new Button
-            {
-                Text = "Показать",
-                Location = new Point(410, 27),
-                Size = new Size(120, 30),
-                BackColor = Color.FromArgb(0, 122, 204),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnShow.Click += (s, e) => ShowFacultyReport(cmbFaculty);
-
-            filterPanel.Controls.AddRange(new Control[] { lblFaculty, cmbFaculty, btnShow });
-
-            var dgvPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 10, 0, 0) };
-            var dgv = new DataGridView { Dock = DockStyle.Fill, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, ReadOnly = true, BackgroundColor = Color.White };
-
-            dgvPanel.Controls.Add(dgv);
-            mainPanel.Controls.Add(filterPanel);
-            mainPanel.Controls.Add(dgvPanel);
-            contentPanel.Controls.Add(mainPanel);
-        }
-
-        private void ShowFacultyReport(ComboBox cmbFaculty)
-        {
-            if (cmbFaculty.SelectedValue == null) return;
-
-            int facultyID = cmbFaculty.SelectedValue is DataRowView rowView ? Convert.ToInt32(rowView["FacultyID"]) : Convert.ToInt32(cmbFaculty.SelectedValue);
-
-            var dgv = contentPanel.Controls.Find("dataGridView", false).FirstOrDefault() as DataGridView;
-            if (dgv == null)
-            {
-                foreach (Control c in contentPanel.Controls)
-                {
-                    if (c is Panel p)
-                    {
-                        foreach (Control c2 in p.Controls)
-                        {
-                            if (c2 is DataGridView dgv2) { dgv = dgv2; break; }
-                        }
-                    }
-                }
-            }
-
-            if (dgv != null)
-            {
-                dgv.DataSource = DBConnection.Instance.ExecuteQuery(@"
-                    SELECT 
-                        s.GroupName AS [Группа],
-                        COUNT(DISTINCT s.StudentCardNumber) AS [Студентов],
-                        COUNT(DISTINCT a.AttendanceID) AS [Посещений],
-                        SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
-                        CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / COUNT(*) AS DECIMAL(5,1)) AS [Успеваемость %]
-                    FROM Students s
-                    LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
-                    WHERE s.FacultyID = @FacultyID
-                    GROUP BY s.GroupName
-                    ORDER BY [Успеваемость %] DESC",
-                    new[] { new SqlParameter("@FacultyID", facultyID) });
-            }
-        }
-
-        // ==================== ПО ГРУППАМ ====================
-        private void LoadGroupReports()
-        {
-            headerLabel.Text = "👥 Отчёты по группам";
-            contentPanel.Controls.Clear();
-
-            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
-
+            // === ФИЛЬТРЫ (вверху) ===
             var filterPanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -753,53 +672,231 @@ namespace PolesSU_Sports.Management
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var cmbGroup = new ComboBox { Name = "cmbGroup", Location = new Point(15, 30), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
-            var groups = DBConnection.Instance.ExecuteQuery("SELECT DISTINCT GroupName FROM Students ORDER BY GroupName");
-            cmbGroup.DataSource = groups;
-            cmbGroup.DisplayMember = "GroupName";
+            var lblFaculty = new Label { Text = "Факультет:", Location = new Point(15, 25), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var cmbFaculty = new ComboBox { Name = "cmbFaculty", Location = new Point(90, 22), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
+            LoadFacultiesToComboBox(cmbFaculty);
 
             var btnShow = new Button
             {
-                Text = "Показать отчёт",
-                Location = new Point(330, 30),
-                Size = new Size(130, 30),
+                Name = "btnShow",
+                Text = "📊 Показать",
+                Location = new Point(410, 20),
+                Size = new Size(130, 35),
                 BackColor = Color.FromArgb(0, 122, 204),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnShow.Click += (s, e) => ShowFacultyReport(cmbFaculty);
+
+            filterPanel.Controls.AddRange(new Control[] { lblFaculty, cmbFaculty, btnShow });
+
+            // === ТАБЛИЦА (ниже фильтров) ===
+            var tablePanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 15, 0, 0)
+            };
+
+            var dgv = new DataGridView
+            {
+                Name = "dataGridView",
+                Dock = DockStyle.Fill,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = Color.FromArgb(0, 122, 204),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                },
+                RowHeadersVisible = false
+            };
+
+            tablePanel.Controls.Add(dgv);
+
+            // ✅ ВАЖНО: сначала таблица, потом фильтры (чтобы фильтры были сверху)
+            mainPanel.Controls.Add(tablePanel);
+            mainPanel.Controls.Add(filterPanel);
+            contentPanel.Controls.Add(mainPanel);
+
+            // Автозагрузка при открытии
+            if (cmbFaculty.SelectedValue != null)
+            {
+                ShowFacultyReport(cmbFaculty);
+            }
+        }
+
+        private void ShowFacultyReport(ComboBox cmbFaculty)
+        {
+            if (cmbFaculty.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите факультет", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                int facultyID = cmbFaculty.SelectedValue is DataRowView rowView ? Convert.ToInt32(rowView["FacultyID"]) : Convert.ToInt32(cmbFaculty.SelectedValue);
+
+                // ✅ Ищем DataGridView по имени
+                var dgv = contentPanel.Controls.Find("dataGridView", true).FirstOrDefault() as DataGridView;
+                if (dgv == null) return;
+
+                dgv.DataSource = DBConnection.Instance.ExecuteQuery(@"
+            SELECT 
+                s.GroupName AS [Группа],
+                COUNT(DISTINCT s.StudentCardNumber) AS [Студентов],
+                COUNT(DISTINCT a.AttendanceID) AS [Посещений],
+                SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
+                     NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
+            FROM Students s
+            LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
+            WHERE s.FacultyID = @FacultyID
+            GROUP BY s.GroupName
+            ORDER BY [Посещаемость %] DESC",
+                    new[] { new SqlParameter("@FacultyID", facultyID) });
+
+                if (dgv.Rows.Count == 0)
+                {
+                    MessageBox.Show("Нет данных по выбранному факультету", "Информация",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // ==================== ПО ГРУППАМ ====================
+        private void LoadGroupReports()
+        {
+            headerLabel.Text = "👥 Отчёты по группам";
+            contentPanel.Controls.Clear();
+
+            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(30) };
+
+            // === ФИЛЬТРЫ ===
+            var filterPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 80,
+                BackColor = Color.White,
+                Padding = new Padding(15),
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            var lblGroup = new Label { Text = "Группа:", Location = new Point(15, 25), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var cmbGroup = new ComboBox { Name = "cmbGroup", Location = new Point(80, 22), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
+
+            var groups = DBConnection.Instance.ExecuteQuery("SELECT DISTINCT GroupName FROM Students ORDER BY GroupName");
+            cmbGroup.DataSource = groups;
+            cmbGroup.DisplayMember = "GroupName";
+            cmbGroup.ValueMember = "GroupName";
+
+            var btnShow = new Button
+            {
+                Name = "btnShow",
+                Text = "📊 Показать",
+                Location = new Point(400, 20),
+                Size = new Size(130, 35),
+                BackColor = Color.FromArgb(0, 122, 204),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10)
             };
             btnShow.Click += (s, e) => ShowGroupReport(cmbGroup);
 
-            filterPanel.Controls.AddRange(new Control[] { cmbGroup, btnShow });
+            filterPanel.Controls.AddRange(new Control[] { lblGroup, cmbGroup, btnShow });
 
-            var dgv = new DataGridView { Dock = DockStyle.Fill, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, ReadOnly = true, BackgroundColor = Color.White };
+            // === ТАБЛИЦА ===
+            var tablePanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 15, 0, 0)
+            };
+
+            var dgv = new DataGridView
+            {
+                Name = "dataGridView",
+                Dock = DockStyle.Fill,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = Color.FromArgb(0, 122, 204),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                },
+                RowHeadersVisible = false
+            };
+
+            tablePanel.Controls.Add(dgv);
+
+            mainPanel.Controls.Add(tablePanel);
             mainPanel.Controls.Add(filterPanel);
-            mainPanel.Controls.Add(dgv);
             contentPanel.Controls.Add(mainPanel);
+
+            // Автозагрузка
+            if (cmbGroup.SelectedValue != null)
+            {
+                ShowGroupReport(cmbGroup);
+            }
         }
 
         private void ShowGroupReport(ComboBox cmbGroup)
         {
             string groupName = cmbGroup.SelectedValue?.ToString();
-            if (string.IsNullOrEmpty(groupName)) return;
-
-            var dgv = contentPanel.Controls.OfType<DataGridView>().FirstOrDefault();
-            if (dgv != null)
+            if (string.IsNullOrEmpty(groupName))
             {
+                MessageBox.Show("Выберите группу", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                var dgv = contentPanel.Controls.Find("dataGridView", true).FirstOrDefault() as DataGridView;
+                if (dgv == null) return;
+
                 dgv.DataSource = DBConnection.Instance.ExecuteQuery(@"
-                    SELECT 
-                        s.StudentCardNumber AS [Билет],
-                        s.LastName + ' ' + s.FirstName AS [ФИО],
-                        f.FacultyName AS [Факультет],
-                        COUNT(a.AttendanceID) AS [Посещений],
-                        SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
-                        CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / COUNT(*) AS DECIMAL(5,1)) AS [%]
-                    FROM Students s
-                    JOIN Faculties f ON s.FacultyID = f.FacultyID
-                    LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
-                    WHERE s.GroupName = @GroupName
-                    GROUP BY s.StudentCardNumber, s.LastName, s.FirstName, f.FacultyName
-                    ORDER BY [%] DESC",
+            SELECT 
+                s.StudentCardNumber AS [Билет],
+                s.LastName + ' ' + s.FirstName AS [ФИО],
+                f.FacultyName AS [Факультет],
+                COUNT(a.AttendanceID) AS [Посещений],
+                SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
+                CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
+                     NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Успеваемость %]
+            FROM Students s
+            JOIN Faculties f ON s.FacultyID = f.FacultyID
+            LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
+            WHERE s.GroupName = @GroupName
+            GROUP BY s.StudentCardNumber, s.LastName, s.FirstName, f.FacultyName
+            ORDER BY [Успеваемость %] DESC",
                     new[] { new SqlParameter("@GroupName", groupName) });
+
+                if (dgv.Rows.Count == 0)
+                {
+                    MessageBox.Show("Нет данных по выбранной группе", "Информация",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -809,74 +906,132 @@ namespace PolesSU_Sports.Management
             headerLabel.Text = "⚽ Отчёты по секциям";
             contentPanel.Controls.Clear();
 
-            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
+            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(30) };
 
+            // === ФИЛЬТРЫ (вверху) ===
             var filterPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 100,
+                Height = 80,
                 BackColor = Color.White,
                 Padding = new Padding(15),
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var lblSection = new Label { Text = "Секция:", Location = new Point(15, 30), AutoSize = true };
-            var cmbSection = new ComboBox { Name = "cmbSection", Location = new Point(70, 27), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
+            var lblSection = new Label { Text = "Секция:", Location = new Point(15, 20), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var cmbSection = new ComboBox { Name = "cmbSection", Location = new Point(80, 17), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
             LoadSectionsToComboBox(cmbSection);
 
-            var lblPeriod = new Label { Text = "Период:", Location = new Point(340, 30), AutoSize = true };
-            var dtpStart = new DateTimePicker { Name = "dtpStart", Location = new Point(400, 27), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now.AddMonths(-1) };
-            var dtpEnd = new DateTimePicker { Name = "dtpEnd", Location = new Point(540, 27), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now };
+            var lblPeriod = new Label { Text = "Период:", Location = new Point(350, 20), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var dtpStart = new DateTimePicker { Name = "dtpStart", Location = new Point(410, 17), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now.AddMonths(-1) };
+            var lblTo = new Label { Text = "по", Location = new Point(550, 20), AutoSize = true };
+            var dtpEnd = new DateTimePicker { Name = "dtpEnd", Location = new Point(575, 17), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now };
 
             var btnShow = new Button
             {
-                Text = "Показать",
-                Location = new Point(690, 27),
-                Size = new Size(120, 30),
+                Name = "btnShow",
+                Text = "📊 Показать",
+                Location = new Point(720, 15),
+                Size = new Size(130, 35),
                 BackColor = Color.FromArgb(0, 122, 204),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10)
             };
             btnShow.Click += (s, e) => ShowSectionReport(cmbSection, dtpStart, dtpEnd);
 
-            filterPanel.Controls.AddRange(new Control[] { lblSection, cmbSection, lblPeriod, dtpStart, dtpEnd, btnShow });
+            filterPanel.Controls.AddRange(new Control[] { lblSection, cmbSection, lblPeriod, dtpStart, lblTo, dtpEnd, btnShow });
 
-            var dgv = new DataGridView { Dock = DockStyle.Fill, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, ReadOnly = true, BackgroundColor = Color.White };
+            // === ТАБЛИЦА ДАННЫХ (ниже фильтров) ===
+            var tablePanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 15, 0, 0)
+            };
+
+            var dgv = new DataGridView
+            {
+                Name = "dataGridView",
+                Dock = DockStyle.Fill,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = Color.FromArgb(0, 122, 204),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                },
+                RowHeadersVisible = false
+            };
+
+            tablePanel.Controls.Add(dgv);
+
+            // Добавляем в правильном порядке: сначала таблица, потом фильтры (чтобы фильтры были сверху)
+            mainPanel.Controls.Add(tablePanel);
             mainPanel.Controls.Add(filterPanel);
-            mainPanel.Controls.Add(dgv);
             contentPanel.Controls.Add(mainPanel);
+
+            // Автоматически загружаем данные
+            if (cmbSection.SelectedValue != null)
+            {
+                ShowSectionReport(cmbSection, dtpStart, dtpEnd);
+            }
         }
 
         private void ShowSectionReport(ComboBox cmbSection, DateTimePicker dtpStart, DateTimePicker dtpEnd)
         {
-            if (cmbSection.SelectedValue == null) return;
-
-            int sectionID = cmbSection.SelectedValue is DataRowView rowView ? Convert.ToInt32(rowView["SectionID"]) : Convert.ToInt32(cmbSection.SelectedValue);
-
-            var dgv = contentPanel.Controls.OfType<DataGridView>().FirstOrDefault();
-            if (dgv != null)
+            if (cmbSection.SelectedValue == null)
             {
+                MessageBox.Show("Выберите секцию", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                int sectionID = cmbSection.SelectedValue is DataRowView rowView ? Convert.ToInt32(rowView["SectionID"]) : Convert.ToInt32(cmbSection.SelectedValue);
+
+                var dgv = contentPanel.Controls.Find("dataGridView", true).FirstOrDefault() as DataGridView;
+                if (dgv == null) return;
+
                 dgv.DataSource = DBConnection.Instance.ExecuteQuery(@"
-                    SELECT 
-                        s.StudentCardNumber AS [Билет],
-                        s.LastName + ' ' + s.FirstName AS [ФИО],
-                        s.GroupName AS [Группа],
-                        COUNT(a.AttendanceID) AS [Посещений],
-                        SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
-                        SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
-                        CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / COUNT(*) AS DECIMAL(5,1)) AS [Успеваемость %]
-                    FROM Students s
-                    JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
-                    JOIN Schedule sc ON a.ScheduleID = sc.ScheduleID
-                    WHERE sc.SectionID = @SectionID
-                    AND a.VisitDate BETWEEN @StartDate AND @EndDate
-                    GROUP BY s.StudentCardNumber, s.LastName, s.FirstName, s.GroupName
-                    ORDER BY [Успеваемость %] DESC",
+            SELECT 
+                s.StudentCardNumber AS [Билет],
+                s.LastName + ' ' + s.FirstName AS [ФИО],
+                f.FacultyName AS [Факультет],
+                s.GroupName AS [Группа],
+                COUNT(a.AttendanceID) AS [Всего занятий],
+                SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
+                CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
+                     NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
+            FROM Students s
+            JOIN Faculties f ON s.FacultyID = f.FacultyID
+            LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
+            LEFT JOIN Schedule sc ON a.ScheduleID = sc.ScheduleID
+            WHERE sc.SectionID = @SectionID
+            AND (a.VisitDate IS NULL OR a.VisitDate BETWEEN @StartDate AND @EndDate)
+            GROUP BY s.StudentCardNumber, s.LastName, s.FirstName, f.FacultyName, s.GroupName
+            ORDER BY [Посещаемость %] DESC",
                     new[] {
-                        new SqlParameter("@SectionID", sectionID),
-                        new SqlParameter("@StartDate", dtpStart.Value.Date),
-                        new SqlParameter("@EndDate", dtpEnd.Value.Date)
+                new SqlParameter("@SectionID", sectionID),
+                new SqlParameter("@StartDate", dtpStart.Value.Date),
+                new SqlParameter("@EndDate", dtpEnd.Value.Date)
                     });
+
+                if (dgv.Rows.Count == 0)
+                {
+                    MessageBox.Show("Нет данных за выбранный период", "Информация",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

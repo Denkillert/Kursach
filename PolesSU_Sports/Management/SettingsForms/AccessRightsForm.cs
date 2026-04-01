@@ -20,7 +20,7 @@ namespace PolesSU_Sports.Management.SettingsForms
         private void InitializeComponent()
         {
             this.Text = "Права доступа";
-            this.Size = new Size(800, 500);
+            this.Size = new Size(800, 550);
             this.StartPosition = FormStartPosition.CenterScreen;
 
             Label lblTitle = new Label

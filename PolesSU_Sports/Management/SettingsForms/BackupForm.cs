@@ -19,7 +19,7 @@ namespace PolesSU_Sports.Management.SettingsForms
         private void InitializeComponent()
         {
             this.Text = "Резервное копирование";
-            this.Size = new Size(800, 550);
+            this.Size = new Size(800, 600);
             this.StartPosition = FormStartPosition.CenterScreen;
 
             Label lblTitle = new Label

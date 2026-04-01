@@ -16,7 +16,7 @@ namespace PolesSU_Sports.Management.SettingsForms
         private void InitializeComponent()
         {
             this.Text = "Настройка отчётов";
-            this.Size = new Size(600, 500);
+            this.Size = new Size(600, 550);
             this.StartPosition = FormStartPosition.CenterScreen;
 
             Label lblTitle = new Label
