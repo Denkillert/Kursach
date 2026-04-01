@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HKd+lot9DzQ=",
+  "dgSpecHash": "Dfj6YAna35M=",
   "success": true,
-  "projectFilePath": "D:\\Универ\\Курсач\\4 семестр\\PolesSU_Sports\\PolesSU_Sports\\PolesSU_Sports.csproj",
+  "projectFilePath": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\PolesSU_Sports.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\user\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.13\\microsoft.bcl.cryptography.9.0.13.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.data.sqlclient\\7.0.0\\microsoft.data.sqlclient.7.0.0.nupkg.sha512",

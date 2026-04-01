@@ -1184,11 +1184,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Универ\\Курсач\\4 семестр\\PolesSU_Sports\\PolesSU_Sports\\PolesSU_Sports.csproj",
+      "projectUniqueName": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\PolesSU_Sports.csproj",
       "projectName": "PolesSU_Sports",
-      "projectPath": "D:\\Универ\\Курсач\\4 семестр\\PolesSU_Sports\\PolesSU_Sports\\PolesSU_Sports.csproj",
+      "projectPath": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\PolesSU_Sports.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "D:\\Универ\\Курсач\\4 семестр\\PolesSU_Sports\\PolesSU_Sports\\obj\\",
+      "outputPath": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\Visual studio (all)\\oth\\NuGetPackages"
