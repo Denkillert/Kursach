@@ -36,10 +36,9 @@
               "RelativeDocumentMoniker": "PolesSU_Sports\\LoginForm.cs",
               "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\LoginForm.cs",
               "RelativeToolTip": "PolesSU_Sports\\LoginForm.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAgAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAA0AAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T06:37:55.791Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T06:37:55.791Z"
             },
             {
               "$type": "Document",
@@ -51,8 +50,7 @@
               "RelativeToolTip": "PolesSU_Sports\\Manager\\ManagerForm.Designer.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T06:37:20.168Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T06:37:20.168Z"
             },
             {
               "$type": "Document",
@@ -62,7 +60,7 @@
               "RelativeDocumentMoniker": "PolesSU_Sports\\Manager\\ManagerForm.cs",
               "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Manager\\ManagerForm.cs",
               "RelativeToolTip": "PolesSU_Sports\\Manager\\ManagerForm.cs",
-              "ViewState": "AgIAALkAAAAAAAAAAAAtwH8AAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAwKQBAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-01T06:36:25.39Z",
               "EditorCaption": ""
@@ -77,8 +75,7 @@
               "RelativeToolTip": "PolesSU_Sports\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T06:36:22.095Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T06:36:22.095Z"
             }
           ]
         }
