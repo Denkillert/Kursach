@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace PolesSU_Sports.Management
 {
@@ -278,15 +279,15 @@ namespace PolesSU_Sports.Management
             chartsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             chartsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
-            // График 1
+            // График 1: Столбчатая диаграмма по секциям
             var chart1Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
+            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(60, 10), AutoSize = true };
             var chart1 = new Chart { Name = "chart1", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart1Panel.Controls.AddRange(new Control[] { lblChart1, chart1 });
 
             // График 2
             var chart2Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
+            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(60, 10), AutoSize = true };
             var chart2 = new Chart { Name = "chart2", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart2Panel.Controls.AddRange(new Control[] { lblChart2, chart2 });
 
@@ -356,22 +357,41 @@ namespace PolesSU_Sports.Management
             };
             chart.Legends.Add(legend);
 
+            // Создаём словарь для цветов секций
+            var sectionColors = new Dictionary<string, Color>();
+            int colorIndex = 0;
+
             foreach (string yAxis in yAxes)
             {
                 var series = new Series(yAxis)
                 {
                     ChartType = SeriesChartType.Column,
-                    Color = GetColor(yAxes.ToList().IndexOf(yAxis)),
                     Legend = "MainLegend"
                 };
 
                 foreach (DataRow row in data.Rows)
                 {
-                    series.Points.AddXY(row[xAxis], row[yAxis]);
+                    string sectionName = row[xAxis].ToString();
+                    
+                    // Присваиваем цвет секции, если ещё не присвоен
+                    if (!sectionColors.ContainsKey(sectionName))
+                    {
+                        sectionColors[sectionName] = GetColor(colorIndex++);
+                    }
+
+                    // Устанавливаем цвет точки равным цвету секции
+                    int pointIndex = series.Points.AddXY(row[xAxis], row[yAxis]);
+                    series.Points[pointIndex].Color = sectionColors[sectionName];
                 }
 
                 chart.Series.Add(series);
             }
+
+            // Настраиваем отображение подписей на оси X
+            chart.ChartAreas["MainArea"].AxisX.LabelStyle.Angle = -45;
+            chart.ChartAreas["MainArea"].AxisX.LabelStyle.IsStaggered = true;
+            chart.ChartAreas["MainArea"].AxisX.Interval = 1;
+            chart.ChartAreas["MainArea"].AxisX.LabelStyle.Font = new Font("Segoe UI", 8);
         }
 
         private void SetupPieChart(Chart chart, DataTable data, string labelColumn, string valueColumn, string title)
@@ -401,12 +421,74 @@ namespace PolesSU_Sports.Management
                 Legend = "MainLegend"
             };
 
+            int colorIndex = 0;
             foreach (DataRow row in data.Rows)
             {
-                series.Points.AddXY(row[labelColumn], row[valueColumn]);
+                int pointIndex = series.Points.AddXY(row[labelColumn], row[valueColumn]);
+                series.Points[pointIndex].Color = GetColor(colorIndex++);
+                
+                // Добавляем подписи к каждому сектору
+                series.Points[pointIndex].Label = $"{row[labelColumn]}: {row[valueColumn]}";
+                series.Points[pointIndex].IsValueShownAsLabel = true;
             }
 
             chart.Series.Add(series);
+            
+            // Настройка отображения подписей
+            chart.Series["Data"].Label = "#PERCENT{P1}";
+            chart.Series["Data"].IsValueShownAsLabel = true;
+        }
+
+        // Специальный метод для круговой диаграммы распределения по секциям
+        private void SetupPieChartSections(Chart chart, DataTable data, string labelColumn, string valueColumn, string title)
+        {
+            if (chart == null || data == null || data.Rows.Count == 0) return;
+
+            chart.Titles.Clear();
+            chart.Titles.Add(title);
+            chart.Series.Clear();
+            chart.ChartAreas.Clear();
+            chart.ChartAreas.Add("MainArea");
+            
+            // Добавляем легенду справа
+            chart.Legends.Clear();
+            var legend = new Legend("SectionsLegend")
+            {
+                Docking = Docking.Right,
+                Alignment = StringAlignment.Center,
+                Font = new Font("Segoe UI", 9),
+                IsTextAutoFit = true,
+                MaximumAutoSize = new SizeF(25, 100)
+            };
+            chart.Legends.Add(legend);
+
+            var series = new Series("SectionsData") 
+            { 
+                ChartType = SeriesChartType.Pie,
+                Legend = "SectionsLegend",
+                IsValueShownAsLabel = true,
+                Label = "#PERCENT{P1}"
+            };
+
+            int colorIndex = 0;
+            foreach (DataRow row in data.Rows)
+            {
+                string sectionName = row[labelColumn].ToString();
+                int value = Convert.ToInt32(row[valueColumn]);
+                
+                int pointIndex = series.Points.AddXY(sectionName, value);
+                series.Points[pointIndex].Color = GetColor(colorIndex++);
+                
+                // Показываем название секции и количество студентов
+                series.Points[pointIndex].Label = $"{sectionName}\n{value}";
+                series.Points[pointIndex].Font = new Font("Segoe UI", 8);
+            }
+
+            chart.Series.Add(series);
+            
+            // Настройка области диаграммы
+            chart.ChartAreas["MainArea"].Area3DStyle.Enable3D = false;
+            chart.ChartAreas["MainArea"].InnerPlotPosition.Auto = true;
         }
 
         private void SetupLineChart(Chart chart, DataTable data, string xAxis, string[] yAxes, string title)
@@ -627,8 +709,8 @@ namespace PolesSU_Sports.Management
 
 
 
-                        // График 1: Столбчатая диаграмма по секциям
-                        SetupBarChart(chart1, data, "Секция", new[] { "Студентов", "Посещений" }, "Распределение по секциям");
+                        // График 1: Круговая диаграмма распределения по секциям (показываем все секции)
+                        SetupPieChartSections(chart1, data, "Секция", "Студентов", "Распределение по секциям");
 
                         // График 2: Круговая диаграмма успеваемости
                         var pieData = DBConnection.Instance.ExecuteQuery(@"
@@ -663,14 +745,16 @@ namespace PolesSU_Sports.Management
                     new SqlParameter("@FacultyID", facultyID)
                 });
 
-                        SetupBarChart(chart1, data, "Студент", new[] { "Посещений" }, "Топ студентов");
+                        // График 1: Круговая диаграмма топ студентов
+                        SetupPieChart(chart1, data, "Студент", "Посещений", "Топ студентов");
 
                         var groupData = DBConnection.Instance.ExecuteQuery(@"
                     SELECT GroupName AS [Группа], COUNT(*) AS [Студентов]
                     FROM Students
                     WHERE (@FacultyID = 0 OR FacultyID = @FacultyID)
                     GROUP BY GroupName");
-                        SetupBarChart(chart2, groupData, "Группа", new[] { "Студентов" }, "Распределение по группам");
+                        // График 2: Круговая диаграмма распределения по группам
+                        SetupPieChart(chart2, groupData, "Группа", "Студентов", "Распределение по группам");
                         break;
 
                     case "💰 Финансовая аналитика":
@@ -689,7 +773,8 @@ namespace PolesSU_Sports.Management
 
                         data = DBConnection.Instance.ExecuteQuery(query);
 
-                        SetupBarChart(chart1, data, "Секция", new[] { "Доход", "Студентов" }, "Финансы по секциям");
+                        // График 1: Круговая диаграмма доходов по секциям
+                        SetupPieChart(chart1, data, "Секция", "Доход", "Финансы по секциям");
 
                         var fillData = DBConnection.Instance.ExecuteQuery(@"
                     SELECT 
@@ -702,6 +787,7 @@ namespace PolesSU_Sports.Management
                     FROM Sections sec
                     LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
                     GROUP BY sec.MaxStudents");
+                        // График 2: Круговая диаграмма заполненности секций
                         SetupPieChart(chart2, fillData, "Категория", "Количество", "Заполненность секций");
                         break;
 
@@ -722,10 +808,12 @@ namespace PolesSU_Sports.Management
                     new SqlParameter("@SectionID", sectionID)
                 });
 
+                        // График 1: Линейная диаграмма динамики по месяцам с легендой
                         SetupLineChart(chart1, data, "Месяц", new[] { "Посещений", "Присутствовал", "Отсутствовал" }, "Динамика по месяцам");
 
                         var trendData = data;
-                        SetupLineChart(chart2, trendData, "Месяц", new[] { "Посещений" }, "Тренд");
+                        // График 2: Линейная диаграмма тренда с легендой
+                        SetupLineChart(chart2, trendData, "Месяц", new[] { "Посещений" }, "Тренд посещаемости");
                         break;
                 }
 
