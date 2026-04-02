@@ -8,10 +8,22 @@
     ".NETCoreApp,Version=v9.0": {
       "PolesSU_Sports/1.0.0": {
         "dependencies": {
+          "HIC.System.Windows.Forms.DataVisualization": "1.0.1",
           "Microsoft.Data.SqlClient": "7.0.0"
         },
         "runtime": {
           "PolesSU_Sports.dll": {}
+        }
+      },
+      "HIC.System.Windows.Forms.DataVisualization/1.0.1": {
+        "dependencies": {
+          "Microsoft.Data.SqlClient": "7.0.0"
+        },
+        "runtime": {
+          "lib/net5.0-windows7.0/System.Windows.Forms.DataVisualization.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Microsoft.Bcl.Cryptography/9.0.13": {
@@ -344,6 +356,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "HIC.System.Windows.Forms.DataVisualization/1.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2iErCJov37VIGLATCcI8tAaFemn8KJW/b4686foj+CslKTSGa2NcQgvVCYF+kR4+6d9cg09X1xrcoIgnVlznsA==",
+      "path": "hic.system.windows.forms.datavisualization/1.0.1",
+      "hashPath": "hic.system.windows.forms.datavisualization.1.0.1.nupkg.sha512"
     },
     "Microsoft.Bcl.Cryptography/9.0.13": {
       "type": "package",

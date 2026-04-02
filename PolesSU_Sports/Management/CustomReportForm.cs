@@ -217,7 +217,7 @@ namespace PolesSU_Sports.Management
             {
                 Dock = DockStyle.Fill,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.ColumnHeaderSelect,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,  
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,

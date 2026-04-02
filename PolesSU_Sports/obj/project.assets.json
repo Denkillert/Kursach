@@ -2,6 +2,18 @@
   "version": 3,
   "targets": {
     "net9.0-windows7.0": {
+      "HIC.System.Windows.Forms.DataVisualization/1.0.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Data.SqlClient": "3.0.0"
+        },
+        "compile": {
+          "lib/net5.0-windows7.0/System.Windows.Forms.DataVisualization.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0-windows7.0/System.Windows.Forms.DataVisualization.dll": {}
+        }
+      },
       "Microsoft.Bcl.Cryptography/9.0.13": {
         "type": "package",
         "compile": {
@@ -465,6 +477,18 @@
     }
   },
   "libraries": {
+    "HIC.System.Windows.Forms.DataVisualization/1.0.1": {
+      "sha512": "2iErCJov37VIGLATCcI8tAaFemn8KJW/b4686foj+CslKTSGa2NcQgvVCYF+kR4+6d9cg09X1xrcoIgnVlznsA==",
+      "type": "package",
+      "path": "hic.system.windows.forms.datavisualization/1.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "hic.system.windows.forms.datavisualization.1.0.1.nupkg.sha512",
+        "hic.system.windows.forms.datavisualization.nuspec",
+        "lib/net5.0-windows7.0/System.Windows.Forms.DataVisualization.dll"
+      ]
+    },
     "Microsoft.Bcl.Cryptography/9.0.13": {
       "sha512": "5T+bH3Lb1nEe8Hf/ixMxLmhlrx5wRi53wv7OhVwG2F1ZviW1ejFRS1NHur3uqPpJRGtkQwUchtY6zhVK2R+v+w==",
       "type": "package",
@@ -1174,6 +1198,7 @@
   },
   "projectFileDependencyGroups": {
     "net9.0-windows7.0": [
+      "HIC.System.Windows.Forms.DataVisualization >= 1.0.1",
       "Microsoft.Data.SqlClient >= 7.0.0"
     ]
   },
@@ -1225,6 +1250,10 @@
       "net9.0-windows7.0": {
         "targetAlias": "net9.0-windows",
         "dependencies": {
+          "HIC.System.Windows.Forms.DataVisualization": {
+            "target": "Package",
+            "version": "[1.0.1, )"
+          },
           "Microsoft.Data.SqlClient": {
             "target": "Package",
             "version": "[7.0.0, )"

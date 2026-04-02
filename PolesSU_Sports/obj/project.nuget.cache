@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Dfj6YAna35M=",
+  "dgSpecHash": "H6hxL/0iHpI=",
   "success": true,
   "projectFilePath": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\PolesSU_Sports.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\user\\.nuget\\packages\\hic.system.windows.forms.datavisualization\\1.0.1\\hic.system.windows.forms.datavisualization.1.0.1.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.13\\microsoft.bcl.cryptography.9.0.13.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.data.sqlclient\\7.0.0\\microsoft.data.sqlclient.7.0.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.data.sqlclient.extensions.abstractions\\1.0.0\\microsoft.data.sqlclient.extensions.abstractions.1.0.0.nupkg.sha512",

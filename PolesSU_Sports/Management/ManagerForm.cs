@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using PolesSU_Sports.Shared.DB;
 using PolesSU_Sports.Shared.Model;
+using System.Windows.Forms.DataVisualization.Charting;
 using PolesSU_Sports.Management.SettingsForms;
 using System;
 using System.Data;
@@ -214,43 +215,212 @@ namespace PolesSU_Sports.Management
 
         private string Count(string q) { try { return DBConnection.Instance.ExecuteScalar(q)?.ToString() ?? "0"; } catch { return "0"; } }
 
-        // ==================== АНАЛИТИКА ====================
+        // ==================== АНАЛИТИКА С ГРАФИКАМИ ====================
         private void LoadAnalytics()
         {
-            headerLabel.Text = "📈 Общая аналитика";
+            headerLabel.Text = "📈 Аналитика и статистика";
             contentPanel.Controls.Clear();
 
-            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
+            var mainPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
 
-            // Фильтры
-            var filterPanel = CreateFilterPanel();
-            mainPanel.Controls.Add(filterPanel);
-
-            // Таблица аналитики
-            var dgv = new DataGridView
+            // === 1. ВЕРХНЯЯ ПАНЕЛЬ: ФИЛЬТРЫ ===
+            var filterPanel = new Panel
             {
-                Location = new Point(10, 130),
-                Size = new Size(mainPanel.Width - 30, mainPanel.Height - 150),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                ReadOnly = true,
-                BackgroundColor = Color.White,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom
+                Dock = DockStyle.Top,
+                Height = 90,
+                BackColor = Color.White,
+                Padding = new Padding(15),
+                BorderStyle = BorderStyle.FixedSingle
             };
+
+            var lblType = new Label { Text = "Тип аналитики:", Location = new Point(15, 15), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var cmbType = new ComboBox { Name = "cmbType", Location = new Point(120, 12), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbType.Items.AddRange(new object[] {
+        "📊 Посещаемость по секциям",
+        "👥 Активность студентов",
+        "💰 Финансовая аналитика",
+        "📅 Динамика посещаемости"
+    });
+            cmbType.SelectedIndex = 0;
+
+            var lblSec = new Label { Text = "Секция:", Location = new Point(340, 15), AutoSize = true };
+            var cmbSec = new ComboBox { Name = "cmbSec", Location = new Point(400, 12), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
+            LoadSectionsToComboBox(cmbSec);
+
+            var lblFaculty = new Label { Text = "Факультет:", Location = new Point(620, 15), AutoSize = true };
+            var cmbFaculty = new ComboBox { Name = "cmbFaculty", Location = new Point(690, 12), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
+            LoadFacultiesToComboBox(cmbFaculty);
 
             var btnShow = new Button
             {
                 Text = "📊 Показать аналитику",
-                Location = new Point(10, 90),
-                Size = new Size(200, 35),
+                Location = new Point(15, 50),
+                Size = new Size(180, 35),
                 BackColor = Color.FromArgb(0, 122, 204),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10)
             };
-            btnShow.Click += (s, e) => ShowAnalyticsData(dgv, filterPanel);
+            btnShow.Click += (s, e) => ShowAnalyticsWithCharts(cmbType, cmbSec, cmbFaculty);
 
-            mainPanel.Controls.Add(btnShow);
-            mainPanel.Controls.Add(dgv);
+            filterPanel.Controls.AddRange(new Control[] { lblType, cmbType, lblSec, cmbSec, lblFaculty, cmbFaculty, btnShow });
+
+            // === 2. ГРАФИКИ (верхняя часть) ===
+            var chartsPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                Height = 300,
+                ColumnCount = 2,
+                RowCount = 1,
+                Padding = new Padding(0, 10, 0, 10),
+                BackColor = Color.FromArgb(250, 250, 250)
+            };
+            chartsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            chartsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+
+            // График 1
+            var chart1Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
+            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(15, 10), AutoSize = true };
+            var chart1 = new Chart { Name = "chart1", Dock = DockStyle.Fill, Location = new Point(0, 30) };
+            chart1Panel.Controls.AddRange(new Control[] { lblChart1, chart1 });
+
+            // График 2
+            var chart2Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
+            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(15, 10), AutoSize = true };
+            var chart2 = new Chart { Name = "chart2", Dock = DockStyle.Fill, Location = new Point(0, 30) };
+            chart2Panel.Controls.AddRange(new Control[] { lblChart2, chart2 });
+
+            chartsPanel.Controls.Add(chart1Panel, 0, 0);
+            chartsPanel.Controls.Add(chart2Panel, 1, 0);
+
+            // === 3. ТАБЛИЦА ДАННЫХ (нижняя часть) ===
+            var tablePanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 10, 0, 0)
+            };
+
+            var dgv = new DataGridView
+            {
+                Name = "dataGridView",
+                Dock = DockStyle.Fill,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = Color.FromArgb(0, 122, 204),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                },
+                RowHeadersVisible = false
+            };
+            dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(230, 230, 230);
+            dgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+            dgv.EnableHeadersVisualStyles = false;
+
+            tablePanel.Controls.Add(dgv);
+
+            // === ДОБАВЛЯЕМ ВСЁ ===
+            mainPanel.Controls.Add(tablePanel);
+            mainPanel.Controls.Add(chartsPanel);
+            mainPanel.Controls.Add(filterPanel);
             contentPanel.Controls.Add(mainPanel);
+
+            // Автозагрузка
+            ShowAnalyticsWithCharts(cmbType, cmbSec, cmbFaculty);
+        }
+
+        // ==================== НАСТРОЙКА ГРАФИКОВ ====================
+        private void SetupBarChart(Chart chart, DataTable data, string xAxis, string[] yAxes, string title)
+        {
+            if (chart == null || data == null || data.Rows.Count == 0) return;
+
+            chart.Titles.Clear();
+            chart.Titles.Add(title);
+            chart.Series.Clear();
+            chart.ChartAreas.Clear();
+            chart.ChartAreas.Add("MainArea");
+
+            foreach (string yAxis in yAxes)
+            {
+                var series = new Series(yAxis)
+                {
+                    ChartType = SeriesChartType.Column,
+                    Color = yAxes.Length == 1 ? Color.FromArgb(0, 122, 204) :
+                            yAxes.Length == 2 ? (yAxis == yAxes[0] ? Color.FromArgb(0, 122, 204) : Color.FromArgb(40, 167, 69)) :
+                            GetColor(yAxes.ToList().IndexOf(yAxis))
+                };
+
+                foreach (DataRow row in data.Rows)
+                {
+                    series.Points.AddXY(row[xAxis], row[yAxis]);
+                }
+
+                chart.Series.Add(series);
+            }
+        }
+
+        private void SetupPieChart(Chart chart, DataTable data, string labelColumn, string valueColumn, string title)
+        {
+            if (chart == null || data == null || data.Rows.Count == 0) return;
+
+            chart.Titles.Clear();
+            chart.Titles.Add(title);
+            chart.Series.Clear();
+            chart.ChartAreas.Clear();
+            chart.ChartAreas.Add("MainArea");
+
+            var series = new Series("Data") { ChartType = SeriesChartType.Pie };
+
+            foreach (DataRow row in data.Rows)
+            {
+                series.Points.AddXY(row[labelColumn], row[valueColumn]);
+            }
+
+            chart.Series.Add(series);
+        }
+
+        private void SetupLineChart(Chart chart, DataTable data, string xAxis, string[] yAxes, string title)
+        {
+            if (chart == null || data == null || data.Rows.Count == 0) return;
+
+            chart.Titles.Clear();
+            chart.Titles.Add(title);
+            chart.Series.Clear();
+            chart.ChartAreas.Clear();
+            chart.ChartAreas.Add("MainArea");
+
+            foreach (string yAxis in yAxes)
+            {
+                var series = new Series(yAxis)
+                {
+                    ChartType = SeriesChartType.Line,
+                    Color = GetColor(yAxes.ToList().IndexOf(yAxis))
+                };
+
+                foreach (DataRow row in data.Rows)
+                {
+                    series.Points.AddXY(row[xAxis], row[yAxis]);
+                }
+
+                chart.Series.Add(series);
+            }
+        }
+
+        private Color GetColor(int index)
+        {
+            var colors = new[] {
+        Color.FromArgb(0, 122, 204),
+        Color.FromArgb(40, 167, 69),
+        Color.FromArgb(255, 193, 7),
+        Color.FromArgb(220, 53, 69),
+        Color.FromArgb(108, 117, 125)
+    };
+            return colors[index % colors.Length];
         }
 
         private Panel CreateFilterPanel()
@@ -274,56 +444,251 @@ namespace PolesSU_Sports.Management
             return pnl;
         }
 
-        private void LoadSectionsToComboBox(ComboBox cmb)
-        {
-            var dt = DBConnection.Instance.ExecuteQuery("SELECT SectionID, SectionName FROM Sections ORDER BY SectionName");
-            cmb.DataSource = dt;
-            cmb.DisplayMember = "SectionName";
-            cmb.ValueMember = "SectionID";
-        }
-
         private void LoadFacultiesToComboBox(ComboBox cmb)
         {
-            var dt = DBConnection.Instance.ExecuteQuery("SELECT FacultyID, FacultyName FROM Faculties ORDER BY FacultyName");
-            cmb.DataSource = dt;
-            cmb.DisplayMember = "FacultyName";
-            cmb.ValueMember = "FacultyID";
+            try
+            {
+                var dt = DBConnection.Instance.ExecuteQuery("SELECT FacultyID, FacultyName FROM Faculties ORDER BY FacultyName");
+
+                // ✅ Создаём новую таблицу с "Все факультеты"
+                var newDt = new DataTable();
+                newDt.Columns.Add("FacultyID", typeof(int));
+                newDt.Columns.Add("FacultyName", typeof(string));
+
+                // Добавляем "Все факультеты"
+                newDt.Rows.Add(0, "Все факультеты");
+
+                // Добавляем остальные факультеты
+                foreach (DataRow row in dt.Rows)
+                {
+                    newDt.Rows.Add(row["FacultyID"], row["FacultyName"]);
+                }
+
+                cmb.DataSource = newDt;
+                cmb.DisplayMember = "FacultyName";
+                cmb.ValueMember = "FacultyID";
+
+                // ✅ Безопасная установка SelectedIndex
+                if (cmb.Items.Count > 0)
+                {
+                    cmb.SelectedValue = 0;  // ✅ Используем SelectedValue вместо SelectedIndex
+                }
+            }
+            catch (Exception ex)
+            {
+                // ✅ Если ошибка - создаём пустой ComboBox
+                cmb.DataSource = null;
+                cmb.Items.Clear();
+                cmb.Items.Add("Все факультеты");
+                cmb.SelectedIndex = 0;
+            }
         }
 
-        private void ShowAnalyticsData(DataGridView dgv, Panel filterPanel)
+        private void LoadSectionsToComboBox(ComboBox cmb)
         {
-            var cmbType = filterPanel.Controls.Find("cmbType", false).FirstOrDefault() as ComboBox;
-            var cmbSec = filterPanel.Controls.Find("cmbSec", false).FirstOrDefault() as ComboBox;
-            var cmbFaculty = filterPanel.Controls.Find("cmbFaculty", false).FirstOrDefault() as ComboBox;
-
-            string query = "";
-            if (cmbType.SelectedItem.ToString() == "Посещаемость")
+            try
             {
-                query = @"
+                var dt = DBConnection.Instance.ExecuteQuery("SELECT SectionID, SectionName FROM Sections ORDER BY SectionName");
+
+                // ✅ Создаём новую таблицу с "Все секции"
+                var newDt = new DataTable();
+                newDt.Columns.Add("SectionID", typeof(int));
+                newDt.Columns.Add("SectionName", typeof(string));
+
+                // Добавляем "Все секции"
+                newDt.Rows.Add(0, "Все секции");
+
+                // Добавляем остальные секции
+                foreach (DataRow row in dt.Rows)
+                {
+                    newDt.Rows.Add(row["SectionID"], row["SectionName"]);
+                }
+
+                cmb.DataSource = newDt;
+                cmb.DisplayMember = "SectionName";
+                cmb.ValueMember = "SectionID";
+
+                // ✅ Безопасная установка SelectedIndex
+                if (cmb.Items.Count > 0)
+                {
+                    cmb.SelectedValue = 0;  // ✅ Используем SelectedValue вместо SelectedIndex
+                }
+            }
+            catch (Exception ex)
+            {
+                // ✅ Если ошибка - создаём пустой ComboBox
+                cmb.DataSource = null;
+                cmb.Items.Clear();
+                cmb.Items.Add("Все секции");
+                cmb.SelectedIndex = 0;
+            }
+        }
+
+        private void ShowAnalyticsWithCharts(ComboBox cmbType, ComboBox cmbSec, ComboBox cmbFaculty)
+        {
+            try
+            {
+                string analyticsType = cmbType.SelectedItem?.ToString() ?? "";
+                int sectionID = 0;
+                int facultyID = 0;
+
+                if (cmbSec.SelectedValue != null)
+                {
+                    sectionID = cmbSec.SelectedValue is DataRowView rowView ? Convert.ToInt32(rowView["SectionID"]) : Convert.ToInt32(cmbSec.SelectedValue);
+                }
+
+                if (cmbFaculty.SelectedValue != null)
+                {
+                    facultyID = cmbFaculty.SelectedValue is DataRowView rowView2 ? Convert.ToInt32(rowView2["FacultyID"]) : Convert.ToInt32(cmbFaculty.SelectedValue);
+                }
+
+                var dgv = contentPanel.Controls.Find("dataGridView", true).FirstOrDefault() as DataGridView;
+                var chart1 = contentPanel.Controls.Find("chart1", true).FirstOrDefault() as Chart;
+                var chart2 = contentPanel.Controls.Find("chart2", true).FirstOrDefault() as Chart;
+
+                DataTable data = null;
+                string query = "";
+
+                switch (analyticsType)
+                {
+                    case "📊 Посещаемость по секциям":
+                        query = @"
                     SELECT 
-                        s.LastName + ' ' + s.FirstName AS [Студент],
-                        f.FacultyName AS [Факультет],
-                        s.GroupName AS [Группа],
                         sec.SectionName AS [Секция],
-                        COUNT(a.AttendanceID) AS [Всего посещений],
+                        sp.SportName AS [Вид спорта],
+                        COUNT(DISTINCT s.StudentCardNumber) AS [Студентов],
+                        COUNT(a.AttendanceID) AS [Посещений],
                         SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
                         SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
-                        CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / COUNT(*) AS DECIMAL(5,1)) AS [Процент %]
-                    FROM Students s
-                    JOIN Faculties f ON s.FacultyID = f.FacultyID
-                    LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
-                    LEFT JOIN Schedule sc ON a.ScheduleID = sc.ScheduleID
-                    LEFT JOIN Sections sec ON sc.SectionID = sec.SectionID
-                    WHERE (@SectionID IS NULL OR sec.SectionID = @SectionID)
-                    AND (@FacultyID IS NULL OR f.FacultyID = @FacultyID)
-                    GROUP BY s.LastName, s.FirstName, f.FacultyName, s.GroupName, sec.SectionName
-                    ORDER BY [Процент %] DESC";
-            }
+                        CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Успеваемость %]
+                    FROM Sections sec
+                    JOIN Sports sp ON sec.SportID = sp.SportID
+                    LEFT JOIN Schedule sc ON sec.SectionID = sc.SectionID
+                    LEFT JOIN Attendance a ON sc.ScheduleID = a.ScheduleID
+                    LEFT JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
+                    WHERE (@SectionID = 0 OR sec.SectionID = @SectionID)
+                    AND (@FacultyID = 0 OR s.FacultyID = @FacultyID)
+                    GROUP BY sec.SectionName, sp.SportName
+                    ORDER BY [Студентов] DESC";
 
-            dgv.DataSource = DBConnection.Instance.ExecuteQuery(query, new[] {
-                new SqlParameter("@SectionID", cmbSec.SelectedValue ?? (object)DBNull.Value),
-                new SqlParameter("@FacultyID", cmbFaculty.SelectedValue ?? (object)DBNull.Value)
-            });
+                        data = DBConnection.Instance.ExecuteQuery(query, new[] {
+                    new SqlParameter("@SectionID", sectionID),
+                    new SqlParameter("@FacultyID", facultyID)
+                });
+
+
+
+                        // График 1: Столбчатая диаграмма по секциям
+                        SetupBarChart(chart1, data, "Секция", new[] { "Студентов", "Посещений" }, "Распределение по секциям");
+
+                        // График 2: Круговая диаграмма успеваемости
+                        var pieData = DBConnection.Instance.ExecuteQuery(@"
+                    SELECT 
+                        CASE WHEN a.Status = 1 THEN 'Присутствовал' ELSE 'Отсутствовал' END AS [Статус],
+                        COUNT(*) AS [Количество]
+                    FROM Attendance a
+                    JOIN Schedule sc ON a.ScheduleID = sc.ScheduleID
+                    JOIN Sections sec ON sc.SectionID = sec.SectionID
+                    WHERE (@SectionID = 0 OR sec.SectionID = @SectionID)
+                    GROUP BY a.Status", new[] {
+                        new SqlParameter("@SectionID", sectionID)
+                    });
+                        SetupPieChart(chart2, pieData, "Статус", "Количество", "Распределение посещений");
+                        break;
+
+                    case "👥 Активность студентов":
+                        query = @"
+                    SELECT TOP 10
+                        s.LastName + ' ' + s.FirstName AS [Студент],
+                        s.GroupName AS [Группа],
+                        COUNT(a.AttendanceID) AS [Посещений],
+                        SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                        CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Активность %]
+                    FROM Students s
+                    LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
+                    WHERE (@FacultyID = 0 OR s.FacultyID = @FacultyID)
+                    GROUP BY s.LastName, s.FirstName, s.GroupName
+                    ORDER BY [Посещений] DESC";
+
+                        data = DBConnection.Instance.ExecuteQuery(query, new[] {
+                    new SqlParameter("@FacultyID", facultyID)
+                });
+
+                        SetupBarChart(chart1, data, "Студент", new[] { "Посещений" }, "Топ студентов");
+
+                        var groupData = DBConnection.Instance.ExecuteQuery(@"
+                    SELECT GroupName AS [Группа], COUNT(*) AS [Студентов]
+                    FROM Students
+                    WHERE (@FacultyID = 0 OR FacultyID = @FacultyID)
+                    GROUP BY GroupName");
+                        SetupBarChart(chart2, groupData, "Группа", new[] { "Студентов" }, "Распределение по группам");
+                        break;
+
+                    case "💰 Финансовая аналитика":
+                        query = @"
+                    SELECT 
+                        sec.SectionName AS [Секция],
+                        sec.PricePerMonth AS [Цена],
+                        COUNT(DISTINCT ss.StudentCardNumber) AS [Студентов],
+                        sec.PricePerMonth * COUNT(DISTINCT ss.StudentCardNumber) AS [Доход],
+                        sec.MaxStudents AS [Макс. мест],
+                        CAST(COUNT(DISTINCT ss.StudentCardNumber) * 100.0 / NULLIF(sec.MaxStudents, 0) AS DECIMAL(5,1)) AS [Заполненность %]
+                    FROM Sections sec
+                    LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
+                    GROUP BY sec.SectionName, sec.PricePerMonth, sec.MaxStudents
+                    ORDER BY [Доход] DESC";
+
+                        data = DBConnection.Instance.ExecuteQuery(query);
+
+                        SetupBarChart(chart1, data, "Секция", new[] { "Доход", "Студентов" }, "Финансы по секциям");
+
+                        var fillData = DBConnection.Instance.ExecuteQuery(@"
+                    SELECT 
+                        CASE 
+                            WHEN CAST(COUNT(ss.StudentCardNumber) * 100.0 / NULLIF(sec.MaxStudents, 0) AS INT) >= 80 THEN 'Заполнена (>80%)'
+                            WHEN CAST(COUNT(ss.StudentCardNumber) * 100.0 / NULLIF(sec.MaxStudents, 0) AS INT) >= 50 THEN 'Средняя (50-80%)'
+                            ELSE 'Низкая (<50%)'
+                        END AS [Категория],
+                        COUNT(*) AS [Количество]
+                    FROM Sections sec
+                    LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
+                    GROUP BY sec.MaxStudents");
+                        SetupPieChart(chart2, fillData, "Категория", "Количество", "Заполненность секций");
+                        break;
+
+                    case "📅 Динамика посещаемости":
+                        query = @"
+                    SELECT 
+                        FORMAT(a.VisitDate, 'yyyy-MM') AS [Месяц],
+                        COUNT(a.AttendanceID) AS [Посещений],
+                        SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                        SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал]
+                    FROM Attendance a
+                    JOIN Schedule sc ON a.ScheduleID = sc.ScheduleID
+                    WHERE (@SectionID = 0 OR sc.SectionID = @SectionID)
+                    GROUP BY FORMAT(a.VisitDate, 'yyyy-MM')
+                    ORDER BY [Месяц]";
+
+                        data = DBConnection.Instance.ExecuteQuery(query, new[] {
+                    new SqlParameter("@SectionID", sectionID)
+                });
+
+                        SetupLineChart(chart1, data, "Месяц", new[] { "Посещений", "Присутствовал", "Отсутствовал" }, "Динамика по месяцам");
+
+                        var trendData = data;
+                        SetupLineChart(chart2, trendData, "Месяц", new[] { "Посещений" }, "Тренд");
+                        break;
+                }
+
+                if (dgv != null && data != null)
+                {
+                    dgv.DataSource = data;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // ==================== ОТЧЁТЫ (ПОЛНАЯ РЕАЛИЗАЦИЯ) ====================
@@ -696,9 +1061,8 @@ namespace PolesSU_Sports.Management
 
                 // 👨‍🏫 ДЛЯ КАФЕДРЫ - нагрузка тренеров
                 case "👨‍🏫 Для кафедры (нагрузка)":
-                    var sectionId = GetControl<ComboBox>(filterPanel, "cmbSection")?.SelectedValue;
-                    if (sectionId != null)
-                        parameters.Add(new SqlParameter("@SectionID", sectionId));
+
+                    parameters.Add(new SqlParameter("@SectionID", DBNull.Value));
 
                     query = @"
         WITH StudentCount AS (
@@ -732,7 +1096,7 @@ namespace PolesSU_Sports.Management
         LEFT JOIN Sections sec ON t.TrainerID = sec.TrainerID
         LEFT JOIN StudentCount sc ON sec.SectionID = sc.SectionID
         LEFT JOIN AttendanceCount ac ON sec.SectionID = ac.SectionID
-        WHERE (@SectionID IS NULL OR sec.SectionID = @SectionID)
+        WHERE a.VisitDate BETWEEN @StartDate AND @EndDate
         GROUP BY t.LastName, t.FirstName, t.Qualification, t.Specialization
         ORDER BY [Доход секций] DESC";
                     break;
