@@ -32,6 +32,7 @@ target/
 .env.*
 
 # Editors
+.vs/
 .vscode/
 .idea/
 
