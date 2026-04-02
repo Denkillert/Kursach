@@ -281,13 +281,13 @@ namespace PolesSU_Sports.Management
 
             // График 1: Столбчатая диаграмма по секциям
             var chart1Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(60, 10), AutoSize = true };
+            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(150, 10), AutoSize = true };
             var chart1 = new Chart { Name = "chart1", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart1Panel.Controls.AddRange(new Control[] { lblChart1, chart1 });
 
             // График 2
             var chart2Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(60, 10), AutoSize = true };
+            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(150, 10), AutoSize = true };
             var chart2 = new Chart { Name = "chart2", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart2Panel.Controls.AddRange(new Control[] { lblChart2, chart2 });
 
@@ -404,7 +404,7 @@ namespace PolesSU_Sports.Management
             chart.ChartAreas.Clear();
             chart.ChartAreas.Add("MainArea");
             
-            // Добавляем легенду
+            // Добавляем легенду справа
             chart.Legends.Clear();
             var legend = new Legend("MainLegend")
             {
@@ -418,7 +418,8 @@ namespace PolesSU_Sports.Management
             var series = new Series("Data") 
             { 
                 ChartType = SeriesChartType.Pie,
-                Legend = "MainLegend"
+                Legend = "MainLegend",
+                IsValueShownAsLabel = false
             };
 
             int colorIndex = 0;
@@ -427,16 +428,13 @@ namespace PolesSU_Sports.Management
                 int pointIndex = series.Points.AddXY(row[labelColumn], row[valueColumn]);
                 series.Points[pointIndex].Color = GetColor(colorIndex++);
                 
-                // Добавляем подписи к каждому сектору
-                series.Points[pointIndex].Label = $"{row[labelColumn]}: {row[valueColumn]}";
+                // Показываем только процент на секторе
+                series.Points[pointIndex].Label = "#PERCENT{P0}";
+                series.Points[pointIndex].Font = new Font("Segoe UI", 8, FontStyle.Bold);
                 series.Points[pointIndex].IsValueShownAsLabel = true;
             }
 
             chart.Series.Add(series);
-            
-            // Настройка отображения подписей
-            chart.Series["Data"].Label = "#PERCENT{P1}";
-            chart.Series["Data"].IsValueShownAsLabel = true;
         }
 
         // Специальный метод для круговой диаграммы распределения по секциям
@@ -457,8 +455,7 @@ namespace PolesSU_Sports.Management
                 Docking = Docking.Right,
                 Alignment = StringAlignment.Center,
                 Font = new Font("Segoe UI", 9),
-                IsTextAutoFit = true,
-                MaximumAutoSize = new SizeF(25, 100)
+                IsTextAutoFit = true
             };
             chart.Legends.Add(legend);
 
@@ -466,8 +463,7 @@ namespace PolesSU_Sports.Management
             { 
                 ChartType = SeriesChartType.Pie,
                 Legend = "SectionsLegend",
-                IsValueShownAsLabel = true,
-                Label = "#PERCENT{P1}"
+                IsValueShownAsLabel = false
             };
 
             int colorIndex = 0;
@@ -479,9 +475,10 @@ namespace PolesSU_Sports.Management
                 int pointIndex = series.Points.AddXY(sectionName, value);
                 series.Points[pointIndex].Color = GetColor(colorIndex++);
                 
-                // Показываем название секции и количество студентов
-                series.Points[pointIndex].Label = $"{sectionName}\n{value}";
-                series.Points[pointIndex].Font = new Font("Segoe UI", 8);
+                // Показываем процент на секторе
+                series.Points[pointIndex].Label = "#PERCENT{P0}";
+                series.Points[pointIndex].Font = new Font("Segoe UI", 8, FontStyle.Bold);
+                series.Points[pointIndex].IsValueShownAsLabel = true;
             }
 
             chart.Series.Add(series);
