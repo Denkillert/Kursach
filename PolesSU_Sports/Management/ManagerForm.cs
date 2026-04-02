@@ -280,13 +280,13 @@ namespace PolesSU_Sports.Management
 
             // График 1
             var chart1Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
+            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(15, 10), AutoSize = true };
             var chart1 = new Chart { Name = "chart1", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart1Panel.Controls.AddRange(new Control[] { lblChart1, chart1 });
 
             // График 2
             var chart2Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
+            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(15, 10), AutoSize = true };
             var chart2 = new Chart { Name = "chart2", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart2Panel.Controls.AddRange(new Control[] { lblChart2, chart2 });
 
@@ -2086,9 +2086,6 @@ namespace PolesSU_Sports.Management
 
             AddSettingCard(settingsPanel, "📊 Настройка отчётов", "Шаблоны и параметры генерации отчётов",
                 Color.FromArgb(255, 193, 7), () => new PolesSU_Sports.Management.SettingsForms.ReportSettingsForm().ShowDialog());
-
-            AddSettingCard(settingsPanel, "💾 Резервное копирование", "Создание и восстановление резервных копий БД",
-                Color.FromArgb(220, 53, 69), () => new PolesSU_Sports.Management.SettingsForms.BackupForm().ShowDialog());
 
             contentPanel.Controls.Add(settingsPanel);
         }

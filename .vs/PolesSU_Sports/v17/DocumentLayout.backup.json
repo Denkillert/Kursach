@@ -27,26 +27,6 @@
       "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\settingsforms\\reportsettingsform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\management\\settingsforms\\backupform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\settingsforms\\backupform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\management\\settingsforms\\usermanagementform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\settingsforms\\usermanagementform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\management\\settingsforms\\backupform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\settingsforms\\backupform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\management\\settingsforms\\reportsettingsform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\settingsforms\\reportsettingsform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\management\\settingsforms\\accessrightsform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\management\\settingsforms\\accessrightsform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|c:\\users\\user\\source\\repos\\denkillert\\kursach\\polessu_sports\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EB28F4C2-0A58-4013-B3A0-624EEB7CA5BB}|PolesSU_Sports\\PolesSU_Sports.csproj|solutionrelative:polessu_sports\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -62,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 12,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -83,45 +63,6 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "BackupForm.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\BackupForm.Designer.cs",
-              "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\BackupForm.Designer.cs",
-              "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\BackupForm.Designer.cs",
-              "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\BackupForm.Designer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:33:49.67Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "BackupForm.cs",
-              "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\BackupForm.cs",
-              "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\BackupForm.cs",
-              "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\BackupForm.cs",
-              "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\BackupForm.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAIA5wBUAAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:33:18.151Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "ReportSettingsForm.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.Designer.cs",
-              "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.Designer.cs",
-              "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.Designer.cs",
-              "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.Designer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:32:26.164Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 5,
               "Title": "ReportSettingsForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.cs",
@@ -130,21 +71,7 @@
               "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\ReportSettingsForm.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAIBJwBIAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:32:07.056Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "AccessRightsForm.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.Designer.cs",
-              "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.Designer.cs",
-              "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.Designer.cs",
-              "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.Designer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:31:31.71Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T12:32:07.056Z"
             },
             {
               "$type": "Document",
@@ -156,21 +83,7 @@
               "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\AccessRightsForm.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAIBJwBYAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:31:08.333Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "UserManagementForm.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.Designer.cs",
-              "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.Designer.cs",
-              "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.Designer.cs",
-              "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.Designer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:28:51.237Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T12:31:08.333Z"
             },
             {
               "$type": "Document",
@@ -182,12 +95,11 @@
               "RelativeToolTip": "PolesSU_Sports\\Management\\SettingsForms\\UserManagementForm.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAuwBIAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T12:28:07.582Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T12:28:07.582Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 6,
               "Title": "LoginForm.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\LoginForm.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\LoginForm.cs",
@@ -195,12 +107,11 @@
               "RelativeToolTip": "PolesSU_Sports\\LoginForm.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAIBJwA0AAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T06:37:55.791Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T06:37:55.791Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 7,
               "Title": "ManagerForm.Designer.cs",
               "DocumentMoniker": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\ManagerForm.Designer.cs",
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\ManagerForm.Designer.cs",
@@ -208,8 +119,7 @@
               "RelativeToolTip": "PolesSU_Sports\\Management\\ManagerForm.Designer.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAIBQwBYAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T06:37:20.168Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T06:37:20.168Z"
             },
             {
               "$type": "Document",
@@ -219,7 +129,7 @@
               "RelativeDocumentMoniker": "PolesSU_Sports\\Management\\ManagerForm.cs",
               "ToolTip": "C:\\Users\\user\\source\\repos\\Denkillert\\Kursach\\PolesSU_Sports\\Management\\ManagerForm.cs*",
               "RelativeToolTip": "PolesSU_Sports\\Management\\ManagerForm.cs*",
-              "ViewState": "AgIAAF8CAAAAAAAAAAAmwHICAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAA0BAAAAAAAAAAAkwBsBAABlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-01T06:36:25.39Z",
               "EditorCaption": ""
@@ -234,8 +144,7 @@
               "RelativeToolTip": "PolesSU_Sports\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-01T06:36:22.095Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-01T06:36:22.095Z"
             }
           ]
         }
