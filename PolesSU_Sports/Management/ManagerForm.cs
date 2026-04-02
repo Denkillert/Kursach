@@ -280,13 +280,13 @@ namespace PolesSU_Sports.Management
 
             // График 1
             var chart1Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(15, 10), AutoSize = true };
+            var lblChart1 = new Label { Text = "📊 Распределение по секциям", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
             var chart1 = new Chart { Name = "chart1", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart1Panel.Controls.AddRange(new Control[] { lblChart1, chart1 });
 
             // График 2
             var chart2Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(15, 10), AutoSize = true };
+            var lblChart2 = new Label { Text = "📈 Динамика", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
             var chart2 = new Chart { Name = "chart2", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart2Panel.Controls.AddRange(new Control[] { lblChart2, chart2 });
 
@@ -344,15 +344,25 @@ namespace PolesSU_Sports.Management
             chart.Series.Clear();
             chart.ChartAreas.Clear();
             chart.ChartAreas.Add("MainArea");
+            
+            // Добавляем легенду
+            chart.Legends.Clear();
+            var legend = new Legend("MainLegend")
+            {
+                Docking = Docking.Bottom,
+                Alignment = StringAlignment.Center,
+                Font = new Font("Segoe UI", 9),
+                IsTextAutoFit = true
+            };
+            chart.Legends.Add(legend);
 
             foreach (string yAxis in yAxes)
             {
                 var series = new Series(yAxis)
                 {
                     ChartType = SeriesChartType.Column,
-                    Color = yAxes.Length == 1 ? Color.FromArgb(0, 122, 204) :
-                            yAxes.Length == 2 ? (yAxis == yAxes[0] ? Color.FromArgb(0, 122, 204) : Color.FromArgb(40, 167, 69)) :
-                            GetColor(yAxes.ToList().IndexOf(yAxis))
+                    Color = GetColor(yAxes.ToList().IndexOf(yAxis)),
+                    Legend = "MainLegend"
                 };
 
                 foreach (DataRow row in data.Rows)
@@ -373,8 +383,23 @@ namespace PolesSU_Sports.Management
             chart.Series.Clear();
             chart.ChartAreas.Clear();
             chart.ChartAreas.Add("MainArea");
+            
+            // Добавляем легенду
+            chart.Legends.Clear();
+            var legend = new Legend("MainLegend")
+            {
+                Docking = Docking.Right,
+                Alignment = StringAlignment.Center,
+                Font = new Font("Segoe UI", 9),
+                IsTextAutoFit = true
+            };
+            chart.Legends.Add(legend);
 
-            var series = new Series("Data") { ChartType = SeriesChartType.Pie };
+            var series = new Series("Data") 
+            { 
+                ChartType = SeriesChartType.Pie,
+                Legend = "MainLegend"
+            };
 
             foreach (DataRow row in data.Rows)
             {
@@ -393,13 +418,25 @@ namespace PolesSU_Sports.Management
             chart.Series.Clear();
             chart.ChartAreas.Clear();
             chart.ChartAreas.Add("MainArea");
+            
+            // Добавляем легенду
+            chart.Legends.Clear();
+            var legend = new Legend("MainLegend")
+            {
+                Docking = Docking.Bottom,
+                Alignment = StringAlignment.Center,
+                Font = new Font("Segoe UI", 9),
+                IsTextAutoFit = true
+            };
+            chart.Legends.Add(legend);
 
             foreach (string yAxis in yAxes)
             {
                 var series = new Series(yAxis)
                 {
                     ChartType = SeriesChartType.Line,
-                    Color = GetColor(yAxes.ToList().IndexOf(yAxis))
+                    Color = GetColor(yAxes.ToList().IndexOf(yAxis)),
+                    Legend = "MainLegend"
                 };
 
                 foreach (DataRow row in data.Rows)
@@ -418,7 +455,12 @@ namespace PolesSU_Sports.Management
         Color.FromArgb(40, 167, 69),
         Color.FromArgb(255, 193, 7),
         Color.FromArgb(220, 53, 69),
-        Color.FromArgb(108, 117, 125)
+        Color.FromArgb(108, 117, 125),
+        Color.FromArgb(23, 162, 184),
+        Color.FromArgb(102, 16, 242),
+        Color.FromArgb(217, 83, 25),
+        Color.FromArgb(28, 186, 79),
+        Color.FromArgb(142, 68, 173)
     };
             return colors[index % colors.Length];
         }
@@ -468,10 +510,10 @@ namespace PolesSU_Sports.Management
                 cmb.DisplayMember = "FacultyName";
                 cmb.ValueMember = "FacultyID";
 
-                // ✅ Безопасная установка SelectedIndex
+                // ✅ Безопасная установка SelectedValue
                 if (cmb.Items.Count > 0)
                 {
-                    cmb.SelectedValue = 0;  // ✅ Используем SelectedValue вместо SelectedIndex
+                    cmb.SelectedValue = 0;  // ✅ Устанавливаем значение, а не индекс
                 }
             }
             catch (Exception ex)
@@ -508,10 +550,10 @@ namespace PolesSU_Sports.Management
                 cmb.DisplayMember = "SectionName";
                 cmb.ValueMember = "SectionID";
 
-                // ✅ Безопасная установка SelectedIndex
+                // ✅ Безопасная установка SelectedValue
                 if (cmb.Items.Count > 0)
                 {
-                    cmb.SelectedValue = 0;  // ✅ Используем SelectedValue вместо SelectedIndex
+                    cmb.SelectedValue = 0;  // ✅ Устанавливаем значение, а не индекс
                 }
             }
             catch (Exception ex)
@@ -545,6 +587,13 @@ namespace PolesSU_Sports.Management
                 var dgv = contentPanel.Controls.Find("dataGridView", true).FirstOrDefault() as DataGridView;
                 var chart1 = contentPanel.Controls.Find("chart1", true).FirstOrDefault() as Chart;
                 var chart2 = contentPanel.Controls.Find("chart2", true).FirstOrDefault() as Chart;
+                
+                // Проверка на null для графиков
+                if (chart1 == null || chart2 == null)
+                {
+                    MessageBox.Show("Ошибка: не удалось найти элементы графиков", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 DataTable data = null;
                 string query = "";
