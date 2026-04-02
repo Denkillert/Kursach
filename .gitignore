@@ -30,6 +30,7 @@ htmlcov/
 .gradle/
 
 # Editors
+.vs/
 .vscode/
 .idea/
 *.swp
