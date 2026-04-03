@@ -1,12 +1,11 @@
-# Compiled and build artifacts
-*.pyc
-__pycache__/
+```
+# Build artifacts
 *.o
 *.obj
 *.dll
 *.exe
 *.so
-*.class
+*.a
 *.out
 *.a
 
@@ -27,7 +26,6 @@ PolesSU_Sports/bin/
 *.log
 *.tmp
 *.swp
-*.swo
 
 # Environment
 .env
@@ -41,34 +39,18 @@ PolesSU_Sports/bin/
 *.swp
 *.swo
 
-# System files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Coverage
+# Coverage reports
 coverage/
 htmlcov/
-.coverage
+*.coverage
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
+# Distribution / packaging
+dist/
+build/
 *.tar.gz
 *.tar.bz2
 *.tar.xz
