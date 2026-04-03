@@ -384,7 +384,7 @@ namespace PolesSU_Sports.Management
             chart.ChartAreas.Clear();
             chart.ChartAreas.Add("MainArea");
             
-            // Добавляем легенду
+            // Добавляем легенду справа
             chart.Legends.Clear();
             var legend = new Legend("MainLegend")
             {
@@ -398,7 +398,8 @@ namespace PolesSU_Sports.Management
             var series = new Series("Data") 
             { 
                 ChartType = SeriesChartType.Pie,
-                Legend = "MainLegend"
+                Legend = "MainLegend",
+                IsValueShownAsLabel = false
             };
 
             foreach (DataRow row in data.Rows)

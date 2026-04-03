@@ -2,17 +2,25 @@
 # Build artifacts
 *.o
 *.obj
-*.exe
 *.dll
+*.exe
 *.so
 *.a
 *.out
+*.a
 
 # Dependencies
-packages/
-lib/
-bin/
-obj/
+.venv/
+venv/
+node_modules/
+target/
+.gradle/
+.mypy_cache/
+.pytest_cache/
+dist/
+build/
+PolesSU_Sports/obj/
+PolesSU_Sports/bin/
 
 # Logs and temp files
 *.log
@@ -25,9 +33,11 @@ obj/
 *.env.*
 
 # Editors
+.vs/
 .vscode/
 .idea/
-*.userprefs
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
@@ -42,5 +52,7 @@ htmlcov/
 dist/
 build/
 *.tar.gz
-*.zip
-```
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+/.vs/slnx.sqlite
