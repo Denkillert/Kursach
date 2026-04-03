@@ -340,10 +340,16 @@ namespace PolesSU_Sports.Management
             if (chart == null || data == null || data.Rows.Count == 0) return;
 
             chart.Titles.Clear();
-            chart.Titles.Add(title);
+            var titleObj = new Title(title, Docking.Top, new Font("Segoe UI", 11, FontStyle.Bold), Color.FromArgb(45, 55, 75));
+            titleObj.DockedToChartArea = "MainArea";
+            titleObj.Alignment = ContentAlignment.TopCenter;
+            chart.Titles.Add(titleObj);
+            
             chart.Series.Clear();
             chart.ChartAreas.Clear();
-            chart.ChartAreas.Add("MainArea");
+            var chartArea = new ChartArea("MainArea");
+            chartArea.Position.Auto = true;
+            chart.ChartAreas.Add(chartArea);
             
             // Добавляем легенду
             chart.Legends.Clear();
@@ -374,15 +380,66 @@ namespace PolesSU_Sports.Management
             }
         }
 
+        private void SetupPieChartWithSections(Chart chart, DataTable data, string labelColumn, string valueColumn, string title)
+        {
+            if (chart == null || data == null || data.Rows.Count == 0) return;
+
+            chart.Titles.Clear();
+            var titleObj = new Title(title, Docking.Top, new Font("Segoe UI", 11, FontStyle.Bold), Color.FromArgb(45, 55, 75));
+            titleObj.DockedToChartArea = "MainArea";
+            titleObj.Alignment = ContentAlignment.TopCenter;
+            chart.Titles.Add(titleObj);
+            
+            chart.Series.Clear();
+            chart.ChartAreas.Clear();
+            var chartArea = new ChartArea("MainArea");
+            chartArea.Position.Auto = true;
+            chart.ChartAreas.Add(chartArea);
+            
+            // Добавляем легенду справа
+            chart.Legends.Clear();
+            var legend = new Legend("SectionsLegend")
+            {
+                Docking = Docking.Right,
+                Alignment = StringAlignment.Center,
+                Font = new Font("Segoe UI", 9),
+                IsTextAutoFit = true,
+                LegendStyle = LegendStyle.Table
+            };
+            chart.Legends.Add(legend);
+
+            var series = new Series("SectionsData") 
+            { 
+                ChartType = SeriesChartType.Pie,
+                Legend = "SectionsLegend",
+                IsValueShownAsLabel = false
+            };
+
+            int colorIndex = 0;
+            foreach (DataRow row in data.Rows)
+            {
+                var pointIndex = series.Points.AddXY(row[labelColumn], row[valueColumn]);
+                series.Points[pointIndex].Color = GetColor(colorIndex++);
+            }
+
+            chart.Series.Add(series);
+        }
+
         private void SetupPieChart(Chart chart, DataTable data, string labelColumn, string valueColumn, string title)
         {
             if (chart == null || data == null || data.Rows.Count == 0) return;
 
             chart.Titles.Clear();
-            chart.Titles.Add(title);
+            var titleObj = new Title(title, Docking.Top, new Font("Segoe UI", 11, FontStyle.Bold), Color.FromArgb(45, 55, 75));
+            titleObj.DockedToChartArea = "MainArea";
+            titleObj.Alignment = ContentAlignment.TopCenter;
+            chart.Titles.Add(titleObj);
+            
             chart.Series.Clear();
             chart.ChartAreas.Clear();
-            chart.ChartAreas.Add("MainArea");
+            var chartArea = new ChartArea("MainArea");
+            chartArea.Position.Auto = true;
+            chart.ChartAreas.Add(chartArea);
             
             // Добавляем легенду
             chart.Legends.Clear();
@@ -401,9 +458,11 @@ namespace PolesSU_Sports.Management
                 Legend = "MainLegend"
             };
 
+            int colorIndex = 0;
             foreach (DataRow row in data.Rows)
             {
-                series.Points.AddXY(row[labelColumn], row[valueColumn]);
+                var pointIndex = series.Points.AddXY(row[labelColumn], row[valueColumn]);
+                series.Points[pointIndex].Color = GetColor(colorIndex++);
             }
 
             chart.Series.Add(series);
@@ -414,10 +473,16 @@ namespace PolesSU_Sports.Management
             if (chart == null || data == null || data.Rows.Count == 0) return;
 
             chart.Titles.Clear();
-            chart.Titles.Add(title);
+            var titleObj = new Title(title, Docking.Top, new Font("Segoe UI", 11, FontStyle.Bold), Color.FromArgb(45, 55, 75));
+            titleObj.DockedToChartArea = "MainArea";
+            titleObj.Alignment = ContentAlignment.TopCenter;
+            chart.Titles.Add(titleObj);
+            
             chart.Series.Clear();
             chart.ChartAreas.Clear();
-            chart.ChartAreas.Add("MainArea");
+            var chartArea = new ChartArea("MainArea");
+            chartArea.Position.Auto = true;
+            chart.ChartAreas.Add(chartArea);
             
             // Добавляем легенду
             chart.Legends.Clear();
@@ -627,8 +692,19 @@ namespace PolesSU_Sports.Management
 
 
 
-                        // График 1: Столбчатая диаграмма по секциям
-                        SetupBarChart(chart1, data, "Секция", new[] { "Студентов", "Посещений" }, "Распределение по секциям");
+                        // График 1: Круговая диаграмма распределения по секциям
+                        var sectionsData = DBConnection.Instance.ExecuteQuery(@$"
+                    SELECT 
+                        sec.SectionName AS [Секция],
+                        COUNT(DISTINCT s.StudentCardNumber) AS [Студентов]
+                    FROM Sections sec
+                    LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
+                    LEFT JOIN Students s ON ss.StudentCardNumber = s.StudentCardNumber
+                    WHERE (@SectionID = 0 OR sec.SectionID = @SectionID)
+                    AND (@FacultyID = 0 OR s.FacultyID = @FacultyID)
+                    GROUP BY sec.SectionName
+                    ORDER BY [Студентов] DESC");
+                        SetupPieChartWithSections(chart1, sectionsData, "Секция", "Студентов", "Распределение по секциям");
 
                         // График 2: Круговая диаграмма успеваемости
                         var pieData = DBConnection.Instance.ExecuteQuery(@"

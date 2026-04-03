@@ -1,6 +1,5 @@
 ```
 # Build artifacts
-*.o
 *.obj
 *.exe
 *.dll
@@ -10,37 +9,35 @@
 
 # Dependencies
 packages/
-lib/
-bin/
-obj/
 
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
-.env.local
-*.env.*
+*.env
 
 # Editors
 .vscode/
 .idea/
 *.userprefs
+*.pidb.userprefs
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # OS generated files
 .DS_Store
 Thumbs.db
 
-# Coverage reports
-coverage/
-htmlcov/
-*.coverage
+# Debug files
+*.ilk
+*.pdb
+*.exp
+*.lib
 
-# Distribution / packaging
-dist/
-build/
-*.tar.gz
-*.zip
+# Test results
+TestResults/
 ```
