@@ -20,6 +20,8 @@ target/
 .pytest_cache/
 dist/
 build/
+PolesSU_Sports/obj/
+PolesSU_Sports/bin/
 
 # Logs and temp files
 *.log
