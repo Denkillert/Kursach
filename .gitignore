@@ -56,3 +56,7 @@ build/
 *.tar.xz
 *.tar.zst
 /.vs/slnx.sqlite
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
