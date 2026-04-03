@@ -441,7 +441,7 @@ namespace PolesSU_Sports.Management
             chartArea.Position.Auto = true;
             chart.ChartAreas.Add(chartArea);
             
-            // Добавляем легенду
+            // Добавляем легенду справа
             chart.Legends.Clear();
             var legend = new Legend("MainLegend")
             {
@@ -455,7 +455,8 @@ namespace PolesSU_Sports.Management
             var series = new Series("Data") 
             { 
                 ChartType = SeriesChartType.Pie,
-                Legend = "MainLegend"
+                Legend = "MainLegend",
+                IsValueShownAsLabel = false
             };
 
             int colorIndex = 0;

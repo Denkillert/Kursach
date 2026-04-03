@@ -1,14 +1,25 @@
 ```
 # Build artifacts
 *.obj
-*.exe
 *.dll
+*.exe
 *.so
 *.a
 *.out
+*.a
 
 # Dependencies
-packages/
+.venv/
+venv/
+node_modules/
+target/
+.gradle/
+.mypy_cache/
+.pytest_cache/
+dist/
+build/
+[Bb]in/
+[Oo]bj/
 
 # Logs and temp files
 *.log
@@ -19,14 +30,11 @@ packages/
 *.env
 
 # Editors
+.vs/
 .vscode/
 .idea/
-*.userprefs
-*.pidb.userprefs
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
@@ -38,6 +46,15 @@ Thumbs.db
 *.exp
 *.lib
 
-# Test results
-TestResults/
-```
+# Distribution / packaging
+dist/
+build/
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+/.vs/slnx.sqlite
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
