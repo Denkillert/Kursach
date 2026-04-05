@@ -188,30 +188,293 @@ namespace PolesSU_Sports.Management
 
             var statsPanel = new FlowLayoutPanel
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = true,
-                Padding = new Padding(10),
-                Height = 180,
+                Padding = new Padding(30),
+                AutoScroll = true,
                 BackColor = Color.FromArgb(245, 245, 245)
             };
 
-            AddStatCard(statsPanel, "🎓 Всего студентов", Count("SELECT COUNT(*) FROM Students"), Color.FromArgb(0, 122, 204));
-            AddStatCard(statsPanel, "👨‍🏫 Тренеров", Count("SELECT COUNT(*) FROM Trainers"), Color.FromArgb(40, 167, 69));
-            AddStatCard(statsPanel, "⚽ Секций", Count("SELECT COUNT(*) FROM Sections"), Color.FromArgb(255, 193, 7));
-            AddStatCard(statsPanel, "📋 Посещений (мес)", Count("SELECT COUNT(*) FROM Attendance WHERE MONTH(VisitDate) = MONTH(GETDATE())"), Color.FromArgb(220, 53, 69));
+            // 🎓 Студенты
+            AddStatCard(statsPanel, "🎓 Всего студентов",
+                Count("SELECT COUNT(*) FROM Students"),
+                Color.FromArgb(0, 122, 204),
+                "SELECT TOP 10 FacultyName AS [Факультет], COUNT(*) AS [Студентов] FROM Students s JOIN Faculties f ON s.FacultyID = f.FacultyID GROUP BY FacultyName ORDER BY [Студентов] DESC",
+                new[] { "Факультет", "Студентов" });
+
+            // 👨‍🏫 Тренеры
+            AddStatCard(statsPanel, "👨‍🏫 Тренеров",
+                Count("SELECT COUNT(*) FROM Trainers"),
+                Color.FromArgb(40, 167, 69),
+                "SELECT TOP 10 LastName + ' ' + FirstName AS [Тренер], ISNULL(Qualification, 'Не указана') AS [Квалификация] FROM Trainers ORDER BY LastName",
+                new[] { "Тренер", "Квалификация" });
+
+            // ⚽ Секции
+            AddStatCard(statsPanel, "⚽ Секций",
+                Count("SELECT COUNT(*) FROM Sections"),
+                Color.FromArgb(255, 193, 7),
+                "SELECT TOP 10 SectionName AS [Секция], ISNULL(SportName, 'Не указан') AS [Вид спорта], ISNULL(CAST(PricePerMonth AS VARCHAR), '0') AS [Цена] FROM Sections sec LEFT JOIN Sports sp ON sec.SportID = sp.SportID ORDER BY SectionName",
+                new[] { "Секция", "Вид спорта", "Цена" });
+
+            // 📋 Посещения
+            AddStatCard(statsPanel, "📋 Посещений (мес)",
+                Count("SELECT COUNT(*) FROM Attendance WHERE MONTH(VisitDate) = MONTH(GETDATE())"),
+                Color.FromArgb(220, 53, 69),
+                "SELECT TOP 10 FORMAT(VisitDate, 'dd.MM.yyyy') AS [Дата], COUNT(*) AS [Посещения] FROM Attendance WHERE MONTH(VisitDate) = MONTH(GETDATE()) GROUP BY VisitDate ORDER BY VisitDate DESC",
+                new[] { "Дата", "Посещения" });
 
             contentPanel.Controls.Add(statsPanel);
         }
 
-        private void AddStatCard(FlowLayoutPanel p, string title, string val, Color c)
+        private void AddStatCard(FlowLayoutPanel p, string title, string val, Color c, string detailQuery, string[] detailColumns)
         {
-            var card = new Panel { Size = new Size(220, 140), Margin = new Padding(15), BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
-            var t = new Label { Text = title, Location = new Point(15, 15), AutoSize = true, Font = new Font("Segoe UI", 10) };
-            var v = new Label { Text = val, Location = new Point(15, 50), Font = new Font("Segoe UI", 32, FontStyle.Bold), ForeColor = c, AutoSize = true };
-            card.Controls.AddRange(new Control[] { t, v });
+            var card = new Panel
+            {
+                Size = new Size(220, 140),
+                Margin = new Padding(20),
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.None,  // ✅ Убираем рамку
+                Cursor = Cursors.Hand,
+                Tag = new CardData { Title = title, Query = detailQuery, Columns = detailColumns, Color = c },
+                Padding = new Padding(0)
+            };
+
+            // ✅ Тень для карточки (визуальная глубина)
+            card.Paint += (s, e) => {
+                using (var shadow = new SolidBrush(Color.FromArgb(20, 0, 0, 0)))
+                {
+                    e.Graphics.FillRectangle(shadow, new Rectangle(0, 138, 220, 2));
+                }
+            };
+
+            // Заголовок с иконкой
+            var t = new Label
+            {
+                Text = title,
+                Location = new Point(20, 20),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 11, FontStyle.Regular),
+                ForeColor = Color.FromArgb(80, 80, 80)
+            };
+
+            // Значение (большое, с анимацией веса)
+            var v = new Label
+            {
+                Text = val,
+                Location = new Point(20, 55),
+                Font = new Font("Segoe UI", 42, FontStyle.Bold),
+                ForeColor = c,
+                AutoSize = true
+            };
+
+            // Индикатор раскрытия (современная стрелка)
+            var arrow = new Label
+            {
+                Text = "▾",
+                Location = new Point(185, 15),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 12),
+                ForeColor = Color.FromArgb(150, 150, 150),
+                Tag = "arrow"
+            };
+
+            // Контейнер для деталей
+            var detailPanel = new Panel
+            {
+                Location = new Point(0, 140),
+                Size = new Size(220, 0),
+                BackColor = Color.FromArgb(250, 250, 250),
+                Tag = "details",
+                Visible = false,
+                Padding = new Padding(0)
+            };
+
+            card.Controls.AddRange(new Control[] { t, v, arrow, detailPanel });
             p.Controls.Add(card);
+
+            // ✅ Клик по карточке
+            card.Click += (s, e) => ToggleCard(card, detailPanel, arrow, detailQuery, detailColumns);
+            v.Click += (s, e) => ToggleCard(card, detailPanel, arrow, detailQuery, detailColumns);
+            arrow.Click += (s, e) => ToggleCard(card, detailPanel, arrow, detailQuery, detailColumns);
+
+            // ✅ Hover эффект для всей карточки
+            card.MouseEnter += (s, e) => {
+                card.BackColor = Color.FromArgb(252, 252, 252);
+            };
+            card.MouseLeave += (s, e) => {
+                card.BackColor = Color.White;
+            };
         }
+
+        // ✅ Вспомогательный класс для хранения данных карточки
+        private class CardData
+        {
+            public string Title { get; set; }
+            public string Query { get; set; }
+            public string[] Columns { get; set; }
+            public Color Color { get; set; }
+        }
+
+        private void ToggleCard(Panel card, Panel detailPanel, Label arrow, string query, string[] columns)
+        {
+            bool isExpanded = detailPanel.Height > 0;
+
+            if (isExpanded)
+            {
+                // === СВОРАЧИВАЕМ с анимацией ===
+                AnimateCollapse(card, detailPanel, arrow);
+            }
+            else
+            {
+                // === РАСКРЫВАЕМ с анимацией ===
+
+                // 1. Загружаем данные
+                var data = DBConnection.Instance.ExecuteQuery(query);
+                if (data == null || data.Rows.Count == 0) return;
+
+                // 2. Создаём красивый список
+                detailPanel.Controls.Clear();
+                var list = CreateModernList(data, columns);
+                detailPanel.Controls.Add(list);
+                detailPanel.Visible = true;
+
+                // 3. Анимация раскрытия с Material Design эффектом
+                AnimateExpand(card, detailPanel, arrow, data.Rows.Count);
+            }
+        }
+
+        // ✅ Создаём современный список с hover эффектом
+        private FlowLayoutPanel CreateModernList(DataTable data, string[] columns)
+        {
+            var list = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = false,  // ✅ Отключаем скролл внутри
+                Padding = new Padding(0),
+                BackColor = Color.Transparent
+            };
+
+            int itemIndex = 0;
+            foreach (DataRow row in data.Rows)
+            {
+                var item = new Panel
+                {
+                    Size = new Size(190, 40),
+                    Margin = new Padding(0),
+                    BackColor = Color.White,
+                    Cursor = Cursors.Hand
+                };
+
+                var label = new Label
+                {
+                    Text = string.Join(" — ", columns.Select(col => row[col]?.ToString())),
+                    AutoSize = false,
+                    Size = new Size(190, 40),
+                    Font = new Font("Segoe UI", 9),
+                    BackColor = Color.White,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Padding = new Padding(12, 0, 0, 0),
+                    Dock = DockStyle.Fill
+                };
+
+                // ✅ Hover эффект
+                item.MouseEnter += (s, e) =>
+                {
+                    item.BackColor = Color.FromArgb(245, 245, 245);
+                    label.BackColor = Color.FromArgb(245, 245, 245);
+                };
+                item.MouseLeave += (s, e) =>
+                {
+                    item.BackColor = Color.White;
+                    label.BackColor = Color.White;
+                };
+
+                // ✅ Разделительная линия
+                var separator = new Panel
+                {
+                    Size = new Size(190, 1),
+                    BackColor = Color.FromArgb(230, 230, 230),
+                    Dock = DockStyle.Bottom
+                };
+
+                item.Controls.Add(label);
+                item.Controls.Add(separator);
+                list.Controls.Add(item);
+
+                itemIndex++;
+                if (itemIndex >= 10) break; // ✅ Максимум 10 элементов
+            }
+
+            return list;
+        }
+
+        // ✅ Анимация раскрытия с Material Design easing
+        private void AnimateExpand(Panel card, Panel detailPanel, Label arrow, int rowCount)
+        {
+            int targetHeight = Math.Min(rowCount * 40 + 10, 400);
+
+            var timer = new System.Windows.Forms.Timer { Interval = 16 }; // ~60 FPS
+            int currentHeight = 0;
+            double step = 0;
+
+            timer.Tick += (s, e) =>
+            {
+                step += 0.15;
+                // ✅ Easing функция (ease-out-cubic)
+                double progress = 1 - Math.Pow(1 - Math.Min(step, 1), 3);
+
+                currentHeight = (int)(targetHeight * progress);
+                detailPanel.Height = currentHeight;
+                card.Height = 140 + currentHeight;
+
+                // ✅ Плавное появление стрелки
+                arrow.Text = "▲";
+
+                if (step >= 1)
+                {
+                    detailPanel.Height = targetHeight;
+                    card.Height = 140 + targetHeight;
+                    timer.Stop();
+                    timer.Dispose();
+                }
+            };
+            timer.Start();
+        }
+
+        // ✅ Анимация сворачивания
+        private void AnimateCollapse(Panel card, Panel detailPanel, Label arrow)
+        {
+            var timer = new System.Windows.Forms.Timer { Interval = 16 };
+            int startHeight = detailPanel.Height;
+            double step = 0;
+
+            timer.Tick += (s, e) =>
+            {
+                step += 0.15;
+                // ✅ Easing функция (ease-in-cubic)
+                double progress = Math.Pow(Math.Min(step, 1), 3);
+
+                int newHeight = startHeight - (int)(startHeight * progress);
+                detailPanel.Height = newHeight;
+                card.Height = 140 + newHeight;
+
+                if (step >= 1)
+                {
+                    detailPanel.Height = 0;
+                    detailPanel.Visible = false;
+                    card.Height = 140;
+                    arrow.Text = "▼";
+                    timer.Stop();
+                    timer.Dispose();
+                }
+            };
+            timer.Start();
+        }
+
+
 
         private string Count(string q) { try { return DBConnection.Instance.ExecuteScalar(q)?.ToString() ?? "0"; } catch { return "0"; } }
 
