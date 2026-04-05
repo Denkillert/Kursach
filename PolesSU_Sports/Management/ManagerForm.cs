@@ -318,9 +318,7 @@ namespace PolesSU_Sports.Management
                 },
                 RowHeadersVisible = false
             };
-            dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(230, 230, 230);
-            dgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
-            dgv.EnableHeadersVisualStyles = false;
+            StyleDataGridView(dgv);
 
             tablePanel.Controls.Add(dgv);
 
@@ -419,7 +417,7 @@ namespace PolesSU_Sports.Management
             chartArea.Position.Height = 80;
             chart.ChartAreas.Add(chartArea);
 
-            chart.Legends.Clear();  // ✅ Убираем легенду
+            chart.Legends.Clear();
 
             var series = new Series("Data")
             {
@@ -429,24 +427,27 @@ namespace PolesSU_Sports.Management
                 Font = new Font("Segoe UI", 8)
             };
 
+            // ✅ ЦВЕТА: топ-5 разные, остальные - серый
             var colors = new[] {
-        Color.FromArgb(0, 122, 204),
-        Color.FromArgb(40, 167, 69),
-        Color.FromArgb(255, 193, 7),
-        Color.FromArgb(220, 53, 69),
-        Color.FromArgb(108, 117, 125),
-        Color.FromArgb(23, 162, 184),
-        Color.FromArgb(255, 140, 0),
-        Color.FromArgb(142, 68, 173),
-        Color.FromArgb(28, 186, 79),
-        Color.FromArgb(217, 83, 25)
+        Color.FromArgb(0, 122, 204),      // Синий
+        Color.FromArgb(40, 167, 69),      // Зелёный
+        Color.FromArgb(255, 193, 7),      // Жёлтый
+        Color.FromArgb(220, 53, 69),      // Красный
+        Color.FromArgb(108, 117, 125),    // Серый (5-й)
+        Color.FromArgb(200, 200, 200)     // Светло-серый (Остальные)
     };
 
             int colorIndex = 0;
             foreach (DataRow row in data.Rows)
             {
                 var pointIndex = series.Points.AddXY(row[labelColumn], row[valueColumn]);
-                series.Points[pointIndex].Color = colors[colorIndex % colors.Length];
+
+                // ✅ Если "Остальные" - последний цвет, иначе по порядку
+                if (row[labelColumn].ToString() == "Остальные")
+                    series.Points[pointIndex].Color = colors[5];
+                else
+                    series.Points[pointIndex].Color = colors[colorIndex % 5];
+
                 series.Points[pointIndex].AxisLabel = row[labelColumn].ToString();
                 colorIndex++;
             }
@@ -789,56 +790,101 @@ namespace PolesSU_Sports.Management
         FROM Sections sec
         LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
         GROUP BY sec.SectionName, sec.PricePerMonth, sec.MaxStudents
-        ORDER BY [Доход] DESC");
+        ORDER BY [Заполненность %] DESC");  // ✅ Сортируем по заполненности для топ-5
 
                         SetupBarChart(chart1, data, "Секция", new[] { "Доход", "Студентов" }, "Финансы по секциям");
 
-                        var fillData = data.Copy();
-                        SetupPieChartFin(chart2, fillData, "Секция", "Заполненность %", "Заполненность секций", false);
+                        // ✅ ТОП-5 + ОСТАЛЬНЫЕ для круговой диаграммы
+                        var fillData = DBConnection.Instance.ExecuteQuery(@"
+        WITH RankedSections AS (
+            SELECT 
+                sec.SectionName,
+                CAST(COUNT(DISTINCT ss.StudentCardNumber) * 100.0 / NULLIF(sec.MaxStudents, 0) AS DECIMAL(5,1)) AS [Заполненность %],
+                ROW_NUMBER() OVER (ORDER BY CAST(COUNT(DISTINCT ss.StudentCardNumber) * 100.0 / NULLIF(sec.MaxStudents, 0) AS DECIMAL(5,1)) DESC) AS RowNum
+            FROM Sections sec
+            LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
+            WHERE sec.MaxStudents > 0
+            GROUP BY sec.SectionName, sec.MaxStudents
+        )
+        SELECT 
+            SectionName,
+            [Заполненность %]
+        FROM RankedSections
+        WHERE RowNum <= 5
+        
+        UNION ALL
+        
+        SELECT 
+            'Остальные' AS SectionName,
+            SUM([Заполненность %]) AS [Заполненность %]
+        FROM RankedSections
+        WHERE RowNum > 5");
 
-                        // ✅ ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ ЦВЕТОВ
+                        SetupPieChartFin(chart2, fillData, "SectionName", "Заполненность %", "Заполненность секций (Топ-5 + Остальные)", false);
+
+                        // ✅ ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ ЦВЕТОВ В ТАБЛИЦЕ
                         if (dgv != null && data != null)
                         {
+                            // ✅ 1. Очищаем и устанавливаем DataSource
+                            dgv.DataSource = null;
+                            dgv.Columns.Clear();
                             dgv.DataSource = data;
-                            dgv.Columns["Секция"].DisplayIndex = 0;
-                            dgv.Columns["Цена"].DisplayIndex = 1;
-                            dgv.Columns["Студентов"].DisplayIndex = 2;
-                            dgv.Columns["Доход"].DisplayIndex = 3;
-                            dgv.Columns["Макс. мест"].DisplayIndex = 4;
-                            dgv.Columns["Заполненность %"].DisplayIndex = 5;
 
-                            // ✅ ДОБАВЛЯЕМ цветной столбец ПЕРВЫМ
+                            // ✅ 2. ДОБАВЛЯЕМ цветной столбец ПЕРВЫМ
                             var colorColumn = new DataGridViewTextBoxColumn
                             {
                                 Name = "ColorMarker",
                                 HeaderText = "",
-                                Width = 40,
-                                DisplayIndex = 0
+                                Width = 40
                             };
                             dgv.Columns.Insert(0, colorColumn);
 
-                            // ✅ ЗАПОЛНЯЕМ ЦВЕТАМИ
-                            var colors = new[] {
-            Color.FromArgb(0, 122, 204),
-            Color.FromArgb(40, 167, 69),
-            Color.FromArgb(255, 193, 7),
-            Color.FromArgb(220, 53, 69),
-            Color.FromArgb(108, 117, 125),
-            Color.FromArgb(23, 162, 184),
-            Color.FromArgb(255, 140, 0),
-            Color.FromArgb(142, 68, 173),
-            Color.FromArgb(28, 186, 79),
-            Color.FromArgb(217, 83, 25)
-        };
+                            // ✅ 3. Устанавливаем порядок столбцов
+                            dgv.Columns["ColorMarker"].DisplayIndex = 0;
+                            dgv.Columns["Секция"].DisplayIndex = 1;
+                            dgv.Columns["Цена"].DisplayIndex = 2;
+                            dgv.Columns["Студентов"].DisplayIndex = 3;
+                            dgv.Columns["Доход"].DisplayIndex = 4;
+                            dgv.Columns["Макс. мест"].DisplayIndex = 5;
+                            dgv.Columns["Заполненность %"].DisplayIndex = 6;
 
+                            // ✅ 4. ЦВЕТА: топ-5 разные, остальные ОДИН серый цвет
+                            var top5Colors = new[] {
+            Color.FromArgb(0, 122, 204),      // 🔵 1-й
+            Color.FromArgb(40, 167, 69),      // 🟢 2-й
+            Color.FromArgb(255, 193, 7),      // 🟡 3-й
+            Color.FromArgb(220, 53, 69),      // 🔴 4-й
+            Color.FromArgb(108, 117, 125)     // ⚫ 5-й
+        };
+                            var othersColor = Color.FromArgb(200, 200, 200);  // ⚪ Остальные (серый)
+
+                            // ✅ 5. ЗАПОЛНЯЕМ ЦВЕТАМИ с учётом топ-5
                             for (int i = 0; i < dgv.Rows.Count; i++)
                             {
                                 dgv.Rows[i].Cells["ColorMarker"].Value = "■";
-                                dgv.Rows[i].Cells["ColorMarker"].Style.BackColor = colors[i % colors.Length];
-                                dgv.Rows[i].Cells["ColorMarker"].Style.ForeColor = colors[i % colors.Length];
+
+                                // ✅ Топ-5 получают свои цвета, остальные - один серый
+                                if (i < 5)
+                                {
+                                    dgv.Rows[i].Cells["ColorMarker"].Style.BackColor = top5Colors[i];
+                                    dgv.Rows[i].Cells["ColorMarker"].Style.ForeColor = top5Colors[i];
+                                }
+                                else
+                                {
+                                    dgv.Rows[i].Cells["ColorMarker"].Style.BackColor = othersColor;
+                                    dgv.Rows[i].Cells["ColorMarker"].Style.ForeColor = othersColor;
+                                }
+
                                 dgv.Rows[i].Cells["ColorMarker"].Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                                 dgv.Rows[i].Cells["ColorMarker"].Style.Font = new Font("Segoe UI", 14, FontStyle.Bold);
                                 dgv.Rows[i].Cells["ColorMarker"].ReadOnly = true;
+                            }
+
+                            // ✅ 6. Применяем стилизацию
+                            StyleDataGridView(dgv);
+                            foreach (DataGridViewColumn column in dgv.Columns)
+                            {
+                                column.SortMode = DataGridViewColumnSortMode.NotSortable; 
                             }
                         }
                         break;
@@ -1365,15 +1411,31 @@ namespace PolesSU_Sports.Management
         // ==================== СТИЛИЗАЦИЯ ТАБЛИЦЫ БЕЗ ВЫДЕЛЕНИЯ ====================
         private void StyleDataGridView(DataGridView dgv)
         {
-            dgv.DefaultCellStyle.SelectionBackColor = Color.White;     // Белый фон при выделении
-            dgv.DefaultCellStyle.SelectionForeColor = Color.Black;     // Чёрный текст
+            // 1. Убираем стандартные цвета выделения (делаем их как у обычных строк)
+            dgv.DefaultCellStyle.SelectionBackColor = Color.White;
+            dgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+
+            // 2. Для чередующихся строк тоже настраиваем цвет выделения, 
+            // чтобы при клике на серую строку она не становилась белой
+            dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 250, 250);
+            dgv.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(250, 250, 250);
+            dgv.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+
+            // 3. Базовые настройки стиля
             dgv.DefaultCellStyle.BackColor = Color.White;
             dgv.DefaultCellStyle.ForeColor = Color.FromArgb(45, 55, 75);
-            dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 250, 250);
             dgv.RowHeadersVisible = false;
             dgv.BorderStyle = BorderStyle.FixedSingle;
             dgv.GridColor = Color.FromArgb(220, 220, 220);
-            dgv.MultiSelect = false;  // ✅ Запретить множественное выделение
+            dgv.MultiSelect = false;
+            dgv.EnableHeadersVisualStyles = false;
+
+            // 4. ГЛАВНОЕ: чтобы не было синей рамки фокуса вокруг ячейки
+            dgv.RowTemplate.Height = 30; // опционально, для красоты
+            dgv.StandardTab = true;
+
+            // Подписываемся на событие сброса выделения
+            dgv.SelectionChanged += (s, e) => dgv.ClearSelection();
         }
 
         // ==================== НАСТРАИВАЕМЫЙ ОТЧЁТ ====================
