@@ -180,13 +180,22 @@ namespace PolesSU_Sports
 
                     if (targetForm != null)
                     {
-                        // При закрытии целевой формы — закрываем всё
+                        this.Hide();
+
                         targetForm.FormClosed += (s, args) =>
                         {
-                            User.Logout();
-                            this.Close();
+                            if (targetForm.DialogResult == DialogResult.Retry)
+                            {
+                                this.txtPassword.Clear(); 
+                                this.lblError.Text = "";
+                                this.Show();
+                            }
+                            else
+                            {
+                                this.Close(); 
+                            }
                         };
-                        targetForm.ShowDialog();
+                        targetForm.Show();
                     }
                 }
                 else

@@ -89,11 +89,16 @@ namespace PolesSU_Sports.Management
             };
             exitBtn.FlatAppearance.BorderSize = 0;
             exitBtn.Click += (s, e) => {
-                if (MessageBox.Show("Выйти из системы?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    this.Close();
-                    new LoginForm().Show();
-                }
+                
+                    if (MessageBox.Show("Выйти из системы?", "Выход",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        User.Logout();
+
+                        // Устанавливаем результат Retry, чтобы LoginForm понял, что нужно открыться
+                        this.DialogResult = DialogResult.Retry;
+                        this.Close();
+                    }
             };
             sidebarPanel.Controls.Add(exitBtn);
 

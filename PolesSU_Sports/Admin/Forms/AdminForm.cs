@@ -83,6 +83,8 @@ namespace PolesSU_Sports.Admin
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 User.Logout();
+
+                this.DialogResult = DialogResult.Retry;
                 this.Close();
             }
         }
