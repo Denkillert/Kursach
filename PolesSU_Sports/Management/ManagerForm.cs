@@ -489,7 +489,6 @@ namespace PolesSU_Sports.Management
                 ChartType = SeriesChartType.Pie,
                 Legend = "MainLegend",
                 IsValueShownAsLabel = true,
-                Label = "#PERCENT{P1}",  // ✅ Проценты на секторах
                 Font = new Font("Segoe UI", 8)
             };
 
@@ -509,11 +508,20 @@ namespace PolesSU_Sports.Management
             int colorIndex = 0;
             foreach (DataRow row in data.Rows)
             {
-                var pointIndex = series.Points.AddXY(row[labelColumn], row[valueColumn]);
-                series.Points[pointIndex].Color = colors[colorIndex % colors.Length];
+                double value = Convert.ToDouble(row[valueColumn]);
+                string label = row[labelColumn].ToString();
 
-                // ✅ ВАЖНО: Устанавливаем название для легенды
-                series.Points[pointIndex].AxisLabel = row[labelColumn].ToString();
+                int pointIndex = series.Points.AddXY(label, value);
+                DataPoint point = series.Points[pointIndex];
+
+                point.Color = colors[colorIndex % colors.Length];
+
+                // ✅ Текст, который пойдет в легенду
+                point.LegendText = label;
+
+                // ✅ Формат метки на самой диаграмме (проценты)
+                // #PERCENT — автоматический расчет процента от общей суммы
+                point.Label = "#PERCENT{P0}";
 
                 colorIndex++;
             }
