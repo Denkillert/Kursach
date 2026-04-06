@@ -2553,14 +2553,8 @@ namespace PolesSU_Sports.Management
             AddSettingCard(settingsPanel, "👥 Управление пользователями", "Добавление, редактирование и удаление пользователей",
                 Color.FromArgb(0, 122, 204), () => new PolesSU_Sports.Management.SettingsForms.UserManagementForm().ShowDialog());
 
-            AddSettingCard(settingsPanel, "🔐 Права доступа", "Настройка ролей и разрешений",
-                Color.FromArgb(40, 167, 69), () => new PolesSU_Sports.Management.SettingsForms.AccessRightsForm().ShowDialog());
-
             AddSettingCard(settingsPanel, "📊 Настройка отчётов", "Шаблоны и параметры генерации отчётов",
-                Color.FromArgb(255, 193, 7), () => new PolesSU_Sports.Management.SettingsForms.ReportSettingsForm().ShowDialog());
-
-            AddSettingCard(settingsPanel, "💾 Резервное копирование", "Создание и восстановление резервных копий БД",
-                Color.FromArgb(220, 53, 69), () => new PolesSU_Sports.Management.SettingsForms.BackupForm().ShowDialog());
+                Color.FromArgb(40, 167, 69), () => new PolesSU_Sports.Management.SettingsForms.ReportSettingsForm().ShowDialog());
 
             contentPanel.Controls.Add(settingsPanel);
         }
