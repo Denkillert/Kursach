@@ -892,12 +892,11 @@ namespace PolesSU_Sports.Management
                 // ✅ Безопасная установка SelectedValue
                 if (cmb.Items.Count > 0)
                 {
-                    cmb.SelectedValue = 0;  // ✅ Устанавливаем значение, а не индекс
+                    cmb.SelectedValue = 0;  
                 }
             }
             catch (Exception ex)
             {
-                // ✅ Если ошибка - создаём пустой ComboBox
                 cmb.DataSource = null;
                 cmb.Items.Clear();
                 cmb.Items.Add("Все факультеты");
@@ -911,15 +910,12 @@ namespace PolesSU_Sports.Management
             {
                 var dt = DBConnection.Instance.ExecuteQuery("SELECT SectionID, SectionName FROM Sections ORDER BY SectionName");
 
-                // ✅ Создаём новую таблицу с "Все секции"
                 var newDt = new DataTable();
                 newDt.Columns.Add("SectionID", typeof(int));
                 newDt.Columns.Add("SectionName", typeof(string));
 
-                // Добавляем "Все секции"
                 newDt.Rows.Add(0, "Все секции");
 
-                // Добавляем остальные секции
                 foreach (DataRow row in dt.Rows)
                 {
                     newDt.Rows.Add(row["SectionID"], row["SectionName"]);
@@ -929,15 +925,13 @@ namespace PolesSU_Sports.Management
                 cmb.DisplayMember = "SectionName";
                 cmb.ValueMember = "SectionID";
 
-                // ✅ Безопасная установка SelectedValue
                 if (cmb.Items.Count > 0)
                 {
-                    cmb.SelectedValue = 0;  // ✅ Устанавливаем значение, а не индекс
+                    cmb.SelectedValue = 0;  
                 }
             }
             catch (Exception ex)
             {
-                // ✅ Если ошибка - создаём пустой ComboBox
                 cmb.DataSource = null;
                 cmb.Items.Clear();
                 cmb.Items.Add("Все секции");
@@ -951,7 +945,6 @@ namespace PolesSU_Sports.Management
             {
                 string analyticsType = cmbType.SelectedItem?.ToString() ?? "";
 
-                // ✅ ПОЛУЧАЕМ ID
                 int sectionID = 0;
                 int facultyID = 0;
 
@@ -974,7 +967,6 @@ namespace PolesSU_Sports.Management
                 switch (analyticsType)
                 {
                     case "📊 Посещаемость по секциям":
-                        // ✅ ДОБАВЛЯЕМ ПАРАМЕТРЫ В ЗАПРОС
                         var secParams = new SqlParameter[]
                         {
                     new SqlParameter("@SectionID", sectionID == 0 ? (object)DBNull.Value : sectionID),
@@ -1066,11 +1058,10 @@ namespace PolesSU_Sports.Management
         FROM Sections sec
         LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
         GROUP BY sec.SectionName, sec.PricePerMonth, sec.MaxStudents
-        ORDER BY [Заполненность %] DESC");  // ✅ Сортируем по заполненности для топ-5
+        ORDER BY [Заполненность %] DESC");  
 
                         SetupBarChart(chart1, data, "Секция", new[] { "Доход", "Студентов" }, "Финансы по секциям");
 
-                        // ✅ ТОП-5 + ОСТАЛЬНЫЕ для круговой диаграммы
                         var fillData = DBConnection.Instance.ExecuteQuery(@"
         WITH RankedSections AS (
             SELECT 
@@ -1098,15 +1089,12 @@ namespace PolesSU_Sports.Management
 
                         SetupPieChartFin(chart2, fillData, "SectionName", "Заполненность %", "Заполненность секций (Топ-5 + Остальные)", false);
 
-                        // ✅ ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ ЦВЕТОВ В ТАБЛИЦЕ
                         if (dgv != null && data != null)
                         {
-                            // ✅ 1. Очищаем и устанавливаем DataSource
                             dgv.DataSource = null;
                             dgv.Columns.Clear();
                             dgv.DataSource = data;
 
-                            // ✅ 2. ДОБАВЛЯЕМ цветной столбец ПЕРВЫМ
                             var colorColumn = new DataGridViewTextBoxColumn
                             {
                                 Name = "ColorMarker",
@@ -1115,7 +1103,6 @@ namespace PolesSU_Sports.Management
                             };
                             dgv.Columns.Insert(0, colorColumn);
 
-                            // ✅ 3. Устанавливаем порядок столбцов
                             dgv.Columns["ColorMarker"].DisplayIndex = 0;
                             dgv.Columns["Секция"].DisplayIndex = 1;
                             dgv.Columns["Цена"].DisplayIndex = 2;
@@ -1124,17 +1111,15 @@ namespace PolesSU_Sports.Management
                             dgv.Columns["Макс. мест"].DisplayIndex = 5;
                             dgv.Columns["Заполненность %"].DisplayIndex = 6;
 
-                            // ✅ 4. ЦВЕТА: топ-5 разные, остальные ОДИН серый цвет
                             var top5Colors = new[] {
-            Color.FromArgb(0, 122, 204),      // 🔵 1-й
-            Color.FromArgb(40, 167, 69),      // 🟢 2-й
-            Color.FromArgb(255, 193, 7),      // 🟡 3-й
-            Color.FromArgb(220, 53, 69),      // 🔴 4-й
-            Color.FromArgb(108, 117, 125)     // ⚫ 5-й
+                                Color.FromArgb(0, 122, 204),
+                                Color.FromArgb(40, 167, 69),
+                                Color.FromArgb(255, 193, 7),
+                                Color.FromArgb(220, 53, 69),
+                                Color.FromArgb(108, 117, 125)     
         };
-                            var othersColor = Color.FromArgb(200, 200, 200);  // ⚪ Остальные (серый)
+                            var othersColor = Color.FromArgb(200, 200, 200);  
 
-                            // ✅ 5. ЗАПОЛНЯЕМ ЦВЕТАМИ с учётом топ-5
                             for (int i = 0; i < dgv.Rows.Count; i++)
                             {
                                 dgv.Rows[i].Cells["ColorMarker"].Value = "■";
@@ -1156,7 +1141,6 @@ namespace PolesSU_Sports.Management
                                 dgv.Rows[i].Cells["ColorMarker"].ReadOnly = true;
                             }
 
-                            // ✅ 6. Применяем стилизацию
                             StyleDataGridView(dgv);
                             foreach (DataGridViewColumn column in dgv.Columns)
                             {
@@ -1196,7 +1180,7 @@ namespace PolesSU_Sports.Management
             }
         }
 
-        // ==================== ОТЧЁТЫ (ПОЛНАЯ РЕАЛИЗАЦИЯ) ====================
+        // ======================================== ОТЧЁТЫ
         private void LoadReports()
         {
             headerLabel.Text = "📑 Генерация отчётов";
@@ -1350,7 +1334,7 @@ namespace PolesSU_Sports.Management
             GenerateReport(cmbReportType, filterPanel, dgvReport);
         }
 
-        // ==================== ОБНОВЛЕНИЕ ФИЛЬТРОВ ПО ТИПУ ОТЧЁТА ====================
+        // ======================================== ОБНОВЛЕНИЕ ФИЛЬТРОВ ПО ТИПУ ОТЧЁТА
         private void UpdateReportFilters(ComboBox cmbType, Panel filterPanel)
         {
             filterPanel.Controls.Clear();
@@ -1371,14 +1355,14 @@ namespace PolesSU_Sports.Management
             switch (reportType)
             {
                 case "🏛️ Для ректората":
-                    /*controls.Add(new Label
+                    controls.Add(new Label
                     {
                         Text = "ℹ️ Отчёт формируется по всем факультетам",
                         Location = new Point(15, y),
                         AutoSize = true,
                         ForeColor = Color.Gray,
                         Font = new Font("Segoe UI", 9)
-                    });*/
+                    });
                     break;
 
                 case "🎓 Для факультета":
@@ -1443,7 +1427,7 @@ namespace PolesSU_Sports.Management
             filterPanel.Controls.AddRange(controls.ToArray());
         }
 
-        // ==================== ГЕНЕРАЦИЯ ОТЧЁТА ====================
+        // ======================================== ГЕНЕРАЦИЯ ОТЧЁТА
         private void GenerateReport(ComboBox cmbType, Panel filterPanel, DataGridView dgv)
         {
             try
@@ -1474,7 +1458,7 @@ namespace PolesSU_Sports.Management
             }
         }
 
-        // ==================== ПОЛУЧЕНИЕ ДАННЫХ ПО ТИПУ ОТЧЁТА ====================
+        // ======================================== ПОЛУЧЕНИЕ ДАННЫХ ПО ТИПУ ОТЧЁТА
         private DataTable GetReportQuery(string reportType, Panel filterPanel, DateTime startDate, DateTime endDate)
         {
             string query = "";
@@ -1684,7 +1668,7 @@ namespace PolesSU_Sports.Management
             return DBConnection.Instance.ExecuteQuery(query, parameters.ToArray());
         }
 
-        // ==================== СТИЛИЗАЦИЯ ТАБЛИЦЫ БЕЗ ВЫДЕЛЕНИЯ ====================
+        // ======================================== СТИЛИЗАЦИЯ ТАБЛИЦЫ БЕЗ ВЫДЕЛЕНИЯ
         private void StyleDataGridView(DataGridView dgv)
         {
             // 1. Убираем стандартные цвета выделения (делаем их как у обычных строк)
@@ -1713,168 +1697,7 @@ namespace PolesSU_Sports.Management
             // Подписываемся на событие сброса выделения
             dgv.SelectionChanged += (s, e) => dgv.ClearSelection();
         }
-
-        // ==================== НАСТРАИВАЕМЫЙ ОТЧЁТ ====================
-        private void UpdateCustomReportPanel(Panel filterPanel)
-        {
-            filterPanel.Controls.Clear();
-            filterPanel.Height = 220;  // ✅ Увеличиваем высоту панели
-
-            var controls = new List<Control>();
-            int y = 15;
-
-            // === ЗАГОЛОВОК ===
-            var lblTitle = new Label
-            {
-                Text = "⚙️ Конструктор отчёта",
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                ForeColor = Color.FromArgb(0, 122, 204),
-                Location = new Point(15, y),
-                AutoSize = true
-            };
-            controls.Add(lblTitle);
-            y += 35;
-
-            // === 1. ВЫБОР ТАБЛИЦЫ ===
-            var grpTable = new GroupBox
-            {
-                Text = "📊 Выберите таблицу",
-                Location = new Point(15, y),
-                Size = new Size(220, 130),  // ✅ Фиксированный размер
-                Font = new Font("Segoe UI", 9)
-            };
-
-            var cmbTable = new ComboBox
-            {
-                Name = "cmbTable",
-                Location = new Point(15, 25),
-                Width = 190,
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 9)
-            };
-            cmbTable.Items.AddRange(new object[] {
-        "🎓 Students", "📋 Attendance", "⚽ Sections",
-        "👨‍🏫 Trainers", "🏛️ Faculties", "🏆 Achievements"
-    });
-            cmbTable.SelectedIndex = 0;
-            cmbTable.SelectedIndexChanged += (s, e) => UpdateAvailableFields(filterPanel);
-
-            var chkDistinct = new CheckBox
-            {
-                Name = "chkDistinct",
-                Text = "DISTINCT",
-                Location = new Point(15, 60),
-                AutoSize = true,
-                Font = new Font("Segoe UI", 8)
-            };
-
-            grpTable.Controls.AddRange(new Control[] { cmbTable, chkDistinct });
-            controls.Add(grpTable);
-
-            // === 2. ВЫБОР ПОЛЕЙ ===
-            var grpFields = new GroupBox
-            {
-                Text = "📋 Поля для отображения",
-                Location = new Point(245, y),  // ✅ Справа от таблицы
-                Size = new Size(450, 130),
-                Font = new Font("Segoe UI", 9)
-            };
-
-            var fldPanel = new FlowLayoutPanel
-            {
-                Name = "fldPanel",
-                Location = new Point(15, 25),
-                Size = new Size(420, 90),  // ✅ Больше места
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = true,
-                AutoScroll = true
-            };
-
-            grpFields.Controls.Add(fldPanel);
-            controls.Add(grpFields);
-
-            // === 3. ФИЛЬТРЫ ===
-            y += 145;
-            var grpFilters = new GroupBox
-            {
-                Text = "🔍 WHERE и ORDER BY",
-                Location = new Point(15, y),
-                Size = new Size(680, 70),
-                Font = new Font("Segoe UI", 9)
-            };
-
-            var lblWhere = new Label { Text = "WHERE:", Location = new Point(15, 25), AutoSize = true };
-            var txtWhere = new TextBox
-            {
-                Name = "txtWhere",
-                Location = new Point(65, 22),
-                Width = 300,
-                PlaceholderText = "Course = 3 AND FacultyID = 1",
-                Font = new Font("Segoe UI", 8)
-            };
-
-            var lblOrder = new Label { Text = "ORDER BY:", Location = new Point(380, 25), AutoSize = true };
-            var txtOrderBy = new TextBox
-            {
-                Name = "txtOrderBy",
-                Location = new Point(455, 22),
-                Width = 150,
-                PlaceholderText = "LastName",
-                Font = new Font("Segoe UI", 8)
-            };
-
-            var cmbOrderDir = new ComboBox
-            {
-                Name = "cmbOrderDir",
-                Location = new Point(615, 22),
-                Width = 55,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbOrderDir.Items.AddRange(new object[] { "ASC", "DESC" });
-            cmbOrderDir.SelectedIndex = 0;
-
-            grpFilters.Controls.AddRange(new Control[] { lblWhere, txtWhere, lblOrder, txtOrderBy, cmbOrderDir });
-            controls.Add(grpFilters);
-
-            // === 4. ДОПОЛНИТЕЛЬНО ===
-            y += 220;
-            var grpExtra = new GroupBox
-            {
-                Text = "📌 Дополнительно",
-                Location = new Point(15, y),
-                Size = new Size(680, 55),
-                Font = new Font("Segoe UI", 9)
-            };
-
-            var lblLimit = new Label { Text = "MAX записей:", Location = new Point(15, 25), AutoSize = true };
-            var numLimit = new NumericUpDown
-            {
-                Name = "numLimit",
-                Location = new Point(95, 22),
-                Width = 70,
-                Minimum = 1,
-                Maximum = 10000,
-                Value = 100
-            };
-
-            var chkShowSQL = new CheckBox
-            {
-                Name = "chkShowSQL",
-                Text = "Показать SQL перед выполнением",
-                Location = new Point(180, 24),
-                AutoSize = true,
-                Font = new Font("Segoe UI", 8)
-            };
-
-            grpExtra.Controls.AddRange(new Control[] { lblLimit, numLimit, chkShowSQL });
-            controls.Add(grpExtra);
-
-            filterPanel.Controls.AddRange(controls.ToArray());
-
-            // Инициализация полей
-            UpdateAvailableFields(filterPanel);
-        }
-
+        
         private void UpdateAvailableFields(Panel filterPanel)
         {
             var cmbTable = GetControl<ComboBox>(filterPanel, "cmbTable");
@@ -1904,62 +1727,7 @@ namespace PolesSU_Sports.Management
             }
         }
 
-        private DataTable GetCustomReportData(Panel filterPanel, DateTime startDate, DateTime endDate)
-        {
-            var cmbTable = GetControl<ComboBox>(filterPanel, "cmbTable");
-            var chkDistinct = GetControl<CheckBox>(filterPanel, "chkDistinct");
-            var fldPanel = GetControl<FlowLayoutPanel>(filterPanel, "fldPanel");
-            var txtWhere = GetControl<TextBox>(filterPanel, "txtWhere");
-            var txtOrderBy = GetControl<TextBox>(filterPanel, "txtOrderBy");
-            var cmbOrderDir = GetControl<ComboBox>(filterPanel, "cmbOrderDir");
-            var numLimit = GetControl<NumericUpDown>(filterPanel, "numLimit");
-            var chkShowSQL = GetControl<CheckBox>(filterPanel, "chkShowSQL");
-
-            if (cmbTable == null || fldPanel == null) return null;
-
-            var tableMap = new Dictionary<string, string>
-            {
-                ["🎓 Students"] = "Students",
-                ["📋 Attendance"] = "Attendance",
-                ["⚽ Sections"] = "Sections",
-                ["👨‍🏫 Trainers"] = "Trainers",
-                ["🏛️ Faculties"] = "Faculties",
-                ["🏆 Achievements"] = "Achievements"
-            };
-
-            string selectedTable = cmbTable.SelectedItem?.ToString() ?? "";
-            if (!tableMap.TryGetValue(selectedTable, out string tableName)) return null;
-
-            var selectedFields = new List<string>();
-            foreach (CheckBox chk in fldPanel.Controls)
-            {
-                if (chk.Checked && chk.Tag != null) selectedFields.Add(chk.Tag.ToString());
-            }
-            if (selectedFields.Count == 0) { MessageBox.Show("Выберите хотя бы одно поле", "Внимание"); return null; }
-
-            string distinct = (chkDistinct?.Checked ?? false) ? "DISTINCT " : "";
-            string fields = string.Join(", ", selectedFields);
-            string whereClause = txtWhere?.Text ?? "";
-            string orderBy = txtOrderBy?.Text ?? "";
-            string orderDir = cmbOrderDir?.SelectedItem?.ToString() ?? "ASC";
-            int limit = (int)(numLimit?.Value ?? 100);
-
-            string query = $"SELECT {distinct}TOP {limit} {fields} FROM {tableName}";
-            if (!string.IsNullOrWhiteSpace(whereClause)) query += $" WHERE {whereClause}";
-            if (!string.IsNullOrWhiteSpace(orderBy)) query += $" ORDER BY {orderBy} {orderDir}";
-
-            if (chkShowSQL?.Checked ?? false)
-            {
-                if (MessageBox.Show($"SQL:\n\n{query}\n\nПродолжить?", "Подтверждение", MessageBoxButtons.YesNo) != DialogResult.Yes)
-                    return null;
-            }
-
-            try { return DBConnection.Instance.ExecuteQuery(query); }
-            catch (Exception ex) { MessageBox.Show($"Ошибка: {ex.Message}\n\n{query}", "Ошибка"); return null; }
-        }
-
-
-        // ==================== ПОДСВЕТКА ПРОБЛЕМНЫХ СТУДЕНТОВ ====================
+        // ======================================== ПОДСВЕТКА ПРОБЛЕМНЫХ СТУДЕНТОВ
         private void DgvReport_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             var dgv = sender as DataGridView;
@@ -1997,7 +1765,7 @@ namespace PolesSU_Sports.Management
                 }
             }
         }
-        // ==================== ЭКСПОРТ ИЗ ТАБЛИЦЫ ====================
+        // ======================================== ЭКСПОРТ ИЗ ТАБЛИЦЫ
         private void ExportReportFromGrid(DataGridView dgv, ComboBox cmbType, Panel filterPanel)
         {
             if (dgv.DataSource is not DataTable data || data.Rows.Count == 0)
@@ -2020,14 +1788,14 @@ namespace PolesSU_Sports.Management
         }
 
 
-        // ==================== ВСПОМОГАТЕЛЬНЫЙ МЕТОД ПОИСКА КОНТРОЛА ====================
+        // ======================================== ВСПОМОГАТЕЛЬНЫЙ МЕТОД ПОИСКА КОНТРОЛА
         private T GetControl<T>(Panel panel, string name) where T : Control
         {
             var controls = panel.Controls.Find(name, true);
             return controls.FirstOrDefault() as T;
         }
 
-        // ==================== ЭКСПОРТ (теперь с реальными данными) ====================
+        // ======================================== ЭКСПОРТ 
         private void ExportReport(DataTable data, string reportType, DateTime startDate, DateTime endDate)
         {
             try
@@ -2083,7 +1851,7 @@ namespace PolesSU_Sports.Management
             }
         }
 
-        // ==================== ЭКСПОРТ В CSV (2 аргумента) ====================
+        // ======================================== ЭКСПОРТ В CSV
         private void ExportToCSV(DataTable dt, string filePath)
         {
             var csvContent = new StringBuilder();
@@ -2111,7 +1879,7 @@ namespace PolesSU_Sports.Management
             File.WriteAllText(filePath, csvContent.ToString(), Encoding.GetEncoding("windows-1251"));
         }
 
-        // ==================== ПО ФАКУЛЬТЕТАМ ====================
+        // ======================================== ПО ФАКУЛЬТЕТАМ
         private void LoadFacultyReports()
         {
             headerLabel.Text = "🎓 Отчёты по факультетам";
@@ -2233,7 +2001,7 @@ namespace PolesSU_Sports.Management
             }
         }
 
-        // ==================== ПО ГРУППАМ ====================
+        // ======================================== ПО ГРУППАМ
         private void LoadGroupReports()
         {
             headerLabel.Text = "👥 Отчёты по группам";
@@ -2359,7 +2127,7 @@ namespace PolesSU_Sports.Management
             }
         }
 
-        // ==================== ПО СЕКЦИЯМ ====================
+        // ======================================== ПО СЕКЦИЯМ
         private void LoadSectionReports()
         {
             headerLabel.Text = "⚽ Отчёты по секциям";
@@ -2495,7 +2263,7 @@ namespace PolesSU_Sports.Management
             }
         }
 
-        // ==================== ЗАЯВКИ ====================
+        // ======================================== ЗАЯВКИ
         private void LoadStudentRequests()
         {
             headerLabel.Text = "🎓 Заявки студентов на запись в секции";
@@ -2536,7 +2304,7 @@ namespace PolesSU_Sports.Management
             contentPanel.Controls.Add(infoPanel);
         }
 
-        // ==================== НАСТРОЙКИ ====================
+        // ======================================== НАСТРОЙКИ
         private void LoadSettings()
         {
             headerLabel.Text = "⚙️ Настройки системы";
