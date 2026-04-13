@@ -23,9 +23,13 @@
             #region
             private void InitializeComponent()
             {
-                this.components = new System.ComponentModel.Container();
-                this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            }
+                //this.components = new System.ComponentModel.Container();
+                //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.SuspendLayout();
+            this.ClientSize = new Size(1280, 720);
+            this.Name = "AdminForm";
+            this.ResumeLayout(false);
+        }
             #endregion
 
         }

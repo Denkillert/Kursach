@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using PolesSU_Sports.Management;
+using PolesSU_Sports.Admin;
 
 namespace PolesSU_Sports
 {
@@ -11,7 +12,7 @@ namespace PolesSU_Sports
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ManagerForm());
+            Application.Run(new AdminForm());
         }
     }
 }
