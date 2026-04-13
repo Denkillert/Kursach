@@ -1959,34 +1959,70 @@ namespace PolesSU_Sports.Management
 
         private void ShowFacultyReport(ComboBox cmbFaculty)
         {
-            if (cmbFaculty.SelectedValue == null)
-            {
-                MessageBox.Show("Выберите факультет", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
             try
             {
-                int facultyID = cmbFaculty.SelectedValue is DataRowView rowView ? Convert.ToInt32(rowView["FacultyID"]) : Convert.ToInt32(cmbFaculty.SelectedValue);
+                int facultyID = 0;
 
-                // ✅ Ищем DataGridView по имени
+                // ✅ Проверяем, выбран ли конкретный факультет или "Все факультеты"
+                if (cmbFaculty.SelectedValue != null && cmbFaculty.SelectedValue != DBNull.Value)
+                {
+                    facultyID = cmbFaculty.SelectedValue is DataRowView rowView
+                        ? Convert.ToInt32(rowView["FacultyID"])
+                        : Convert.ToInt32(cmbFaculty.SelectedValue);
+                }
+
                 var dgv = contentPanel.Controls.Find("dataGridView", true).FirstOrDefault() as DataGridView;
                 if (dgv == null) return;
 
-                dgv.DataSource = DBConnection.Instance.ExecuteQuery(@"
-            SELECT 
-                s.GroupName AS [Группа],
-                COUNT(DISTINCT s.StudentCardNumber) AS [Студентов],
-                COUNT(DISTINCT a.AttendanceID) AS [Посещений],
-                SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
-                CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
-                     NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
-            FROM Students s
-            LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
-            WHERE s.FacultyID = @FacultyID
-            GROUP BY s.GroupName
-            ORDER BY [Посещаемость %] DESC",
-                    new[] { new SqlParameter("@FacultyID", facultyID) });
+                // ✅ ИЗМЕНЁННЫЙ ЗАПРОС: работает и с конкретным факультетом, и со всеми
+                string query = "";
+                SqlParameter[] parameters = null;
+
+                if (facultyID == 0)
+                {
+                    // ✅ ВСЕ ФАКУЛЬТЕТЫ
+                    query = @"
+                SELECT 
+                    f.FacultyName AS [Факультет],
+                    s.GroupName AS [Группа],
+                    COUNT(DISTINCT s.StudentCardNumber) AS [Студентов],
+                    COUNT(DISTINCT a.AttendanceID) AS [Посещений],
+                    SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                    SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
+                    CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
+                         NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
+                FROM Faculties f
+                LEFT JOIN Students s ON f.FacultyID = s.FacultyID
+                LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
+                GROUP BY f.FacultyName, s.GroupName
+                ORDER BY f.FacultyName, [Посещаемость %] DESC";
+
+                    parameters = new SqlParameter[] { };
+                }
+                else
+                {
+                    // ✅ КОНКРЕТНЫЙ ФАКУЛЬТЕТ
+                    query = @"
+                SELECT 
+                    s.GroupName AS [Группа],
+                    COUNT(DISTINCT s.StudentCardNumber) AS [Студентов],
+                    COUNT(DISTINCT a.AttendanceID) AS [Посещений],
+                    SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                    SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
+                    CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
+                         NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
+                FROM Students s
+                LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
+                WHERE s.FacultyID = @FacultyID
+                GROUP BY s.GroupName
+                ORDER BY [Посещаемость %] DESC";
+
+                    parameters = new SqlParameter[] {
+                new SqlParameter("@FacultyID", facultyID)
+            };
+                }
+
+                dgv.DataSource = DBConnection.Instance.ExecuteQuery(query, parameters);
 
                 if (dgv.Rows.Count == 0)
                 {
@@ -2212,43 +2248,86 @@ namespace PolesSU_Sports.Management
 
         private void ShowSectionReport(ComboBox cmbSection, DateTimePicker dtpStart, DateTimePicker dtpEnd)
         {
-            if (cmbSection.SelectedValue == null)
-            {
-                MessageBox.Show("Выберите секцию", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
             try
             {
-                int sectionID = cmbSection.SelectedValue is DataRowView rowView ? Convert.ToInt32(rowView["SectionID"]) : Convert.ToInt32(cmbSection.SelectedValue);
+                int sectionID = 0;
+
+                // ✅ Проверяем, выбрана ли конкретная секция или "Все секции"
+                if (cmbSection.SelectedValue != null && cmbSection.SelectedValue != DBNull.Value)
+                {
+                    sectionID = cmbSection.SelectedValue is DataRowView rowView
+                        ? Convert.ToInt32(rowView["SectionID"])
+                        : Convert.ToInt32(cmbSection.SelectedValue);
+                }
 
                 var dgv = contentPanel.Controls.Find("dataGridView", true).FirstOrDefault() as DataGridView;
                 if (dgv == null) return;
 
-                dgv.DataSource = DBConnection.Instance.ExecuteQuery(@"
-            SELECT 
-                s.StudentCardNumber AS [Билет],
-                s.LastName + ' ' + s.FirstName AS [ФИО],
-                f.FacultyName AS [Факультет],
-                s.GroupName AS [Группа],
-                COUNT(a.AttendanceID) AS [Всего занятий],
-                SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
-                SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
-                CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
-                     NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
-            FROM Students s
-            JOIN Faculties f ON s.FacultyID = f.FacultyID
-            LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
-            LEFT JOIN Schedule sc ON a.ScheduleID = sc.ScheduleID
-            WHERE sc.SectionID = @SectionID
-            AND (a.VisitDate IS NULL OR a.VisitDate BETWEEN @StartDate AND @EndDate)
-            GROUP BY s.StudentCardNumber, s.LastName, s.FirstName, f.FacultyName, s.GroupName
-            ORDER BY [Посещаемость %] DESC",
-                    new[] {
+                // ✅ ИЗМЕНЁННЫЙ ЗАПРОС: работает и с конкретной секцией, и со всеми
+                string query = "";
+                SqlParameter[] parameters = null;
+
+                if (sectionID == 0)
+                {
+                    // ✅ ВСЕ СЕКЦИИ
+                    query = @"
+                SELECT 
+                    sec.SectionName AS [Секция],
+                    s.StudentCardNumber AS [Билет],
+                    s.LastName + ' ' + s.FirstName AS [ФИО],
+                    f.FacultyName AS [Факультет],
+                    s.GroupName AS [Группа],
+                    COUNT(a.AttendanceID) AS [Всего занятий],
+                    SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                    SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
+                    CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
+                         NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
+                FROM Students s
+                JOIN Faculties f ON s.FacultyID = f.FacultyID
+                LEFT JOIN StudentSections ss ON s.StudentCardNumber = ss.StudentCardNumber AND ss.IsActive = 1
+                LEFT JOIN Sections sec ON ss.SectionID = sec.SectionID
+                LEFT JOIN Schedule sc ON sec.SectionID = sc.SectionID
+                LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber AND sc.ScheduleID = a.ScheduleID
+                WHERE (a.VisitDate IS NULL OR a.VisitDate BETWEEN @StartDate AND @EndDate)
+                GROUP BY sec.SectionName, s.StudentCardNumber, s.LastName, s.FirstName, f.FacultyName, s.GroupName
+                ORDER BY sec.SectionName, [Посещаемость %] DESC";
+
+                    parameters = new SqlParameter[] {
+                new SqlParameter("@StartDate", dtpStart.Value.Date),
+                new SqlParameter("@EndDate", dtpEnd.Value.Date)
+            };
+                }
+                else
+                {
+                    // ✅ КОНКРЕТНАЯ СЕКЦИЯ
+                    query = @"
+                SELECT 
+                    s.StudentCardNumber AS [Билет],
+                    s.LastName + ' ' + s.FirstName AS [ФИО],
+                    f.FacultyName AS [Факультет],
+                    s.GroupName AS [Группа],
+                    COUNT(a.AttendanceID) AS [Всего занятий],
+                    SUM(CASE WHEN a.Status = 1 THEN 1 ELSE 0 END) AS [Присутствовал],
+                    SUM(CASE WHEN a.Status = 0 THEN 1 ELSE 0 END) AS [Отсутствовал],
+                    CAST(SUM(CASE WHEN a.Status = 1 THEN 100.0 ELSE 0.0 END) / 
+                         NULLIF(COUNT(*), 0) AS DECIMAL(5,1)) AS [Посещаемость %]
+                FROM Students s
+                JOIN Faculties f ON s.FacultyID = f.FacultyID
+                LEFT JOIN Attendance a ON s.StudentCardNumber = a.StudentCardNumber
+                LEFT JOIN Schedule sc ON a.ScheduleID = sc.ScheduleID
+                WHERE sc.SectionID = @SectionID
+                AND (a.VisitDate IS NULL OR a.VisitDate BETWEEN @StartDate AND @EndDate)
+                GROUP BY s.StudentCardNumber, s.LastName, s.FirstName, f.FacultyName, s.GroupName
+                ORDER BY [Посещаемость %] DESC";
+
+                    parameters = new SqlParameter[] {
                 new SqlParameter("@SectionID", sectionID),
                 new SqlParameter("@StartDate", dtpStart.Value.Date),
                 new SqlParameter("@EndDate", dtpEnd.Value.Date)
-                    });
+            };
+                }
+
+                dgv.DataSource = DBConnection.Instance.ExecuteQuery(query, parameters);
 
                 if (dgv.Rows.Count == 0)
                 {
