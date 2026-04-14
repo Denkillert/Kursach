@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="HIC.System.Windows.Forms.DataVisualization" Version="1.0.1" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
