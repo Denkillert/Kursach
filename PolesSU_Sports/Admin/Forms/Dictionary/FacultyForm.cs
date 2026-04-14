@@ -2,7 +2,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.DB;
 
 namespace PolesSU_Sports.Admin.Forms.Dictionary
 {

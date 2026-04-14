@@ -1,4 +1,4 @@
-﻿using PolesSU_Sports.Shared.DB;
+﻿using PolesSU_Sports.Lib.DB;
 using System;
 using System.Data;
 using System.Windows.Forms;

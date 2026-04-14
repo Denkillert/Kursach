@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PolesSU_Sports.Lib\PolesSU_Sports.Lib.csproj" />
+  </ItemGroup>
+
 </Project>

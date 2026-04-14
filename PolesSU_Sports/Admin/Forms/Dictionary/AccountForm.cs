@@ -2,8 +2,8 @@
 using System.Data;
 using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
-using PolesSU_Sports.Shared.DB;
-using PolesSU_Sports.Shared.Model;
+using PolesSU_Sports.Lib.DB;
+using PolesSU_Sports.Lib.Model;
 
 namespace PolesSU_Sports.Admin.Forms.Dictionary
 {

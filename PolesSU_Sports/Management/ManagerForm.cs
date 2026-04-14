@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
-using PolesSU_Sports.Shared.DB;
-using PolesSU_Sports.Shared.Model;
+using PolesSU_Sports.Lib.DB;
+using PolesSU_Sports.Lib.Model;
 using System.Windows.Forms.DataVisualization.Charting;
 using PolesSU_Sports.Management.SettingsForms;
 using System;

@@ -1,8 +1,9 @@
 ﻿using PolesSU_Sports.Admin;
 using PolesSU_Sports.Management;
-using PolesSU_Sports.Shared.DB;
-using PolesSU_Sports.Shared.Model;
+using PolesSU_Sports.Lib.DB;
+using PolesSU_Sports.Lib.Model;
 using System;
+using System.Text;
 using System.Windows.Forms;
 
 namespace PolesSU_Sports
@@ -125,8 +126,11 @@ namespace PolesSU_Sports
 
             try
             {
-                // Аутентификация
-                Account account = DBConnection.Instance.Authenticate(login, password);
+                // ✅ ХЕШИРУЕМ ПАРОЛЬ перед аутентификацией
+                string passwordHash = HashPassword(password);
+
+                // Аутентификация с хешированным паролем
+                Account account = DBConnection.Instance.Authenticate(login, passwordHash);
 
                 if (account != null)
                 {
@@ -146,10 +150,6 @@ namespace PolesSU_Sports
                         LastLogin = DateTime.Now
                     };
 
-                    // Скрываем логин
-                    this.Hide();
-
-                    
                     Form targetForm = null;
 
                     switch (User.CurrentUser.Role)
@@ -161,7 +161,7 @@ namespace PolesSU_Sports
                         case UserRole.Manager:
                             targetForm = new ManagerForm();
                             break;
-                        
+
                         case UserRole.Trainer:
                         case UserRole.Student:
                             MessageBox.Show("Для вашей роли используйте веб-интерфейс", "Информация",
@@ -186,13 +186,13 @@ namespace PolesSU_Sports
                         {
                             if (targetForm.DialogResult == DialogResult.Retry)
                             {
-                                this.txtPassword.Clear(); 
+                                this.txtPassword.Clear();
                                 this.lblError.Text = "";
                                 this.Show();
                             }
                             else
                             {
-                                this.Close(); 
+                                this.Close();
                             }
                         };
                         targetForm.Show();
@@ -208,6 +208,20 @@ namespace PolesSU_Sports
             catch (Exception ex)
             {
                 lblError.Text = "❌ Ошибка: " + ex.Message;
+            }
+        }
+
+        private string HashPassword(string password)
+        {
+            using (System.Security.Cryptography.SHA256 sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
 
