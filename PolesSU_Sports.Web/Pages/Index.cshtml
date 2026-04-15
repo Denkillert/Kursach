@@ -1,10 +1,184 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>PolesSU Sports — Вход</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f0f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #4a5568;
+                font-weight: 500;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #cbd5e0;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+            .btn:hover {
+                background: #005fa3;
+            }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+            .btn-secondary:hover {
+                background: #4a5568;
+            }
+
+        .error {
+            color: #c53030;
+            background: #fed7d7;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            color: #22543d;
+            background: #c6f6d5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #718096;
+        }
+
+            .tab.active {
+                color: #007acc;
+                border-bottom: 2px solid #007acc;
+                font-weight: 600;
+            }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function switchTab(mode) {
+            document.getElementById('loginForm').classList.toggle('hidden', mode !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', mode !== 'register');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            '@Model.IsRegisterMode' === 'True' ? switchTab('register') : null;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>🏆 PolesSU Sports</h2>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="error">@Model.ErrorMessage</div>
+        }
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="success">@Model.SuccessMessage</div>
+        }
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Вход</div>
+            <div class="tab" onclick="switchTab('register')">Регистрация</div>
+        </div>
+
+        <!-- Форма входа -->
+        <form id="loginForm" method="post" asp-page-handler="Login" class="@(Model.IsRegisterMode ? "hidden" : "")">
+            <div class="form-group">
+                <label>Логин</label>
+                <input type="text" name="Login" asp-for="Login" required />
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" name="Password" asp-for="Password" required />
+            </div>
+            <button type="submit" class="btn">Войти</button>
+        </form>
+
+        <!-- Форма регистрации (только студенты) -->
+        <form id="registerForm" method="post" asp-page-handler="Register" class="@(Model.IsRegisterMode ? "" : "hidden")">
+            <div class="form-group">
+                <label>Придумайте логин</label>
+                <input type="text" name="Login" asp-for="Login" required
+                       placeholder="Например: ivanov2024" />
+            </div>
+            <div class="form-group">
+                <label>Придумайте пароль</label>
+                <input type="password" name="Password" asp-for="Password" required
+                       placeholder="Минимум 6 символов" minlength="6" />
+            </div>
+            <div class="form-group">
+                <label>Номер студенческого билета</label>
+                <input type="text" name="StudentCardNumber" asp-for="StudentCardNumber"
+                       required placeholder="2409001 (24-09-001)"
+                       pattern="\d{7}" maxlength="7"
+                       title="Номер студенческого билета" />
+            </div>
+            <button type="submit" class="btn">Зарегистрироваться</button>
+        </form>
+    </div>
+</body>
+</html>
