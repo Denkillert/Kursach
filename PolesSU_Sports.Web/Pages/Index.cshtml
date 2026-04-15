@@ -4,128 +4,12 @@
     Layout = null;
 }
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PolesSU Sports — Вход</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f0f0f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        h2 {
-            text-align: center;
-            color: #2d3748;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                color: #4a5568;
-                font-weight: 500;
-            }
-
-            .form-group input {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #cbd5e0;
-                border-radius: 4px;
-                box-sizing: border-box;
-            }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #007acc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-            .btn:hover {
-                background: #005fa3;
-            }
-
-        .btn-secondary {
-            background: #718096;
-        }
-
-            .btn-secondary:hover {
-                background: #4a5568;
-            }
-
-        .error {
-            color: #c53030;
-            background: #fed7d7;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        .success {
-            color: #22543d;
-            background: #c6f6d5;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            color: #718096;
-        }
-
-            .tab.active {
-                color: #007acc;
-                border-bottom: 2px solid #007acc;
-                font-weight: 600;
-            }
-
-        .hidden {
-            display: none;
-        }
-    </style>
-    <script>
-        function switchTab(mode) {
-            document.getElementById('loginForm').classList.toggle('hidden', mode !== 'login');
-            document.getElementById('registerForm').classList.toggle('hidden', mode !== 'register');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            '@Model.IsRegisterMode' === 'True' ? switchTab('register') : null;
-        }
-    </script>
+    <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
     <div class="container">
@@ -135,6 +19,7 @@
         {
             <div class="error">@Model.ErrorMessage</div>
         }
+
         @if (!string.IsNullOrEmpty(Model.SuccessMessage))
         {
             <div class="success">@Model.SuccessMessage</div>
@@ -148,37 +33,110 @@
         <!-- Форма входа -->
         <form id="loginForm" method="post" asp-page-handler="Login" class="@(Model.IsRegisterMode ? "hidden" : "")">
             <div class="form-group">
-                <label>Логин</label>
-                <input type="text" name="Login" asp-for="Login" required />
+                <label class="required">Логин</label>
+                <input type="text" name="Login" asp-for="Login" required
+                       placeholder="Студенты: номер билета, Тренеры: логин от админа" />
+                <small>📝 Студенты вводят номер билета, тренеры — логин от администратора</small>
             </div>
             <div class="form-group">
-                <label>Пароль</label>
+                <label class="required">Пароль</label>
                 <input type="password" name="Password" asp-for="Password" required />
             </div>
             <button type="submit" class="btn">Войти</button>
         </form>
 
-        <!-- Форма регистрации (только студенты) -->
+        <!-- Форма регистрации -->
         <form id="registerForm" method="post" asp-page-handler="Register" class="@(Model.IsRegisterMode ? "" : "hidden")">
+            <h3>🔐 Данные для входа</h3>
+
             <div class="form-group">
-                <label>Придумайте логин</label>
-                <input type="text" name="Login" asp-for="Login" required
-                       placeholder="Например: ivanov2024" />
-            </div>
-            <div class="form-group">
-                <label>Придумайте пароль</label>
-                <input type="password" name="Password" asp-for="Password" required
-                       placeholder="Минимум 6 символов" minlength="6" />
-            </div>
-            <div class="form-group">
-                <label>Номер студенческого билета</label>
+                <label class="required">Номер студенческого билета</label>
                 <input type="text" name="StudentCardNumber" asp-for="StudentCardNumber"
-                       required placeholder="2409001 (24-09-001)"
-                       pattern="\d{7}" maxlength="7"
-                       title="Номер студенческого билета" />
+                       required placeholder="2409001" pattern="\d{7}" maxlength="7" />
+                <small>📝 Формат: ГГММXXX (24-09-001) — это будет ваш логин</small>
             </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="required">Пароль</label>
+                    <input type="password" name="Password" asp-for="Password" required minlength="6" />
+                </div>
+                <div class="form-group">
+                    <label class="required">Подтверждение пароля</label>
+                    <input type="password" name="ConfirmPassword" asp-for="ConfirmPassword" required minlength="6" />
+                </div>
+            </div>
+
+            <h3>🎓 Личные данные</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="required">Фамилия</label>
+                    <input type="text" name="LastName" asp-for="LastName" required />
+                </div>
+                <div class="form-group">
+                    <label class="required">Имя</label>
+                    <input type="text" name="FirstName" asp-for="FirstName" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Отчество</label>
+                <input type="text" name="MiddleName" asp-for="MiddleName" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="required">Факультет</label>
+                    <select name="FacultyID" asp-for="FacultyID" required>
+                        <option value="0">Выберите факультет</option>
+                        @if (Model.Faculties != null)
+                        {
+                            foreach (var faculty in Model.Faculties)
+                            {
+                                <option value="@faculty.FacultyID">@faculty.FacultyName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="required">Группа</label>
+                    <input type="text" name="GroupName" asp-for="GroupName" required placeholder="ФИТ-21" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="required">Курс</label>
+                    <select name="Course" asp-for="Course" required>
+                        <option value="1">1 курс</option>
+                        <option value="2">2 курс</option>
+                        <option value="3">3 курс</option>
+                        <option value="4">4 курс</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Телефон</label>
+                    <input type="tel" name="Phone" asp-for="Phone" placeholder="+375 XX XXX-XX-XX" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="Email" asp-for="Email" placeholder="student@polessu.by" />
+            </div>
+
             <button type="submit" class="btn">Зарегистрироваться</button>
         </form>
     </div>
+
+    <script>
+        function switchTab(mode) {
+            document.getElementById('loginForm').classList.toggle('hidden', mode !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', mode !== 'register');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
 </html>

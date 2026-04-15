@@ -13,9 +13,18 @@ namespace PolesSU_Sports.Lib.DB
         private readonly string _connectionString;
         private SqlConnection _connection;
 
+        // ✅ СТАТИЧЕСКОЕ СВОЙСТВО для передачи строки подключения из веб-приложения
+        public static string ConnectionString { get; set; }
+
         private DBConnection()
         {
-            string connStr = ConfigurationManager.ConnectionStrings["PolesSU_DB"].ConnectionString;
+            // ✅ Сначала пробуем статическое свойство (для веба), потом конфиг (для десктопа)
+            string connStr = !string.IsNullOrWhiteSpace(ConnectionString)
+                ? ConnectionString
+                : ConfigurationManager.ConnectionStrings["PolesSU_DB"]?.ConnectionString;
+
+            if (string.IsNullOrWhiteSpace(connStr))
+                throw new Exception("❌ Строка подключения не найдена! Проверьте app.config (десктоп) или установите DBConnection.ConnectionString (веб)");
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connStr);
             builder.Encrypt = false;
@@ -62,6 +71,7 @@ namespace PolesSU_Sports.Lib.DB
             }
         }
 
+        // ✅ ОСНОВНОЙ МЕТОД (без транзакции)
         public DataTable ExecuteQuery(string query, SqlParameter[] parameters = null)
         {
             DataTable table = new DataTable();
@@ -87,12 +97,62 @@ namespace PolesSU_Sports.Lib.DB
             return table;
         }
 
+        // ✅ ПЕРЕГРУЗКА С ТРАНЗАКЦИЕЙ
+        public DataTable ExecuteQuery(string query, SqlParameter[] parameters, SqlTransaction transaction)
+        {
+            DataTable table = new DataTable();
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    if (parameters != null)
+                    {
+                        cmd.Parameters.AddRange(parameters);
+                    }
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(table);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка выполнения запроса: " + ex.Message);
+            }
+            return table;
+        }
+
+        // ✅ ОСНОВНОЙ МЕТОД (без транзакции)
         public int ExecuteCommand(string query, SqlParameter[] parameters = null)
         {
             int result = 0;
             try
             {
                 using (SqlCommand cmd = new SqlCommand(query, GetConnection()))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    if (parameters != null)
+                    {
+                        cmd.Parameters.AddRange(parameters);
+                    }
+                    result = cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка выполнения команды: " + ex.Message);
+            }
+            return result;
+        }
+
+        // ✅ ПЕРЕГРУЗКА С ТРАНЗАКЦИЕЙ
+        public int ExecuteCommand(string query, SqlParameter[] parameters, SqlTransaction transaction)
+        {
+            int result = 0;
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
                 {
                     cmd.CommandType = CommandType.Text;
                     if (parameters != null)
@@ -131,7 +191,7 @@ namespace PolesSU_Sports.Lib.DB
             return result;
         }
 
-        //  МЕТОДЫ ДЛЯ РАБОТЫ С МОДЕЛЯМИ 
+        // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С МОДЕЛЯМИ ====================
 
         public List<Student> GetStudents()
         {
@@ -260,41 +320,29 @@ namespace PolesSU_Sports.Lib.DB
             return new DashboardStats();
         }
 
-        // МЕТОДЫ ДЛЯ УДАЛЕНИЯ
-
-
+        // ==================== МЕТОДЫ ДЛЯ УДАЛЕНИЯ ====================
 
         public bool CanDeleteStudent(string studentCardNumber)
         {
             try
             {
-                // Проверяем, есть ли посещаемость
                 object attendanceCount = ExecuteScalar(
                     "SELECT COUNT(*) FROM Attendance WHERE StudentCardNumber = @StudentCardNumber",
                     new[] { new SqlParameter("@StudentCardNumber", studentCardNumber) });
 
-                if (Convert.ToInt32(attendanceCount) > 0)
-                {
-                    return false;
-                }
+                if (Convert.ToInt32(attendanceCount) > 0) return false;
 
-                // Проверяем, есть ли достижения
                 object achievementCount = ExecuteScalar(
                     "SELECT COUNT(*) FROM Achievements WHERE StudentCardNumber = @StudentCardNumber",
                     new[] { new SqlParameter("@StudentCardNumber", studentCardNumber) });
 
-                if (Convert.ToInt32(achievementCount) > 0)
-                {
-                    return false;
-                }
+                if (Convert.ToInt32(achievementCount) > 0) return false;
 
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
+
         public bool DeleteStudent(string studentCardNumber)
         {
             try
@@ -302,7 +350,6 @@ namespace PolesSU_Sports.Lib.DB
                 int result = ExecuteCommand(
                     "DELETE FROM Students WHERE StudentCardNumber = @StudentCardNumber",
                     new[] { new SqlParameter("@StudentCardNumber", studentCardNumber) });
-
                 return result > 0;
             }
             catch (Exception ex)
@@ -318,7 +365,6 @@ namespace PolesSU_Sports.Lib.DB
                 int result = ExecuteCommand(
                     "DELETE FROM Trainers WHERE TrainerID = @TrainerID",
                     new[] { new SqlParameter("@TrainerID", trainerID) });
-
                 return result > 0;
             }
             catch (Exception ex)
@@ -334,7 +380,6 @@ namespace PolesSU_Sports.Lib.DB
                 int result = ExecuteCommand(
                     "DELETE FROM Sections WHERE SectionID = @SectionID",
                     new[] { new SqlParameter("@SectionID", sectionID) });
-
                 return result > 0;
             }
             catch (Exception ex)
@@ -343,18 +388,18 @@ namespace PolesSU_Sports.Lib.DB
             }
         }
 
-        //  МЕТОДЫ ДЛЯ РАБОТЫ С ACCOUNTS
+        // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С ACCOUNTS ====================
 
         public Account Authenticate(string login, string password)
         {
             try
             {
                 DataTable dt = ExecuteQuery(@"
-            SELECT * FROM Accounts 
-            WHERE Login = @Login AND PasswordHash = @Password AND IsActive = 1",
+                    SELECT * FROM Accounts 
+                    WHERE Login = @Login AND PasswordHash = @Password AND IsActive = 1",
                     new[] {
-                new SqlParameter("@Login", login),
-                new SqlParameter("@Password", password)
+                        new SqlParameter("@Login", login),
+                        new SqlParameter("@Password", password)
                     });
 
                 if (dt.Rows.Count > 0)
@@ -384,14 +429,14 @@ namespace PolesSU_Sports.Lib.DB
         {
             List<Account> accounts = new List<Account>();
             DataTable dt = ExecuteQuery(@"
-        SELECT 
-            a.*,
-            s.LastName + ' ' + s.FirstName AS StudentName,
-            t.LastName + ' ' + t.FirstName AS TrainerName
-        FROM Accounts a
-        LEFT JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
-        LEFT JOIN Trainers t ON a.TrainerID = t.TrainerID
-        ORDER BY a.Login");
+                SELECT 
+                    a.*,
+                    s.LastName + ' ' + s.FirstName AS StudentName,
+                    t.LastName + ' ' + t.FirstName AS TrainerName
+                FROM Accounts a
+                LEFT JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
+                LEFT JOIN Trainers t ON a.TrainerID = t.TrainerID
+                ORDER BY a.Login");
 
             foreach (DataRow row in dt.Rows)
             {
@@ -410,21 +455,52 @@ namespace PolesSU_Sports.Lib.DB
             return accounts;
         }
 
+        // ✅ ОСНОВНОЙ МЕТОД (без транзакции)
         public bool CreateAccount(Account account)
         {
             try
             {
-                ExecuteCommand(@"
-            INSERT INTO Accounts (Login, PasswordHash, Role, StudentCardNumber, TrainerID, IsActive)
-            VALUES (@Login, @PasswordHash, @Role, @StudentCardNumber, @TrainerID, @IsActive)",
-                    new[] {
-                new SqlParameter("@Login", account.Login),
-                new SqlParameter("@PasswordHash", account.PasswordHash),
-                new SqlParameter("@Role", account.Role.ToString()),
-                new SqlParameter("@StudentCardNumber", (object)account.StudentCardNumber ?? DBNull.Value),
-                new SqlParameter("@TrainerID", (object)account.TrainerID ?? DBNull.Value),
-                new SqlParameter("@IsActive", account.IsActive)
-                    });
+                string query = @"
+                    INSERT INTO Accounts (Login, PasswordHash, Role, StudentCardNumber, TrainerID, IsActive, CreatedDate)
+                    VALUES (@Login, @PasswordHash, @Role, @StudentCardNumber, @TrainerID, @IsActive, GETDATE())";
+
+                var parameters = new[] {
+                    new SqlParameter("@Login", account.Login),
+                    new SqlParameter("@PasswordHash", account.PasswordHash),
+                    new SqlParameter("@Role", account.Role.ToString()),
+                    new SqlParameter("@StudentCardNumber", (object)account.StudentCardNumber ?? DBNull.Value),
+                    new SqlParameter("@TrainerID", (object)account.TrainerID ?? DBNull.Value),
+                    new SqlParameter("@IsActive", account.IsActive ? 1 : 0)
+                };
+
+                ExecuteCommand(query, parameters);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка создания аккаунта: " + ex.Message);
+            }
+        }
+
+        // ✅ ПЕРЕГРУЗКА С ТРАНЗАКЦИЕЙ
+        public bool CreateAccount(Account account, SqlTransaction transaction)
+        {
+            try
+            {
+                string query = @"
+                    INSERT INTO Accounts (Login, PasswordHash, Role, StudentCardNumber, TrainerID, IsActive, CreatedDate)
+                    VALUES (@Login, @PasswordHash, @Role, @StudentCardNumber, @TrainerID, @IsActive, GETDATE())";
+
+                var parameters = new[] {
+                    new SqlParameter("@Login", account.Login),
+                    new SqlParameter("@PasswordHash", account.PasswordHash),
+                    new SqlParameter("@Role", account.Role.ToString()),
+                    new SqlParameter("@StudentCardNumber", (object)account.StudentCardNumber ?? DBNull.Value),
+                    new SqlParameter("@TrainerID", (object)account.TrainerID ?? DBNull.Value),
+                    new SqlParameter("@IsActive", account.IsActive ? 1 : 0)
+                };
+
+                ExecuteCommand(query, parameters, transaction);
                 return true;
             }
             catch (Exception ex)
@@ -437,18 +513,21 @@ namespace PolesSU_Sports.Lib.DB
         {
             try
             {
-                ExecuteCommand(@"
-            UPDATE Accounts SET 
-                Login = @Login,
-                Role = @Role,
-                IsActive = @IsActive
-            WHERE AccountID = @AccountID",
-                    new[] {
-                new SqlParameter("@Login", account.Login),
-                new SqlParameter("@Role", account.Role.ToString()),
-                new SqlParameter("@IsActive", account.IsActive),
-                new SqlParameter("@AccountID", account.AccountID)
-                    });
+                string query = @"
+                    UPDATE Accounts SET 
+                        Login = @Login,
+                        Role = @Role,
+                        IsActive = @IsActive
+                    WHERE AccountID = @AccountID";
+
+                var parameters = new[] {
+                    new SqlParameter("@Login", account.Login),
+                    new SqlParameter("@Role", account.Role.ToString()),
+                    new SqlParameter("@IsActive", account.IsActive),
+                    new SqlParameter("@AccountID", account.AccountID)
+                };
+
+                ExecuteCommand(query, parameters);
                 return true;
             }
             catch (Exception ex)
@@ -482,7 +561,6 @@ namespace PolesSU_Sports.Lib.DB
             catch { return false; }
         }
 
-        // Проверка существования логина
         public bool IsLoginExists(string login, int? excludeAccountID = null)
         {
             try
@@ -496,8 +574,8 @@ namespace PolesSU_Sports.Lib.DB
                 object result = ExecuteScalar(query,
                     excludeAccountID.HasValue
                         ? new[] {
-                    new SqlParameter("@Login", login),
-                    new SqlParameter("@AccountID", excludeAccountID.Value)
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@AccountID", excludeAccountID.Value)
                           }
                         : new[] { new SqlParameter("@Login", login) });
 
