@@ -1,32 +1,60 @@
 ```
 # Build artifacts
-bin/
-obj/
+*.obj
 *.dll
 *.exe
-*.pdb
-*.config
-*.csproj.user
+*.so
+*.a
+*.out
+*.a
 
 # Dependencies
-packages/
+.venv/
+venv/
 node_modules/
+target/
+.gradle/
+.mypy_cache/
+.pytest_cache/
+dist/
+build/
+[Bb]in/
+[Oo]bj/
 
-# Logs
+# Logs and temp files
 *.log
+*.tmp
 
 # Environment
 .env
-.env.local
-*.env.*
+*.env
 
 # Editors
+.vs/
 .vscode/
 .idea/
-*.userprefs
-*.user
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
 Thumbs.db
-```
+
+# Debug files
+*.ilk
+*.pdb
+*.exp
+*.lib
+
+# Distribution / packaging
+dist/
+build/
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+/.vs/slnx.sqlite
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
