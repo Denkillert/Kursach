@@ -7,6 +7,13 @@ namespace PolesSU_Sports.Web.Pages.Student
 {
     public class ScheduleModel : PageModel
     {
+        private readonly DBConnection _dbConnection;
+
+        public ScheduleModel(DBConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
         public DataTable Schedule { get; set; }
 
         public IActionResult OnGet()
@@ -17,7 +24,7 @@ namespace PolesSU_Sports.Web.Pages.Student
 
             var studentCardNumber = HttpContext.Session.GetString("UserLogin");
 
-            Schedule = DBConnection.Instance.ExecuteQuery(@"
+            Schedule = _dbConnection.ExecuteQuery(@"
                 SELECT 
                     sc.Date AS [Дата],
                     sc.TimeSlot AS [Время],

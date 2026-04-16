@@ -7,6 +7,13 @@ namespace PolesSU_Sports.Web.Pages.Student
 {
     public class IndexModel : PageModel
     {
+        private readonly DBConnection _dbConnection;
+
+        public IndexModel(DBConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
         public string StudentName { get; set; }
         public string GroupName { get; set; }
         public int EnrolledSectionsCount { get; set; }
@@ -24,7 +31,7 @@ namespace PolesSU_Sports.Web.Pages.Student
             var studentCardNumber = HttpContext.Session.GetString("UserLogin");
 
             // Получаем данные студента
-            var student = DBConnection.Instance.ExecuteQuery(
+            var student = _dbConnection.ExecuteQuery(
                 "SELECT LastName, FirstName, MiddleName, GroupName FROM Students WHERE StudentCardNumber = @CardNumber",
                 new[] { new Microsoft.Data.SqlClient.SqlParameter("@CardNumber", studentCardNumber) });
 
@@ -35,21 +42,21 @@ namespace PolesSU_Sports.Web.Pages.Student
             }
 
             // Количество секций, где записан студент
-            EnrolledSectionsCount = Convert.ToInt32(DBConnection.Instance.ExecuteScalar(
+            EnrolledSectionsCount = Convert.ToInt32(_dbConnection.ExecuteScalar(
                 "SELECT COUNT(*) FROM StudentSections WHERE StudentCardNumber = @CardNumber AND IsActive = 1",
                 new[] { new Microsoft.Data.SqlClient.SqlParameter("@CardNumber", studentCardNumber) }));
 
             // Общая посещаемость
-            TotalAttendance = Convert.ToInt32(DBConnection.Instance.ExecuteScalar(
+            TotalAttendance = Convert.ToInt32(_dbConnection.ExecuteScalar(
                 "SELECT COUNT(*) FROM Attendance WHERE StudentCardNumber = @CardNumber AND Status = 1",
                 new[] { new Microsoft.Data.SqlClient.SqlParameter("@CardNumber", studentCardNumber) }));
 
             // Доступные секции (куда ещё не записан)
-            AvailableSections = DBConnection.Instance.GetSections();
+            AvailableSections = _dbConnection.GetSections();
 
             // Секции, куда записан студент
             EnrolledSections = new List<Section>();
-            var enrolled = DBConnection.Instance.ExecuteQuery(@"
+            var enrolled = _dbConnection.ExecuteQuery(@"
                 SELECT sec.* FROM Sections sec
                 JOIN StudentSections ss ON sec.SectionID = ss.SectionID
                 WHERE ss.StudentCardNumber = @CardNumber AND ss.IsActive = 1",
