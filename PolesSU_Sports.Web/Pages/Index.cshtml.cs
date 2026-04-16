@@ -17,14 +17,14 @@ namespace PolesSU_Sports.Web.Pages
             _dbConnection = dbConnection;
         }
 
-        // ✅ Поля для ВХОДА (универсальные: студенты + тренеры)
+        //   Поля для ВХОДА (универсальные: студенты + тренеры)
         [BindProperty]
         public string Login { get; set; }
 
         [BindProperty]
         public string Password { get; set; }
 
-        // ✅ Поля для РЕГИСТРАЦИИ (только студенты)
+        //   Поля для РЕГИСТРАЦИИ (только студенты)
         [BindProperty]
         public string ConfirmPassword { get; set; }
 
@@ -64,19 +64,19 @@ namespace PolesSU_Sports.Web.Pages
 
         public IActionResult OnGet()
         {
-            // ✅ Проверка авторизации
+            // Проверка авторизации
             var role = HttpContext.Session.GetString("UserRole");
             if (!string.IsNullOrEmpty(role))
             {
                 return RedirectToPage(GetRedirectPage(role));
             }
 
-            // ✅ Загружаем факультеты для формы регистрации
+            // Загружаем факультеты для формы регистрации
             Faculties = _dbConnection.GetFaculties();
             return Page();
         }
 
-        // ✅ ВХОД (для студентов и тренеров)
+        // ВХОД (для студентов и тренеров)
         public IActionResult OnPostLogin()
         {
             if (string.IsNullOrWhiteSpace(Login) || string.IsNullOrWhiteSpace(Password))
@@ -90,20 +90,20 @@ namespace PolesSU_Sports.Web.Pages
             {
                 string passwordHash = HashPassword(Password);
 
-                // ✅ Аутентификация через библиотеку
+                //   Аутентификация через библиотеку
                 var account = _dbConnection.Authenticate(Login, passwordHash);
 
                 if (account != null && account.IsActive)
                 {
-                    // ✅ Сохраняем в сессии
+                    //   Сохраняем в сессии
                     HttpContext.Session.SetString("UserLogin", account.Login);
                     HttpContext.Session.SetString("UserRole", account.Role.ToString());
                     HttpContext.Session.SetInt32("UserID", account.AccountID);
 
-                    // ✅ Обновляем LastLogin
+                    //   Обновляем LastLogin
                     _dbConnection.UpdateLastLogin(account.AccountID);
 
-                    // ✅ Перенаправляем по роли
+                    //   Перенаправляем по роли
                     return RedirectToPage(GetRedirectPage(account.Role.ToString()));
                 }
 
@@ -118,10 +118,10 @@ namespace PolesSU_Sports.Web.Pages
             return Page();
         }
 
-        // ✅ РЕГИСТРАЦИЯ (только для студентов)
+        //   РЕГИСТРАЦИЯ (только для студентов)
         public IActionResult OnPostRegister()
         {
-            // ✅ Валидация обязательных полей
+            //   Валидация обязательных полей
             if (string.IsNullOrWhiteSpace(Password) ||
                 string.IsNullOrWhiteSpace(StudentCardNumber) ||
                 string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(FirstName) ||
@@ -133,7 +133,7 @@ namespace PolesSU_Sports.Web.Pages
                 return Page();
             }
 
-            // ✅ Валидация пароля
+            //   Валидация пароля
             if (Password.Length < 6)
             {
                 ErrorMessage = "❌ Пароль должен быть не менее 6 символов";
@@ -142,7 +142,7 @@ namespace PolesSU_Sports.Web.Pages
                 return Page();
             }
 
-            // ✅ Проверка совпадения паролей
+            //   Проверка совпадения паролей
             if (Password != ConfirmPassword)
             {
                 ErrorMessage = "❌ Пароли не совпадают";
@@ -151,10 +151,10 @@ namespace PolesSU_Sports.Web.Pages
                 return Page();
             }
 
-            // ✅ Валидация номера билета (7 цифр: ГГММXXX)
+            //   Валидация номера билета (7 цифр: ГГММXXX)
             if (!IsValidStudentCardNumber(StudentCardNumber))
             {
-                ErrorMessage = "❌ Неверный формат номера билета. Пример: 2409001 (24-09-001)";
+                ErrorMessage = "❌ Неверный формат номера билета. Пример: 2409001";
                 IsRegisterMode = true;
                 Faculties = _dbConnection.GetFaculties();
                 return Page();
@@ -162,7 +162,7 @@ namespace PolesSU_Sports.Web.Pages
 
             try
             {
-                // ✅ Проверяем, нет ли уже студента с таким билетом
+                //   Проверяем, нет ли уже студента с таким билетом
                 var existingStudent = _dbConnection.ExecuteQuery(
                     "SELECT StudentCardNumber FROM Students WHERE StudentCardNumber = @CardNumber",
                     new[] { new SqlParameter("@CardNumber", StudentCardNumber) });
@@ -175,7 +175,7 @@ namespace PolesSU_Sports.Web.Pages
                     return Page();
                 }
 
-                // ✅ Проверяем, нет ли уже аккаунта с таким логином
+                //   Проверяем, нет ли уже аккаунта с таким логином
                 var existingAccount = _dbConnection.ExecuteQuery(
                     "SELECT AccountID FROM Accounts WHERE Login = @Login",
                     new[] { new SqlParameter("@Login", StudentCardNumber) });
@@ -188,7 +188,7 @@ namespace PolesSU_Sports.Web.Pages
                     return Page();
                 }
 
-                // ✅ ТРАНЗАКЦИЯ: создаём Студента и Аккаунт
+                //   ТРАНЗАКЦИЯ: создаём Студента и Аккаунт
                 using (var connection = _dbConnection.GetConnection())
                 {
                     using (var transaction = connection.BeginTransaction())
@@ -228,16 +228,16 @@ namespace PolesSU_Sports.Web.Pages
 
                             _dbConnection.CreateAccount(newAccount, transaction);
 
-                            // ✅ Коммит транзакции
+                            //   Коммит транзакции
                             transaction.Commit();
 
-                            SuccessMessage = $"✅ Регистрация успешна! Добро пожаловать, {FirstName}! Ваш логин: {StudentCardNumber}";
+                            SuccessMessage = $"  Регистрация успешна! Добро пожаловать, {FirstName}! Ваш логин: {StudentCardNumber}";
                             IsRegisterMode = false;
                             ClearForm();
                         }
                         catch
                         {
-                            // ✅ Откат при ошибке
+                            //   Откат при ошибке
                             transaction.Rollback();
                             throw;
                         }
@@ -253,7 +253,7 @@ namespace PolesSU_Sports.Web.Pages
             return Page();
         }
 
-        // ✅ Перенаправление по роли
+        //   Перенаправление по роли
         private string GetRedirectPage(string role) => role switch
         {
             "Trainer" => "/Trainer/Index",
@@ -261,7 +261,7 @@ namespace PolesSU_Sports.Web.Pages
             _ => "/Index"
         };
 
-        // ✅ Хеширование пароля (SHA256 — как в десктопе)
+        //   Хеширование пароля (SHA256 — как в десктопе)
         private string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
@@ -276,7 +276,7 @@ namespace PolesSU_Sports.Web.Pages
             }
         }
 
-        // ✅ Валидация номера студенческого билета (7 цифр: ГГММXXX)
+        //   Валидация номера студенческого билета (7 цифр: ГГММXXX)
         private bool IsValidStudentCardNumber(string cardNumber)
         {
             if (string.IsNullOrWhiteSpace(cardNumber)) return false;
@@ -302,7 +302,7 @@ namespace PolesSU_Sports.Web.Pages
             return true;
         }
 
-        // ✅ Очистка формы
+        //   Очистка формы
         private void ClearForm()
         {
             Login = "";

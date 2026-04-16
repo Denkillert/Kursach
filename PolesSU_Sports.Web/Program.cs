@@ -3,10 +3,10 @@ using PolesSU_Sports.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Регистрируем фабрику подключений
+// Регистрируем фабрику подключений
 builder.Services.AddSingleton<IDbConnectionFactory, WebDbConnectionFactory>();
 
-// ✅ Регистрируем DBConnection как Singleton
+// Регистрируем DBConnection как Singleton
 builder.Services.AddSingleton<DBConnection>(sp =>
 {
     var factory = sp.GetRequiredService<IDbConnectionFactory>();
