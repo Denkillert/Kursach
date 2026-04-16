@@ -11,7 +11,6 @@ namespace PolesSU_Sports.Lib.DB
     {
         private static DBConnection _instance;
         private readonly string _connectionString;
-        private SqlConnection _connection;
         private readonly IDbConnectionFactory _connectionFactory;
 
         // ✅ Конструктор для DI (веб)
@@ -29,7 +28,6 @@ namespace PolesSU_Sports.Lib.DB
             builder.IntegratedSecurity = false;
 
             _connectionString = builder.ConnectionString;
-            _connection = new SqlConnection(_connectionString);
         }
 
         // ✅ Конструктор для десктопа (через app.config)
@@ -46,7 +44,6 @@ namespace PolesSU_Sports.Lib.DB
             builder.IntegratedSecurity = false;
 
             _connectionString = builder.ConnectionString;
-            _connection = new SqlConnection(_connectionString);
         }
 
         public static DBConnection Instance
@@ -63,25 +60,27 @@ namespace PolesSU_Sports.Lib.DB
 
         public SqlConnection GetConnection()
         {
-            if (_connection.State != ConnectionState.Open)
+            SqlConnection connection = new SqlConnection(_connectionString);
+            if (connection.State != ConnectionState.Open)
             {
                 try
                 {
-                    _connection.Open();
+                    connection.Open();
                 }
                 catch (Exception ex)
                 {
                     throw new Exception($"Не удалось подключиться к базе данных:\n{ex.Message}");
                 }
             }
-            return _connection;
+            return connection;
         }
 
-        public void CloseConnection()
+        public void CloseConnection(SqlConnection connection)
         {
-            if (_connection.State != ConnectionState.Closed)
+            if (connection?.State != ConnectionState.Closed)
             {
-                _connection.Close();
+                connection.Close();
+                connection.Dispose();
             }
         }
 
@@ -117,7 +116,7 @@ namespace PolesSU_Sports.Lib.DB
             DataTable table = new DataTable();
             try
             {
-                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
+                using (SqlCommand cmd = new SqlCommand(query, transaction.Connection, transaction))
                 {
                     cmd.CommandType = CommandType.Text;
                     if (parameters != null)
@@ -166,7 +165,7 @@ namespace PolesSU_Sports.Lib.DB
             int result = 0;
             try
             {
-                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
+                using (SqlCommand cmd = new SqlCommand(query, transaction.Connection, transaction))
                 {
                     cmd.CommandType = CommandType.Text;
                     if (parameters != null)
