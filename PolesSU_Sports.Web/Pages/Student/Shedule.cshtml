@@ -1,0 +1,98 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Student.ScheduleModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Моё расписание";
+}
+@using System.Data 
+
+<div class="schedule-page">
+    <h1>📅 Моё расписание</h1>
+
+    @if (Model.Schedule.Rows.Count > 0)
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Время</th>
+                    <th>Секция</th>
+                    <th>Вид спорта</th>
+                    <th>Тренер</th>
+                    <th>Посещение</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow row in Model.Schedule.Rows)
+                {
+                    <tr>
+                        <td>@Convert.ToDateTime(row["Дата"]).ToString("dd.MM.yyyy")</td>
+                        <td>@row["Время"]</td>
+                        <td>@row["Секция"]</td>
+                        <td>@row["Вид спорта"]</td>
+                        <td>@row["Тренер"]</td>
+                        <td>@row["Посещение"]</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty">
+            <p>📭 У вас пока нет запланированных занятий</p>
+            <a href="/Student/Sections" class="btn">🔍 Записаться в секцию</a>
+        </div>
+    }
+</div>
+
+<style>
+    .schedule-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+        .schedule-page h1 {
+            color: #2d3748;
+            margin-bottom: 30px;
+        }
+
+    .data-table {
+        width: 100%;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-collapse: collapse;
+    }
+
+        .data-table th {
+            background: #007acc;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table tr:hover {
+            background: #f7fafc;
+        }
+
+    .empty {
+        text-align: center;
+        padding: 50px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+        .empty p {
+            color: #718096;
+            margin-bottom: 20px;
+        }
+</style>

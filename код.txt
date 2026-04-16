@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
@@ -12,33 +12,19 @@ namespace PolesSU_Sports.Lib.DB
         private static DBConnection _instance;
         private readonly string _connectionString;
         private SqlConnection _connection;
-        private readonly IDbConnectionFactory _connectionFactory;
 
-        // ✅ Конструктор для DI (веб)
-        public DBConnection(IDbConnectionFactory connectionFactory)
-        {
-            _connectionFactory = connectionFactory;
-            _connectionString = _connectionFactory.GetConnectionString();
+        // ✅ СТАТИЧЕСКОЕ СВОЙСТВО для передачи строки подключения из веб-приложения
+        public static string ConnectionString { get; set; }
 
-            if (string.IsNullOrWhiteSpace(_connectionString))
-                throw new Exception("❌ Строка подключения не найдена!");
-
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_connectionString);
-            builder.Encrypt = false;
-            builder.TrustServerCertificate = true;
-            builder.IntegratedSecurity = false;
-
-            _connectionString = builder.ConnectionString;
-            _connection = new SqlConnection(_connectionString);
-        }
-
-        // ✅ Конструктор для десктопа (через app.config)
         private DBConnection()
         {
-            string connStr = System.Configuration.ConfigurationManager.ConnectionStrings["PolesSU_DB"]?.ConnectionString;
+            // ✅ Сначала пробуем статическое свойство (для веба), потом конфиг (для десктопа)
+            string connStr = !string.IsNullOrWhiteSpace(ConnectionString)
+                ? ConnectionString
+                : ConfigurationManager.ConnectionStrings["PolesSU_DB"]?.ConnectionString;
 
             if (string.IsNullOrWhiteSpace(connStr))
-                throw new Exception("❌ Строка подключения не найдена в app.config!");
+                throw new Exception("❌ Строка подключения не найдена! Проверьте app.config (десктоп) или установите DBConnection.ConnectionString (веб)");
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connStr);
             builder.Encrypt = false;
