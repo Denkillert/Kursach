@@ -10,6 +10,13 @@ namespace PolesSU_Sports.Web.Pages
 {
     public class IndexModel : PageModel
     {
+        private readonly DBConnection _dbConnection;
+
+        public IndexModel(DBConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
         // ✅ Поля для ВХОДА (универсальные: студенты + тренеры)
         [BindProperty]
         public string Login { get; set; }
@@ -65,7 +72,7 @@ namespace PolesSU_Sports.Web.Pages
             }
 
             // ✅ Загружаем факультеты для формы регистрации
-            Faculties = DBConnection.Instance.GetFaculties();
+            Faculties = _dbConnection.GetFaculties();
             return Page();
         }
 
@@ -75,7 +82,7 @@ namespace PolesSU_Sports.Web.Pages
             if (string.IsNullOrWhiteSpace(Login) || string.IsNullOrWhiteSpace(Password))
             {
                 ErrorMessage = "⚠️ Введите логин и пароль";
-                Faculties = DBConnection.Instance.GetFaculties();
+                Faculties = _dbConnection.GetFaculties();
                 return Page();
             }
 
@@ -84,7 +91,7 @@ namespace PolesSU_Sports.Web.Pages
                 string passwordHash = HashPassword(Password);
 
                 // ✅ Аутентификация через библиотеку
-                var account = DBConnection.Instance.Authenticate(Login, passwordHash);
+                var account = _dbConnection.Authenticate(Login, passwordHash);
 
                 if (account != null && account.IsActive)
                 {
@@ -94,7 +101,7 @@ namespace PolesSU_Sports.Web.Pages
                     HttpContext.Session.SetInt32("UserID", account.AccountID);
 
                     // ✅ Обновляем LastLogin
-                    DBConnection.Instance.UpdateLastLogin(account.AccountID);
+                    _dbConnection.UpdateLastLogin(account.AccountID);
 
                     // ✅ Перенаправляем по роли
                     return RedirectToPage(GetRedirectPage(account.Role.ToString()));
@@ -107,7 +114,7 @@ namespace PolesSU_Sports.Web.Pages
                 ErrorMessage = "❌ Ошибка: " + ex.Message;
             }
 
-            Faculties = DBConnection.Instance.GetFaculties();
+            Faculties = _dbConnection.GetFaculties();
             return Page();
         }
 
@@ -122,7 +129,7 @@ namespace PolesSU_Sports.Web.Pages
             {
                 ErrorMessage = "⚠️ Заполните все обязательные поля";
                 IsRegisterMode = true;
-                Faculties = DBConnection.Instance.GetFaculties();
+                Faculties = _dbConnection.GetFaculties();
                 return Page();
             }
 
@@ -131,7 +138,7 @@ namespace PolesSU_Sports.Web.Pages
             {
                 ErrorMessage = "❌ Пароль должен быть не менее 6 символов";
                 IsRegisterMode = true;
-                Faculties = DBConnection.Instance.GetFaculties();
+                Faculties = _dbConnection.GetFaculties();
                 return Page();
             }
 
@@ -140,7 +147,7 @@ namespace PolesSU_Sports.Web.Pages
             {
                 ErrorMessage = "❌ Пароли не совпадают";
                 IsRegisterMode = true;
-                Faculties = DBConnection.Instance.GetFaculties();
+                Faculties = _dbConnection.GetFaculties();
                 return Page();
             }
 
@@ -149,14 +156,14 @@ namespace PolesSU_Sports.Web.Pages
             {
                 ErrorMessage = "❌ Неверный формат номера билета. Пример: 2409001 (24-09-001)";
                 IsRegisterMode = true;
-                Faculties = DBConnection.Instance.GetFaculties();
+                Faculties = _dbConnection.GetFaculties();
                 return Page();
             }
 
             try
             {
                 // ✅ Проверяем, нет ли уже студента с таким билетом
-                var existingStudent = DBConnection.Instance.ExecuteQuery(
+                var existingStudent = _dbConnection.ExecuteQuery(
                     "SELECT StudentCardNumber FROM Students WHERE StudentCardNumber = @CardNumber",
                     new[] { new SqlParameter("@CardNumber", StudentCardNumber) });
 
@@ -164,12 +171,12 @@ namespace PolesSU_Sports.Web.Pages
                 {
                     ErrorMessage = "❌ Студент с таким номером билета уже существует";
                     IsRegisterMode = true;
-                    Faculties = DBConnection.Instance.GetFaculties();
+                    Faculties = _dbConnection.GetFaculties();
                     return Page();
                 }
 
                 // ✅ Проверяем, нет ли уже аккаунта с таким логином
-                var existingAccount = DBConnection.Instance.ExecuteQuery(
+                var existingAccount = _dbConnection.ExecuteQuery(
                     "SELECT AccountID FROM Accounts WHERE Login = @Login",
                     new[] { new SqlParameter("@Login", StudentCardNumber) });
 
@@ -177,19 +184,19 @@ namespace PolesSU_Sports.Web.Pages
                 {
                     ErrorMessage = "❌ На этот номер билета уже зарегистрирован аккаунт";
                     IsRegisterMode = true;
-                    Faculties = DBConnection.Instance.GetFaculties();
+                    Faculties = _dbConnection.GetFaculties();
                     return Page();
                 }
 
                 // ✅ ТРАНЗАКЦИЯ: создаём Студента и Аккаунт
-                using (var connection = DBConnection.Instance.GetConnection())
+                using (var connection = _dbConnection.GetConnection())
                 {
                     using (var transaction = connection.BeginTransaction())
                     {
                         try
                         {
                             // 1. Создаём студента
-                            DBConnection.Instance.ExecuteCommand(@"
+                            _dbConnection.ExecuteCommand(@"
                                 INSERT INTO Students 
                                 (StudentCardNumber, LastName, FirstName, MiddleName, Email, Phone, 
                                  FacultyID, GroupName, Course, EnrollmentDate, BirthDate)
@@ -219,7 +226,7 @@ namespace PolesSU_Sports.Web.Pages
                                 IsActive = true
                             };
 
-                            DBConnection.Instance.CreateAccount(newAccount, transaction);
+                            _dbConnection.CreateAccount(newAccount, transaction);
 
                             // ✅ Коммит транзакции
                             transaction.Commit();
@@ -242,7 +249,7 @@ namespace PolesSU_Sports.Web.Pages
                 ErrorMessage = "❌ Ошибка регистрации: " + ex.Message;
             }
 
-            Faculties = DBConnection.Instance.GetFaculties();
+            Faculties = _dbConnection.GetFaculties();
             return Page();
         }
 

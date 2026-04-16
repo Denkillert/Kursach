@@ -8,6 +8,13 @@ namespace PolesSU_Sports.Web.Pages.Student
 {
     public class SectionsModel : PageModel
     {
+        private readonly DBConnection _dbConnection;
+
+        public SectionsModel(DBConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
         public List<Section> AllSections { get; set; }
         public List<int> EnrolledSectionIds { get; set; }
         public string SuccessMessage { get; set; }
@@ -21,11 +28,11 @@ namespace PolesSU_Sports.Web.Pages.Student
 
             var studentCardNumber = HttpContext.Session.GetString("UserLogin");
 
-            AllSections = DBConnection.Instance.GetSections();
+            AllSections = _dbConnection.GetSections();
 
             // Получаем ID секций, куда уже записан студент
             EnrolledSectionIds = new List<int>();
-            var enrolled = DBConnection.Instance.ExecuteQuery(
+            var enrolled = _dbConnection.ExecuteQuery(
                 "SELECT SectionID FROM StudentSections WHERE StudentCardNumber = @CardNumber AND IsActive = 1",
                 new[] { new SqlParameter("@CardNumber", studentCardNumber) });
 
@@ -48,7 +55,7 @@ namespace PolesSU_Sports.Web.Pages.Student
             try
             {
                 // Проверяем, не записан ли уже
-                var exists = DBConnection.Instance.ExecuteScalar(
+                var exists = _dbConnection.ExecuteScalar(
                     "SELECT COUNT(*) FROM StudentSections WHERE StudentCardNumber = @CardNumber AND SectionID = @SectionID AND IsActive = 1",
                     new[] {
                         new SqlParameter("@CardNumber", studentCardNumber),
@@ -62,7 +69,7 @@ namespace PolesSU_Sports.Web.Pages.Student
                 }
 
                 // Создаём запись
-                DBConnection.Instance.ExecuteCommand(@"
+                _dbConnection.ExecuteCommand(@"
                     INSERT INTO StudentSections (StudentCardNumber, SectionID, EnrollmentDate, IsActive)
                     VALUES (@CardNumber, @SectionID, GETDATE(), 1)",
                     new[] {
