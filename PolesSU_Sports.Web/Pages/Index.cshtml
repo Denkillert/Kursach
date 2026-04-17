@@ -1,33 +1,31 @@
 ﻿@page
 @model IndexModel
 @{
-    Layout = null;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Вход в систему";
 }
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PolesSU Sports — Вход</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-</head>
-<body>
-    <div class="container">
-        <h2>🏆 PolesSU Sports</h2>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">🏆</div>
+            <h1>PolesSU Sports</h1>
+            <p>Система управления спортивными секциями</p>
+        </div>
 
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
-            <div class="error">@Model.ErrorMessage</div>
+            <div class="error">⚠️ @Model.ErrorMessage</div>
         }
 
         @if (!string.IsNullOrEmpty(Model.SuccessMessage))
         {
-            <div class="success">@Model.SuccessMessage</div>
+            <div class="success">✅ @Model.SuccessMessage</div>
         }
 
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('login')">Вход</div>
-            <div class="tab" onclick="switchTab('register')">Регистрация</div>
+            <button type="button" class="tab active" onclick="switchTab('login')">🔐 Вход</button>
+            <button type="button" class="tab" onclick="switchTab('register')">📝 Регистрация</button>
         </div>
 
         <!-- Форма входа -->
@@ -42,101 +40,104 @@
                 <label class="required">Пароль</label>
                 <input type="password" name="Password" asp-for="Password" required />
             </div>
-            <button type="submit" class="btn">Войти</button>
+            <button type="submit" class="btn btn-block">🚪 Войти в систему</button>
         </form>
 
         <!-- Форма регистрации -->
         <form id="registerForm" method="post" asp-page-handler="Register" class="@(Model.IsRegisterMode ? "" : "hidden")">
-            <h3>🔐 Данные для входа</h3>
+            <div class="form-section">
+                <h3>🔐 Данные для входа</h3>
 
-            <div class="form-group">
-                <label class="required">Номер студенческого билета</label>
-                <input type="text" name="StudentCardNumber" asp-for="StudentCardNumber"
-                       required placeholder="2409001" pattern="\d{7}" maxlength="7" />
-                <small>📝 Формат: ГГММXXX (24-09-001) — это будет ваш логин</small>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
-                    <label class="required">Пароль</label>
-                    <input type="password" name="Password" asp-for="Password" required minlength="6" />
+                    <label class="required">Номер студенческого билета</label>
+                    <input type="text" name="StudentCardNumber" asp-for="StudentCardNumber"
+                           required placeholder="2409001" pattern="\d{7}" maxlength="7" />
+                    <small>📝 Формат: ГГММXXX (24-09-001) — это будет ваш логин</small>
                 </div>
-                <div class="form-group">
-                    <label class="required">Подтверждение пароля</label>
-                    <input type="password" name="ConfirmPassword" asp-for="ConfirmPassword" required minlength="6" />
-                </div>
-            </div>
 
-            <h3>🎓 Личные данные</h3>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="required">Фамилия</label>
-                    <input type="text" name="LastName" asp-for="LastName" required />
-                </div>
-                <div class="form-group">
-                    <label class="required">Имя</label>
-                    <input type="text" name="FirstName" asp-for="FirstName" required />
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Пароль</label>
+                        <input type="password" name="Password" asp-for="Password" required minlength="6" />
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Подтверждение пароля</label>
+                        <input type="password" name="ConfirmPassword" asp-for="ConfirmPassword" required minlength="6" />
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Отчество</label>
-                <input type="text" name="MiddleName" asp-for="MiddleName" />
-            </div>
+            <div class="form-section">
+                <h3>🎓 Личные данные</h3>
 
-            <div class="form-row">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Фамилия</label>
+                        <input type="text" name="LastName" asp-for="LastName" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Имя</label>
+                        <input type="text" name="FirstName" asp-for="FirstName" required />
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label class="required">Факультет</label>
-                    <select name="FacultyID" asp-for="FacultyID" required>
-                        <option value="0">Выберите факультет</option>
-                        @if (Model.Faculties != null)
-                        {
-                            foreach (var faculty in Model.Faculties)
+                    <label>Отчество</label>
+                    <input type="text" name="MiddleName" asp-for="MiddleName" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Факультет</label>
+                        <select name="FacultyID" asp-for="FacultyID" required>
+                            <option value="0">Выберите факультет</option>
+                            @if (Model.Faculties != null)
                             {
-                                <option value="@faculty.FacultyID">@faculty.FacultyName</option>
+                                foreach (var faculty in Model.Faculties)
+                                {
+                                    <option value="@faculty.FacultyID">@faculty.FacultyName</option>
+                                }
                             }
-                        }
-                    </select>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Группа</label>
+                        <input type="text" name="GroupName" asp-for="GroupName" required placeholder="ФИТ-21" />
+                    </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Курс</label>
+                        <select name="Course" asp-for="Course" required>
+                            <option value="1">1 курс</option>
+                            <option value="2">2 курс</option>
+                            <option value="3">3 курс</option>
+                            <option value="4">4 курс</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="tel" name="Phone" asp-for="Phone" placeholder="+375 XX XXX-XX-XX" />
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label class="required">Группа</label>
-                    <input type="text" name="GroupName" asp-for="GroupName" required placeholder="ФИТ-21" />
+                    <label>Email</label>
+                    <input type="email" name="Email" asp-for="Email" placeholder="student@polessu.by" />
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="required">Курс</label>
-                    <select name="Course" asp-for="Course" required>
-                        <option value="1">1 курс</option>
-                        <option value="2">2 курс</option>
-                        <option value="3">3 курс</option>
-                        <option value="4">4 курс</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Телефон</label>
-                    <input type="tel" name="Phone" asp-for="Phone" placeholder="+375 XX XXX-XX-XX" />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="Email" asp-for="Email" placeholder="student@polessu.by" />
-            </div>
-
-            <button type="submit" class="btn">Зарегистрироваться</button>
+            <button type="submit" class="btn btn-block">✅ Зарегистрироваться</button>
         </form>
     </div>
+</div>
 
-    <script>
-        function switchTab(mode) {
-            document.getElementById('loginForm').classList.toggle('hidden', mode !== 'login');
-            document.getElementById('registerForm').classList.toggle('hidden', mode !== 'register');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-        }
-    </script>
-</body>
-</html>
+<script>
+    function switchTab(mode) {
+        document.getElementById('loginForm').classList.toggle('hidden', mode !== 'login');
+        document.getElementById('registerForm').classList.toggle('hidden', mode !== 'register');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+</script>
