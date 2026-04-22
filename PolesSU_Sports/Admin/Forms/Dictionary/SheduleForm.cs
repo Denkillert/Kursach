@@ -158,7 +158,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
                 Text = "💾 Сохранить",
                 Width = 140,
                 Height = 35,
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new System.Drawing.Font("Microsoft Sans Serif", 9),
@@ -199,10 +199,10 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                    BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                     ForeColor = System.Drawing.Color.White,
                     Font = new System.Drawing.Font("Microsoft Sans Serif", 9, System.Drawing.FontStyle.Bold),
-                    SelectionBackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                    SelectionBackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                     SelectionForeColor = System.Drawing.Color.White
                 },
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,

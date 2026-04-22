@@ -183,7 +183,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary.Achievements
                 Text = "💾 Сохранить",
                 Location = new Point(150, 410),
                 Size = new Size(120, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };

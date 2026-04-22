@@ -33,7 +33,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 Location = new Point(20, 20),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(45, 55, 75)
+                ForeColor = Color.FromArgb(0, 61, 130)
             };
 
             // Панель кнопок
@@ -43,7 +43,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Size = new Size(400, 40)
             };
 
-            Button btnAdd = CreateButton("➕ Добавить", Color.FromArgb(0, 122, 204), 0);
+            Button btnAdd = CreateButton("➕ Добавить", Color.FromArgb(0, 86, 179), 0);
             btnAdd.Click += BtnAdd_Click;
 
             Button btnEdit = CreateButton("✏️ Изменить", Color.FromArgb(40, 167, 69), 120);
@@ -67,7 +67,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 }
@@ -228,7 +228,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 Location = new Point(20, 15),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(45, 55, 75)
+                ForeColor = Color.FromArgb(0, 61, 130)
             };
 
             Label lblLogin = new Label { Text = "Логин:", Location = new Point(20, 60), AutoSize = true };
@@ -251,7 +251,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Text = "💾 Сохранить",
                 Location = new Point(0, 0),
                 Size = new Size(120, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10)
