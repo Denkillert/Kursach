@@ -56,7 +56,7 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                             WHEN 4 THEN 'Четверг'
                             WHEN 5 THEN 'Пятница'
                             WHEN 6 THEN 'Суббота'
-                            WHEN 0 THEN 'Воскресенье'
+                            WHEN 7 THEN 'Воскресенье'
                         END AS [День недели],
                         CONVERT(VARCHAR(5), sc.StartTime, 108) AS [Начало],
                         CONVERT(VARCHAR(5), sc.EndTime, 108) AS [Окончание],

@@ -61,7 +61,7 @@ namespace PolesSU_Sports.Web.Pages.Trainer
             return RedirectToPage();
         }
 
-        public IActionResult OnDelete(int id)
+        public IActionResult OnPostDelete(int id)  
         {
             try
             {
