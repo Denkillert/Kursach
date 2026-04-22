@@ -1,42 +1,60 @@
 ```
 # Build artifacts
-obj/
-bin/
-*.exe
+*.obj
 *.dll
-*.pdb
-*.userprefs
-*.cache
-*.compiled
+*.exe
+*.so
+*.a
+*.out
+*.a
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+target/
+.gradle/
+.mypy_cache/
+.pytest_cache/
+dist/
+build/
+[Bb]in/
+[Oo]bj/
+
+# Logs and temp files
 *.log
 *.tmp
 
-# Dependencies
-packages/
-node_modules/
+# Environment
+.env
+*.env
 
-# IDE specific
+# Editors
 .vs/
 .vscode/
 .idea/
-*.user
-*.userosscache
-*.suo
-*.userprefs
+*.swp
+*.swo
 
-# OS generated
+# OS generated files
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# Environment variables
-.env
-.env.local
-*.env.*
+# Debug files
+*.ilk
+*.pdb
+*.exp
+*.lib
 
-# Test and coverage
-coverage/
-*.coverage
-htmlcov/
-.nyc_output/
-```
+# Distribution / packaging
+dist/
+build/
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+/.vs/slnx.sqlite
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Debug/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfo.cs
+/PolesSU_Sports/obj/Release/net9.0-windows/PolesSU_Sports.AssemblyInfoInputs.cache
