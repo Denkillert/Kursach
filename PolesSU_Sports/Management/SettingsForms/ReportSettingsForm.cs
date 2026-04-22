@@ -74,7 +74,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Text = "💾 Сохранить настройки",
                 Location = new Point(20, 360),
                 Size = new Size(180, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };

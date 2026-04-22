@@ -52,7 +52,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 Location = new Point(20, 15),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(45, 55, 75)
+                ForeColor = Color.FromArgb(0, 61, 130)
             };
 
             // Логин
@@ -132,7 +132,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
                 Text = "💾 Сохранить",
                 Location = new Point(0, 0),
                 Size = new Size(120, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10)

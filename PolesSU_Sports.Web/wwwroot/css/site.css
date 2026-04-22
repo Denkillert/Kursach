@@ -1,4 +1,12 @@
-﻿/* ==================== БАЗОВЫЕ СТИЛИ ==================== */
+﻿/* ==================== ЦВЕТОВАЯ ПАЛИТРА ПОЛЕССГУ ==================== */
+:root {
+    --polessu-green-primary: #054226;      /* Фирменный зеленый (основной) */
+    --polessu-green-secondary: #065732;    /* Дополнительный зеленый (фон меню) */
+    --polessu-green-accent: #063b00;       /* Цвет ссылок и акцентов */
+    --polessu-blue: #0093c5;               /* Акцентный синий (кнопки) */
+}
+
+/* ==================== БАЗОВЫЕ СТИЛИ ==================== */
 * {
     margin: 0;
     padding: 0;
@@ -7,7 +15,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f7fa;
+    background: #f8f9fa;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -15,12 +23,24 @@ body {
 
 /* ==================== ШАПКА ==================== */
 .main-header {
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
     color: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(5, 66, 38, 0.2);
     position: sticky;
     top: 0;
     z-index: 1000;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .header-container {
@@ -91,7 +111,7 @@ body {
 
 /* ==================== ФУТЕР ==================== */
 .main-footer {
-    background: linear-gradient(135deg, #0d47a1 0%, #002171 100%);
+    background: linear-gradient(135deg, var(--polessu-green-secondary) 0%, var(--polessu-green-accent) 100%);
     color: white;
     margin-top: auto;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
@@ -109,7 +129,7 @@ body {
 .footer-section h3 {
     font-size: 16px;
     margin-bottom: 15px;
-    color: #64b5f6;
+    color: white;
     font-weight: 600;
 }
 
@@ -142,8 +162,8 @@ body {
 
     .form-control:focus {
         outline: none;
-        border-color: #1e88e5;
-        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        border-color: var(--polessu-blue);
+        box-shadow: 0 0 0 3px rgba(5, 66, 38, 0.1);
     }
 
 input[type="text"].form-control {
@@ -152,7 +172,7 @@ input[type="text"].form-control {
 }
 /* ==================== КАРТОЧКИ ==================== */
 .welcome-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
     color: white;
     padding: 40px;
     border-radius: 12px;
@@ -200,7 +220,7 @@ input[type="text"].form-control {
 .stat-value {
     font-size: 42px;
     font-weight: bold;
-    color: #1e88e5;
+    color: var(--polessu-blue);
     margin: 10px 0;
 }
 
@@ -225,7 +245,7 @@ input[type="text"].form-control {
         font-size: 24px;
         margin-bottom: 20px;
         padding-bottom: 15px;
-        border-bottom: 3px solid #1e88e5;
+        border-bottom: 3px solid var(--polessu-blue);
     }
 
 .sections-list {
@@ -244,8 +264,8 @@ input[type="text"].form-control {
 }
 
     .section-card:hover {
-        border-color: #1e88e5;
-        box-shadow: 0 4px 15px rgba(30, 136, 229, 0.15);
+        border-color: var(--polessu-blue);
+        box-shadow: 0 4px 15px rgba(5, 66, 38, 0.15);
         transform: translateY(-3px);
     }
 
@@ -274,7 +294,7 @@ input[type="text"].form-control {
 .btn {
     display: inline-block;
     padding: 12px 24px;
-    background: #1e88e5;
+    background: var(--polessu-blue);
     color: white;
     border: none;
     border-radius: 6px;
@@ -283,13 +303,13 @@ input[type="text"].form-control {
     cursor: pointer;
     text-decoration: none;
     transition: all 0.3s;
-    box-shadow: 0 2px 5px rgba(30, 136, 229, 0.3);
+    box-shadow: 0 2px 5px rgba(5, 66, 38, 0.3);
 }
 
     .btn:hover {
-        background: #1565c0;
+        background: var(--polessu-green-secondary);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
+        box-shadow: 0 4px 12px rgba(5, 66, 38, 0.4);
     }
 
 .btn-sm {
@@ -357,9 +377,9 @@ input[type="text"].form-control {
     }
 
     .tab.active {
-        color: #1e88e5;
-        background: #e3f2fd;
-        border-bottom: 3px solid #1e88e5;
+        color: var(--polessu-blue);
+        background: rgba(6, 87, 50, 0.1);
+        border-bottom: 3px solid var(--polessu-blue);
         font-weight: 600;
     }
 
@@ -389,8 +409,8 @@ input[type="text"].form-control {
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #1e88e5;
-            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+            border-color: var(--polessu-blue);
+            box-shadow: 0 0 0 3px rgba(5, 66, 38, 0.1);
         }
 
 .form-row {
@@ -411,7 +431,7 @@ input[type="text"].form-control {
 }
 
     .data-table th {
-        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
         color: white;
         padding: 15px;
         text-align: left;
@@ -498,7 +518,7 @@ small {
 }
 
 .auth-header {
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
     color: white;
     padding: 30px;
     text-align: center;
@@ -536,7 +556,7 @@ small {
     }
 
     .form-section h3 {
-        color: #1e88e5;
+        color: var(--polessu-blue);
         font-size: 18px;
         margin: 0 0 20px 0;
         font-weight: 600;
@@ -605,7 +625,7 @@ small {
 }
 
     .data-table th {
-        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
         color: white;
         padding: 15px;
         text-align: left;
@@ -631,7 +651,7 @@ small {
 /* ✅ Ячейка времени */
 .time-cell {
     font-weight: 600;
-    color: #1e88e5;
+    color: var(--polessu-blue);
     white-space: nowrap;
 }
 
@@ -708,7 +728,7 @@ small {
 }
 
     .students-table th {
-        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
         color: white;
         padding: 15px;
         text-align: left;
@@ -788,8 +808,8 @@ small {
 
     .notes-input:focus {
         outline: none;
-        border-color: #1e88e5;
-        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        border-color: var(--polessu-blue);
+        box-shadow: 0 0 0 3px rgba(5, 66, 38, 0.1);
     }
 
 .form-actions {
@@ -904,7 +924,7 @@ small {
     }
 
 .info-block {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
     color: white;
     padding: 25px 30px;
     border-radius: 12px;
@@ -965,13 +985,13 @@ small {
 }
 
 .time-badge {
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
     text-align: center;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
+    box-shadow: 0 2px 8px rgba(5, 66, 38, 0.3);
 }
 
 .time-start,
@@ -998,7 +1018,7 @@ small {
 
 .schedule-info .sport {
     font-weight: 600;
-    color: #1e88e5;
+    color: var(--polessu-blue);
 }
 
 .students-count {
@@ -1024,7 +1044,7 @@ small {
 }
 
 .btn-primary {
-    background: #1e88e5;
+    background: var(--polessu-blue);
     color: white;
     padding: 12px 24px;
     border: none;
@@ -1039,9 +1059,9 @@ small {
 }
 
     .btn-primary:hover {
-        background: #1565c0;
+        background: var(--polessu-green-secondary);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
+        box-shadow: 0 4px 12px rgba(5, 66, 38, 0.4);
     }
 
 .btn-edit {
@@ -1244,7 +1264,7 @@ small {
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     margin-bottom: 15px;
-    border-left: 4px solid #1e88e5;
+    border-left: 4px solid var(--polessu-blue);
 }
 
 .note-header {
@@ -1323,7 +1343,7 @@ small {
 }
 
     .schedule-table th {
-        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
         color: white;
         padding: 15px;
         text-align: left;
@@ -1340,15 +1360,15 @@ small {
     }
 
 .day-cell {
-    background: #e3f2fd;
+    background: rgba(6, 87, 50, 0.1);
     font-weight: 600;
-    color: #1e88e5;
+    color: var(--polessu-blue);
     vertical-align: top;
 }
 
 .time {
     font-weight: 600;
-    color: #1e88e5;
+    color: var(--polessu-blue);
 }
 
 .badge {
@@ -1369,10 +1389,205 @@ small {
 }
 
 .btn-attendance {
-    background: #1e88e5;
+    background: var(--polessu-blue);
     color: white;
 }
 
     .btn-attendance:hover {
-        background: #1565c0;
+        background: var(--polessu-blue);
     }
+/* ==================== АНИМАЦИИ ДЛЯ ПОЛЕСГУ ==================== */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(0, 86, 179, 0.2);
+    }
+    50% {
+        box-shadow: 0 6px 25px rgba(0, 86, 179, 0.4);
+    }
+}
+
+/* Применение анимаций к элементам */
+.main-header {
+    animation: fadeInDown 0.6s ease-out;
+}
+
+.main-content {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.welcome-card {
+    animation: fadeInUp 0.7s ease-out;
+}
+
+.stat-card {
+    animation: fadeInUp 0.9s ease-out;
+    animation-fill-mode: both;
+}
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    .stat-card:nth-child(5) { animation-delay: 0.5s; }
+
+.section-card {
+    animation: fadeInUp 0.8s ease-out;
+    animation-fill-mode: both;
+}
+
+    .section-card:nth-child(1) { animation-delay: 0.1s; }
+    .section-card:nth-child(2) { animation-delay: 0.2s; }
+    .section-card:nth-child(3) { animation-delay: 0.3s; }
+    .section-card:nth-child(4) { animation-delay: 0.4s; }
+    .section-card:nth-child(5) { animation-delay: 0.5s; }
+    .section-card:nth-child(6) { animation-delay: 0.6s; }
+
+.btn:hover {
+    background: var(--polessu-green-secondary);
+    animation: pulse 0.3s ease-in-out;
+}
+
+.main-header:hover {
+    animation: glow 2s infinite;
+}
+
+.data-table tr {
+    transition: all 0.3s ease;
+}
+
+    .data-table tr:hover {
+        transform: scale(1.01);
+        box-shadow: 0 2px 8px rgba(0, 86, 179, 0.15);
+    }
+
+/* Улучшенные эффекты для карточек */
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 86, 179, 0.25);
+}
+
+.section-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 6px 25px rgba(0, 86, 179, 0.2);
+}
+
+/* Анимация для футера */
+.main-footer {
+    animation: fadeInUp 1s ease-out;
+}
+
+/* Плавное появление форм */
+.form-control:focus {
+    animation: pulse 0.4s ease-in-out;
+}
+
+/* Анимация для кнопок сохранения/отмены */
+.btn-save, .btn-cancel {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+    .btn-save:hover, .btn-cancel:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 6px 20px rgba(0, 86, 179, 0.3);
+    }
+
+/* Анимация для вкладок */
+.tab {
+    position: relative;
+    overflow: hidden;
+}
+
+    .tab::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: -100%;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--polessu-blue), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .tab:hover::after {
+        left: 100%;
+    }
+
+    .tab.active::after {
+        left: 0;
+        background: var(--polessu-blue);
+    }
+
+/* Эффект свечения для логотипа */
+.logo-section {
+    transition: all 0.4s ease;
+}
+
+    .logo-section:hover {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 10px rgba(0, 86, 179, 0.5));
+    }
+
+/* Анимация для уведомлений */
+.error, .success {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+/* Плавное переключение видимости */
+.hidden {
+    display: none;
+}
+
+.fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Адаптивные анимации */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -38,7 +38,7 @@ namespace PolesSU_Sports.Management
             {
                 Dock = DockStyle.Left,
                 Width = 280,
-                BackColor = Color.FromArgb(45, 55, 75),
+                BackColor = Color.FromArgb(0, 61, 130),
                 Padding = new Padding(0, 0, 0, 20)
             };
 
@@ -47,7 +47,7 @@ namespace PolesSU_Sports.Management
             {
                 Dock = DockStyle.Top,
                 Height = 80,
-                BackColor = Color.FromArgb(35, 45, 65)
+                BackColor = Color.FromArgb(0, 51, 102)
             };
             var logoLabel = new Label
             {
@@ -73,7 +73,7 @@ namespace PolesSU_Sports.Management
             CreateMenuButton("⚙️ Настройки", LoadSettings);
 
             // Кнопка выхода
-            var separator = new Panel { Dock = DockStyle.Bottom, Height = 20, BackColor = Color.FromArgb(45, 55, 75) };
+            var separator = new Panel { Dock = DockStyle.Bottom, Height = 20, BackColor = Color.FromArgb(0, 61, 130) };
             sidebarPanel.Controls.Add(separator);
 
             var exitBtn = new Button
@@ -115,7 +115,7 @@ namespace PolesSU_Sports.Management
             {
                 Text = "Дашборд",
                 Font = new Font("Segoe UI", 18, FontStyle.Bold),
-                ForeColor = Color.FromArgb(45, 55, 75),
+                ForeColor = Color.FromArgb(0, 61, 130),
                 AutoSize = true,
                 Location = new Point(30, 20)
             };
@@ -157,7 +157,7 @@ namespace PolesSU_Sports.Management
                 Dock = DockStyle.Top,
                 Height = 55,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(45, 55, 75),
+                BackColor = Color.FromArgb(0, 61, 130),
                 ForeColor = Color.FromArgb(200, 200, 200),
                 Font = new Font("Segoe UI", 11),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -166,7 +166,7 @@ namespace PolesSU_Sports.Management
             };
             btn.FlatAppearance.BorderSize = 0;
             btn.MouseEnter += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(55, 65, 85); };
-            btn.MouseLeave += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(45, 55, 75); };
+            btn.MouseLeave += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(0, 61, 130); };
             btn.Click += (s, e) => { SetActiveButton(btn); clickAction(); };
             sidebarPanel.Controls.Add(btn);
         }
@@ -175,7 +175,7 @@ namespace PolesSU_Sports.Management
         {
             if (currentActiveButton != null)
             {
-                currentActiveButton.BackColor = Color.FromArgb(45, 55, 75);
+                currentActiveButton.BackColor = Color.FromArgb(0, 61, 130);
                 currentActiveButton.ForeColor = Color.FromArgb(200, 200, 200);
                 currentActiveButton.Font = new Font("Segoe UI", 11);
             }
@@ -204,7 +204,7 @@ namespace PolesSU_Sports.Management
             // 🎓 Студенты
             AddStatCard(statsPanel, "🎓 Всего студентов",
                 Count("SELECT COUNT(*) FROM Students"),
-                Color.FromArgb(0, 122, 204),
+                Color.FromArgb(0, 86, 179),
                 "SELECT TOP 10 FacultyName AS [Факультет], COUNT(*) AS [Студентов] FROM Students s JOIN Faculties f ON s.FacultyID = f.FacultyID GROUP BY FacultyName ORDER BY [Студентов] DESC",
                 new[] { "Факультет", "Студентов" });
 
@@ -524,7 +524,7 @@ namespace PolesSU_Sports.Management
                 Text = "📊 Показать аналитику",
                 Location = new Point(15, 50),
                 Size = new Size(180, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10)
@@ -580,7 +580,7 @@ namespace PolesSU_Sports.Management
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },
@@ -608,7 +608,7 @@ namespace PolesSU_Sports.Management
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
                 new Font("Segoe UI", 11, FontStyle.Bold),
-                Color.FromArgb(45, 55, 75)));
+                Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
             chart.ChartAreas.Clear();
@@ -640,7 +640,7 @@ namespace PolesSU_Sports.Management
             chart.Legends.Add(legend);
 
             var colors = new[] {
-        Color.FromArgb(0, 122, 204),
+        Color.FromArgb(0, 86, 179),
         Color.FromArgb(40, 167, 69),
         Color.FromArgb(255, 193, 7),
         Color.FromArgb(220, 53, 69)
@@ -673,7 +673,7 @@ namespace PolesSU_Sports.Management
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
                 new Font("Segoe UI", 11, FontStyle.Bold),
-                Color.FromArgb(45, 55, 75)));
+                Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
             chart.ChartAreas.Clear();
@@ -697,7 +697,7 @@ namespace PolesSU_Sports.Management
 
             // ✅ ЦВЕТА: топ-5 разные, остальные - серый
             var colors = new[] {
-        Color.FromArgb(0, 122, 204),      // Синий
+        Color.FromArgb(0, 86, 179),      // Синий
         Color.FromArgb(40, 167, 69),      // Зелёный
         Color.FromArgb(255, 193, 7),      // Жёлтый
         Color.FromArgb(220, 53, 69),      // Красный
@@ -729,7 +729,7 @@ namespace PolesSU_Sports.Management
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
                 new Font("Segoe UI", 11, FontStyle.Bold),
-                Color.FromArgb(45, 55, 75)));
+                Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
             chart.ChartAreas.Clear();
@@ -761,7 +761,7 @@ namespace PolesSU_Sports.Management
             };
 
             var colors = new[] {
-        Color.FromArgb(0, 122, 204),
+        Color.FromArgb(0, 86, 179),
         Color.FromArgb(40, 167, 69),
         Color.FromArgb(255, 193, 7),
         Color.FromArgb(220, 53, 69),
@@ -804,7 +804,7 @@ namespace PolesSU_Sports.Management
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
                 new Font("Segoe UI", 11, FontStyle.Bold),
-                Color.FromArgb(45, 55, 75)));
+                Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
             chart.ChartAreas.Clear();
@@ -836,7 +836,7 @@ namespace PolesSU_Sports.Management
             chart.Legends.Add(legend);
 
             var colors = new[] {
-        Color.FromArgb(0, 122, 204),
+        Color.FromArgb(0, 86, 179),
         Color.FromArgb(40, 167, 69),
         Color.FromArgb(255, 193, 7),
         Color.FromArgb(220, 53, 69)
@@ -1112,7 +1112,7 @@ namespace PolesSU_Sports.Management
                             dgv.Columns["Заполненность %"].DisplayIndex = 6;
 
                             var top5Colors = new[] {
-                                Color.FromArgb(0, 122, 204),
+                                Color.FromArgb(0, 86, 179),
                                 Color.FromArgb(40, 167, 69),
                                 Color.FromArgb(255, 193, 7),
                                 Color.FromArgb(220, 53, 69),
@@ -1257,7 +1257,7 @@ namespace PolesSU_Sports.Management
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },
@@ -1282,7 +1282,7 @@ namespace PolesSU_Sports.Management
                 Text = "📄 Сформировать отчёт",
                 Location = new Point(15, 8),
                 Size = new Size(200, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
@@ -1673,17 +1673,17 @@ namespace PolesSU_Sports.Management
         {
             // 1. Убираем стандартные цвета выделения (делаем их как у обычных строк)
             dgv.DefaultCellStyle.SelectionBackColor = Color.White;
-            dgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+            dgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(0, 61, 130);
 
             // 2. Для чередующихся строк тоже настраиваем цвет выделения, 
             // чтобы при клике на серую строку она не становилась белой
             dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 250, 250);
             dgv.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(250, 250, 250);
-            dgv.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+            dgv.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(0, 61, 130);
 
             // 3. Базовые настройки стиля
             dgv.DefaultCellStyle.BackColor = Color.White;
-            dgv.DefaultCellStyle.ForeColor = Color.FromArgb(45, 55, 75);
+            dgv.DefaultCellStyle.ForeColor = Color.FromArgb(0, 61, 130);
             dgv.RowHeadersVisible = false;
             dgv.BorderStyle = BorderStyle.FixedSingle;
             dgv.GridColor = Color.FromArgb(220, 220, 220);
@@ -1907,7 +1907,7 @@ namespace PolesSU_Sports.Management
                 Text = "📊 Показать",
                 Location = new Point(410, 20),
                 Size = new Size(130, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10)
@@ -1935,7 +1935,7 @@ namespace PolesSU_Sports.Management
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },
@@ -2069,7 +2069,7 @@ namespace PolesSU_Sports.Management
                 Text = "📊 Показать",
                 Location = new Point(400, 20),
                 Size = new Size(130, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10)
@@ -2097,7 +2097,7 @@ namespace PolesSU_Sports.Management
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },
@@ -2196,7 +2196,7 @@ namespace PolesSU_Sports.Management
                 Text = "📊 Показать",
                 Location = new Point(720, 15),
                 Size = new Size(130, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10)
@@ -2224,7 +2224,7 @@ namespace PolesSU_Sports.Management
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },
@@ -2362,7 +2362,7 @@ namespace PolesSU_Sports.Management
                 Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 Location = new Point(20, 20),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(45, 55, 75)
+                ForeColor = Color.FromArgb(0, 61, 130)
             };
 
             var lblInfo = new Label
@@ -2398,7 +2398,7 @@ namespace PolesSU_Sports.Management
             };
 
             AddSettingCard(settingsPanel, "👥 Управление пользователями", "Добавление, редактирование и удаление пользователей",
-                Color.FromArgb(0, 122, 204), () => new PolesSU_Sports.Management.SettingsForms.UserManagementForm().ShowDialog());
+                Color.FromArgb(0, 86, 179), () => new PolesSU_Sports.Management.SettingsForms.UserManagementForm().ShowDialog());
 
             AddSettingCard(settingsPanel, "📊 Настройка отчётов", "Шаблоны и параметры генерации отчётов",
                 Color.FromArgb(40, 167, 69), () => new PolesSU_Sports.Management.SettingsForms.ReportSettingsForm().ShowDialog());

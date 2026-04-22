@@ -89,7 +89,7 @@ namespace PolesSU_Sports.Admin.Report
                 Text = "📤 Экспортировать",
                 Location = new System.Drawing.Point(130, y),
                 Size = new System.Drawing.Size(110, 40),
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat
             };

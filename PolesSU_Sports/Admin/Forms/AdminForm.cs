@@ -38,7 +38,7 @@ namespace PolesSU_Sports.Admin
             {
                 Dock = DockStyle.Left,
                 Width = 280,
-                BackColor = Color.FromArgb(45, 55, 75),
+                BackColor = Color.FromArgb(0, 61, 130),
                 Padding = new Padding(0, 0, 0, 20)
             };
 
@@ -47,7 +47,7 @@ namespace PolesSU_Sports.Admin
             {
                 Dock = DockStyle.Top,
                 Height = 80,
-                BackColor = Color.FromArgb(35, 45, 65)
+                BackColor = Color.FromArgb(0, 51, 102)
             };
             var logoLabel = new Label
             {
@@ -71,7 +71,7 @@ namespace PolesSU_Sports.Admin
             CreateMenuButton("🔧 Управление", ShowManagement);
 
             // Кнопка выхода
-            var separator = new Panel { Dock = DockStyle.Bottom, Height = 20, BackColor = Color.FromArgb(45, 55, 75) };
+            var separator = new Panel { Dock = DockStyle.Bottom, Height = 20, BackColor = Color.FromArgb(0, 61, 130) };
             sidebarPanel.Controls.Add(separator);
 
             var exitBtn = new Button
@@ -109,7 +109,7 @@ namespace PolesSU_Sports.Admin
             {
                 Text = "Дашборд",
                 Font = new Font("Segoe UI", 18, FontStyle.Bold),
-                ForeColor = Color.FromArgb(45, 55, 75),
+                ForeColor = Color.FromArgb(0, 61, 130),
                 AutoSize = true,
                 Location = new Point(30, 20)
             };
@@ -151,7 +151,7 @@ namespace PolesSU_Sports.Admin
                 Dock = DockStyle.Top,
                 Height = 55,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(45, 55, 75),
+                BackColor = Color.FromArgb(0, 61, 130),
                 ForeColor = Color.FromArgb(200, 200, 200),
                 Font = new Font("Segoe UI", 11),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -159,8 +159,8 @@ namespace PolesSU_Sports.Admin
                 Cursor = Cursors.Hand
             };
             btn.FlatAppearance.BorderSize = 0;
-            btn.MouseEnter += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(55, 65, 85); };
-            btn.MouseLeave += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(45, 55, 75); };
+            btn.MouseEnter += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(0, 71, 150); };
+            btn.MouseLeave += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(0, 61, 130); };
             btn.Click += (s, e) => { SetActiveButton(btn); clickAction(); };
             sidebarPanel.Controls.Add(btn);
         }
@@ -169,12 +169,12 @@ namespace PolesSU_Sports.Admin
         {
             if (currentActiveButton != null)
             {
-                currentActiveButton.BackColor = Color.FromArgb(45, 55, 75);
+                currentActiveButton.BackColor = Color.FromArgb(0, 61, 130);
                 currentActiveButton.ForeColor = Color.FromArgb(200, 200, 200);
                 currentActiveButton.Font = new Font("Segoe UI", 11);
             }
             currentActiveButton = btn;
-            btn.BackColor = Color.FromArgb(60, 70, 90);
+            btn.BackColor = Color.FromArgb(0, 86, 179);
             btn.ForeColor = Color.White;
             btn.Font = new Font("Segoe UI", 11, FontStyle.Bold);
         }
@@ -196,7 +196,7 @@ namespace PolesSU_Sports.Admin
                 BackColor = Color.FromArgb(245, 245, 245)
             };
 
-            AddStatCard(statsPanel, "🏛️ Факультеты", Count("SELECT COUNT(*) FROM Faculties"), Color.FromArgb(0, 122, 204));
+            AddStatCard(statsPanel, "🏛️ Факультеты", Count("SELECT COUNT(*) FROM Faculties"), Color.FromArgb(0, 86, 179));
             AddStatCard(statsPanel, "👨‍🏫 Тренеры", Count("SELECT COUNT(*) FROM Trainers"), Color.FromArgb(40, 167, 69));
             AddStatCard(statsPanel, "🎓 Студенты", Count("SELECT COUNT(*) FROM Students"), Color.FromArgb(255, 193, 7));
             AddStatCard(statsPanel, "⚽ Секции", Count("SELECT COUNT(*) FROM Sections"), Color.FromArgb(220, 53, 69));
@@ -311,7 +311,7 @@ namespace PolesSU_Sports.Admin
                     Location = new Point(325, 14),
                     Size = new Size(110, 28),
                     FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9)
                 };
@@ -371,7 +371,7 @@ namespace PolesSU_Sports.Admin
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },
@@ -379,7 +379,7 @@ namespace PolesSU_Sports.Admin
                 BorderStyle = BorderStyle.FixedSingle
             };
             currentDgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(230, 230, 230);
-            currentDgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+            currentDgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(0, 61, 130);
 
             contentPanel.Controls.Add(currentDgv);
             contentPanel.Controls.Add(btnPanel);
@@ -421,7 +421,7 @@ namespace PolesSU_Sports.Admin
             else
             {
                 btn.BackColor = Color.White;
-                btn.ForeColor = Color.FromArgb(45, 55, 75);
+                btn.ForeColor = Color.FromArgb(0, 61, 130);
                 btn.FlatAppearance.BorderSize = 1;
                 btn.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
             }
@@ -548,17 +548,17 @@ namespace PolesSU_Sports.Admin
             // ✅ Современные карточки (по принципам Material Design 3)
             AddModernCard(gridPanel, "🏛️", "Факультеты",
                 "Управление списком факультетов",
-                Color.FromArgb(0, 122, 204),
+                Color.FromArgb(0, 86, 179),
                 () => new PolesSU_Sports.Admin.Forms.Dictionary.FacultyForm().ShowDialog());
 
             AddModernCard(gridPanel, "⚽", "Виды спорта",
                 "Справочник видов спорта",
-                Color.FromArgb(0, 122, 204),
+                Color.FromArgb(0, 86, 179),
                 () => new PolesSU_Sports.Admin.Forms.Dictionary.SportForm().ShowDialog());
 
             AddModernCard(gridPanel, "📅", "Расписание",
                 "Настройка расписания занятий",
-                Color.FromArgb(0, 122, 204),
+                Color.FromArgb(0, 86, 179),
                 () => new PolesSU_Sports.Admin.Forms.Dictionary.ScheduleForm().ShowDialog());
 
             AddModernCard(gridPanel, "🔐", "Аккаунты",
@@ -646,7 +646,7 @@ namespace PolesSU_Sports.Admin
             {
                 Text = title,
                 Font = new Font("Segoe UI", 13, FontStyle.Bold),  // ✅ Bold - корректное значение
-                ForeColor = Color.FromArgb(45, 55, 75),
+                ForeColor = Color.FromArgb(0, 61, 130),
                 Location = new Point(90, 22),
                 AutoSize = true,
                 BackColor = Color.Transparent
@@ -929,7 +929,7 @@ namespace PolesSU_Sports.Admin
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },

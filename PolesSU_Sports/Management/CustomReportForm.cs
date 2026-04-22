@@ -175,7 +175,7 @@ namespace PolesSU_Sports.Management
                 Text = "📄 Сформировать отчёт",
                 Location = new Point(15, 8),
                 Size = new Size(180, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
@@ -224,7 +224,7 @@ namespace PolesSU_Sports.Management
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 },
@@ -233,7 +233,7 @@ namespace PolesSU_Sports.Management
             };
             // ✅ Убираем синее выделение
             dgvResult.DefaultCellStyle.SelectionBackColor = Color.FromArgb(230, 230, 230);
-            dgvResult.DefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+            dgvResult.DefaultCellStyle.SelectionForeColor = Color.FromArgb(0, 61, 130);
             dgvResult.EnableHeadersVisualStyles = false;
 
             tablePanel.Controls.Add(dgvResult);
