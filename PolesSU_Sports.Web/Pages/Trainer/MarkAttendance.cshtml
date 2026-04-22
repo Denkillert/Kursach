@@ -1,0 +1,132 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Trainer.MarkAttendanceModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Отметка посещаемости";
+}
+@using System.Data
+
+<div class="mark-attendance-page">
+    <div class="page-header">
+        <h1>📝 Отметка посещаемости</h1>
+        <p class="subtitle">@Model.SectionName | @Model.VisitDate</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="error">⚠️ @Model.ErrorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="success">✅ @Model.SuccessMessage</div>
+    }
+
+    @if (Model.Students != null && Model.Students.Rows.Count > 0)
+    {
+        <form method="post">
+            <input type="hidden" name="ScheduleId" value="@Model.ScheduleId" />
+
+            <div class="students-table-container">
+                <table class="data-table students-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">№</th>
+                            <th>ФИО студента</th>
+                            <th style="width: 120px;">Группа</th>
+                            <th style="width: 150px; text-align: center;">❌ Отсутствует</th>
+                            <th>Причина отсутствия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int i = 0;
+                        }
+                        @foreach (DataRow row in Model.Students.Rows)
+                        {
+                            var isPresent = row["IsPresent"] != DBNull.Value && Convert.ToBoolean(row["IsPresent"]);
+                            var note = row["Notes"] != DBNull.Value ? row["Notes"].ToString() : "";
+
+                            <tr class="student-row @(isPresent ? "" : "absent")">
+                                <td>@(i + 1)</td>
+                                <td>
+                                    <div class="student-name">
+                                        <strong>@row["LastName"] @row["FirstName"]</strong>
+                                        @if (!string.IsNullOrWhiteSpace(row["MiddleName"]?.ToString()))
+                                        {
+                                            <span>@row["MiddleName"]</span>
+                                        }
+                                    </div>
+                                    <small>@row["StudentCardNumber"]</small>
+                                </td>
+                                <td>@row["GroupName"]</td>
+                                <td class="checkbox-cell">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"
+                                               name="IsAbsent"
+                                               value="@row["StudentCardNumber"]"
+                                               @(!isPresent ? "checked" : "")
+                                               class="absent-checkbox"
+                                               data-card="@row["StudentCardNumber"]" />
+                                        <span class="checkmark"></span>
+                                        <span class="absent-label">Отсутствует</span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="text"
+                                           name="Notes"
+                                           value="@note"
+                                           class="notes-input"
+                                           placeholder="Причина отсутствия"
+                                           data-card="@row["StudentCardNumber"]" />
+                                    <input type="hidden" name="StudentCardNumber" value="@row["StudentCardNumber"]" />
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">💾 Сохранить посещаемость</button>
+                <a href="/Trainer/Attendance" class="btn btn-cancel">↩️ Назад</a>
+            </div>
+        </form>
+    }
+    else if (Model.Students != null)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <h2>В этой секции нет студентов</h2>
+            <p>Студенты ещё не записались в эту секцию</p>
+            <a href="/Trainer/Attendance" class="btn">↩️ Назад</a>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notesInputs = document.querySelectorAll('.notes-input');
+        const checkboxes = document.querySelectorAll('.absent-checkbox');
+
+        notesInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    checkboxes[index].checked = true;
+                    this.closest('tr').classList.add('absent');
+                }
+            });
+        });
+
+        checkboxes.forEach((checkbox, index) => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    this.closest('tr').classList.add('absent');
+                } else {
+                    this.closest('tr').classList.remove('absent');
+                }
+            });
+        });
+    });
+</script>

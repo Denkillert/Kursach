@@ -1,0 +1,71 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Trainer.NotesModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Заметки";
+}
+@using System.Data
+
+<div class="notes-page">
+    <div class="page-header">
+        <h1>📝 Заметки тренера</h1>
+        <p class="subtitle">@Model.TrainerName</p>
+    </div>
+
+    <!-- Форма добавления -->
+    <div class="note-form-card">
+        <h3>➕ Новая заметка</h3>
+        <form method="post">
+            <div class="form-group">
+                <label>Заголовок:</label>
+                <input type="text" asp-for="Title" required
+                       class="form-control"
+                       placeholder="Например: План тренировки на понедельник" />
+            </div>
+            <div class="form-group">
+                <label>Содержание:</label>
+                <textarea asp-for="Content" required
+                          class="form-control"
+                          rows="8"
+                          placeholder="Что нужно подготовить, план занятия..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-save">💾 Сохранить заметку</button>
+        </form>
+    </div>
+
+    <!-- Список заметок -->
+    <div class="notes-list">
+        <h3>📋 Мои заметки</h3>
+
+        @if (Model.Notes.Rows.Count > 0)
+        {
+            @foreach (DataRow row in Model.Notes.Rows)
+            {
+                <div class="note-card">
+                    <div class="note-header">
+                        <h4>@row["Title"]</h4>
+                        <div class="note-actions">
+                            <span class="note-date">📅 @Convert.ToDateTime(row["NoteDate"]).ToString("dd.MM.yyyy")</span>
+                            <form method="post" asp-page-handler="Delete" style="display: inline;">
+                                <input type="hidden" name="id" value="@row["NoteID"]" />
+                                <button type="submit" class="btn-delete"
+                                        onclick="return confirm('Удалить заметку?')">
+                                    🗑️
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="note-content">
+                        @row["Content"]
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>📭 У вас пока нет заметок</p>
+            </div>
+        }
+    </div>
+</div>

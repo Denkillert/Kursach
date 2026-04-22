@@ -1,51 +1,89 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PolesSU_Sports.Web</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - PolesSU Sports</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PolesSU_Sports.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">PolesSU_Sports.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">🎓</div>
+                <div class="logo-text">
+                    <h1>PolesSU Sports</h1>
+                    <span>Система управления спортивными секциями</span>
                 </div>
             </div>
-        </nav>
+            <nav class="main-nav">
+                @if (Context.Session.GetString("UserRole") != null)
+                {
+                    @if (Context.Session.GetString("UserRole") == "Student")
+                    {
+                        <a href="/Student/Index">🏠 Главная</a>
+                        <a href="/Student/Sections">⚽ Секции</a>
+                        <a href="/Student/Schedule">📅 Расписание</a>
+                    }
+                    @if (Context.Session.GetString("UserRole") == "Trainer")
+                    {
+                        <a href="/Trainer/Index">🏠 Главная</a>
+                        <a href="/Trainer/Attendance">📝 Посещаемость</a>
+                        <a href="/Trainer/Schedule">📅 Расписание</a>
+                        <a href="/Trainer/Notes">📝 Заметки</a>
+                    }
+                    <a href="/Logout" class="logout">🚪 Выход (@Context.Session.GetString("UserLogin"))</a>
+                }
+                else
+                {
+                    <a href="/">🏠 Главная</a>
+                }
+            </nav>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="notification success">
+            ✅ @TempData["SuccessMessage"]
+            <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+    }
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - PolesSU_Sports.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="notification error">
+            ⚠️ @TempData["ErrorMessage"]
+            <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+    }
+    <main class="main-content">
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>PolesSU Sports</h3>
+                <p>Система управления спортивными секциями Полесского государственного университета</p>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p>📍 г. Пинск, ул. Ленинская, 32</p>
+                <p>📞 +375 (165) 35-00-00</p>
+                <p>✉️ sport@polessu.by</p>
+            </div>
+            <div class="footer-section">
+                <h3>Информация</h3>
+                <p>© 2026 PolesSU Sports. Все права защищены.</p>
+                <p>Кафедра физического воспитания и спорта</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Полесский государственный университет | Кафедра физического воспитания и спорта</p>
         </div>
     </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

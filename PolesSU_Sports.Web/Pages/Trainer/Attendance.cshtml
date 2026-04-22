@@ -1,0 +1,92 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Trainer.AttendanceModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Отметка посещаемости";
+}
+@using System.Data
+
+<div class="attendance-page">
+    <div class="page-header">
+        <h1>📝 Отметка посещаемости</h1>
+        <p class="subtitle">@Model.TrainerName | @Model.CurrentDate</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="error">⚠️ @Model.ErrorMessage</div>
+    }
+
+    @if (Model.TodaySchedule != null && Model.TodaySchedule.Rows.Count > 0)
+    {
+        <div class="info-block">
+            <div class="info-icon">📅</div>
+            <div class="info-text">
+                <h3>Занятия на сегодня</h3>
+                <p>Выберите занятие, чтобы отметить посещаемость студентов</p>
+            </div>
+        </div>
+
+        <div class="schedule-list">
+            @foreach (DataRow row in Model.TodaySchedule.Rows)
+            {
+                var studentsCount = Convert.ToInt32(row["Студентов"]);
+                var markedCount = Convert.ToInt32(row["Отмечено"]);
+                var isMarked = markedCount > 0;
+
+                <div class="schedule-card @(isMarked ? "marked" : "")">
+                    <div class="schedule-time">
+                        <div class="time-badge">
+                            <span class="time-start">@row["Начало"]</span>
+                            <span class="time-separator">—</span>
+                            <span class="time-end">@row["Окончание"]</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-info">
+                        <h3>@row["Секция"]</h3>
+                        <p class="sport">🏆 @row["Вид спорта"]</p>
+                        <p class="location">📍 @row["Кабинет"]</p>
+                        <div class="students-count">
+                            <span class="total">👥 @studentsCount студентов</span>
+                            @if (isMarked)
+                            {
+                                <span class="marked">✅ @markedCount отмечено</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="schedule-action">
+                        @if (isMarked)
+                        {
+                            <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-edit">
+                                ✏️ Изменить
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-primary">
+                                📋 Отметить
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (Model.TodaySchedule != null)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <h2>На сегодня занятий нет</h2>
+            <p>Проверьте расписание на другие дни или добавьте новые занятия</p>
+            <div class="empty-actions">
+                <a href="/Trainer/Schedule" class="btn">📋 Всё расписание</a>
+            </div>
+        </div>
+    }
+
+    <div class="back-navigation">
+        <a href="/Trainer/Index" class="btn btn-secondary">↩️ На главную</a>
+    </div>
+</div>

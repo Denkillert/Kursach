@@ -1,31 +1,1378 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+﻿/* ==================== БАЗОВЫЕ СТИЛИ ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* ==================== ШАПКА ==================== */
+.main-header {
+    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    font-size: 40px;
+}
+
+.logo-text h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.logo-text span {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.main-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+    .main-nav a {
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.3s;
+        font-weight: 500;
+    }
+
+        .main-nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-nav a.logout {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+/* ==================== ОСНОВНОЙ КОНТЕНТ ==================== */
+.main-content {
+    flex: 1;
+    padding: 30px 20px;
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ==================== ФУТЕР ==================== */
+.main-footer {
+    background: linear-gradient(135deg, #0d47a1 0%, #002171 100%);
+    color: white;
+    margin-top: auto;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.footer-section h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #64b5f6;
+    font-weight: 600;
+}
+
+.footer-section p {
+    font-size: 14px;
+    line-height: 1.8;
+    opacity: 0.9;
+    margin: 5px 0;
+}
+
+.footer-bottom {
+    background: rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding: 15px;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s;
+    resize: vertical; /* ✅ Можно растягивать по вертикали */
+    min-height: 150px; /* ✅ Минимальная высота */
+}
+
+    .form-control:focus {
+        outline: none;
+        border-color: #1e88e5;
+        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+    }
+
+input[type="text"].form-control {
+    min-height: auto;
+    resize: none;
+}
+/* ==================== КАРТОЧКИ ==================== */
+.welcome-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+    .welcome-card h1 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+    }
+
+    .welcome-card .group {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 16px;
+    }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+.stat-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.stat-value {
+    font-size: 42px;
+    font-weight: bold;
+    color: #1e88e5;
+    margin: 10px 0;
+}
+
+.stat-label {
+    color: #718096;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* ==================== СЕКЦИИ ==================== */
+.sections-block {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+    .sections-block h2 {
+        margin-top: 0;
+        color: #2d3748;
+        font-size: 24px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #1e88e5;
+    }
+
+.sections-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.section-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    padding: 25px;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+    .section-card:hover {
+        border-color: #1e88e5;
+        box-shadow: 0 4px 15px rgba(30, 136, 229, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .section-card h3 {
+        margin: 0 0 12px 0;
+        color: #2d3748;
+        font-size: 18px;
+    }
+
+    .section-card p {
+        color: #718096;
+        margin: 0 0 10px 0;
+        font-size: 14px;
+    }
+
+.empty {
+    color: #718096;
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+/* ==================== КНОПКИ ==================== */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #1e88e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(30, 136, 229, 0.3);
+}
+
+    .btn:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
+    }
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.btn-disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+    .btn-disabled:hover {
+        transform: none;
+        background: #cbd5e0;
+    }
+
+/* ==================== СООБЩЕНИЯ ==================== */
+.error {
+    color: #c53030;
+    background: #fed7d7;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #c53030;
+    font-weight: 500;
+}
+
+.success {
+    color: #22543d;
+    background: #c6f6d5;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #22543d;
+    font-weight: 500;
+}
+
+/* ==================== ВКЛАДКИ ==================== */
+.tabs {
+    display: flex;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #e2e8f0;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    background: white;
+}
+
+.tab {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    color: #718096;
+    transition: all 0.3s;
+    font-weight: 500;
+    border: none;
+    background: none;
+}
+
+    .tab:hover {
+        background: #f7fafc;
+        color: #4a5568;
+    }
+
+    .tab.active {
+        color: #1e88e5;
+        background: #e3f2fd;
+        border-bottom: 3px solid #1e88e5;
+        font-weight: 600;
+    }
+
+/* ==================== ФОРМЫ ==================== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        }
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* ==================== ТАБЛИЦЫ ==================== */
+.data-table {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+    .data-table th {
+        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .data-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+    }
+
+    .data-table tr:hover {
+        background: #f7fafc;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+/* ==================== УТИЛИТЫ ==================== */
+.hidden {
+    display: none;
+}
+
+.required::after {
+    content: " *";
+    color: #e53e3e;
+}
+
+small {
+    color: #718096;
+    font-size: 13px;
+    display: block;
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+/* ==================== АДАПТИВНОСТЬ ==================== */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .logo-text h1 {
+        font-size: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+
+    .content-wrapper {
+        padding: 0 10px;
+    }
+}
+/* ==================== СТРАНИЦА АВТОРИЗАЦИИ ==================== */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 200px);
+    padding: 30px 20px;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 550px;
+    overflow: hidden;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.auth-logo {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.auth-header h1 {
+    font-size: 28px;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+}
+
+.auth-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+.auth-card form {
+    padding: 30px;
+}
+
+.form-section {
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .form-section h3 {
+        color: #1e88e5;
+        font-size: 18px;
+        margin: 0 0 20px 0;
+        font-weight: 600;
+    }
+
+.btn-block {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+}
+
+@media (max-width: 600px) {
+    .auth-container {
+        padding: 15px 10px;
+    }
+
+    .auth-header {
+        padding: 20px;
+    }
+
+        .auth-header h1 {
+            font-size: 22px;
+        }
+
+    .auth-card form {
+        padding: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+/* ==================== СТРАНИЦА РАСПИСАНИЯ ==================== */
+.schedule-page {
+    padding: 20px 0;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+    .page-header h1 {
+        color: #2d3748;
+        margin: 0 0 8px 0;
+        font-size: 32px;
+    }
+
+    .page-header .subtitle {
+        color: #718096;
+        margin: 0;
+        font-size: 16px;
+    }
+
+.table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin: 0; /* ✅ Убираем отступы */
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0; /* ✅ Убираем отступы */
+}
+
+    .data-table th {
+        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+        border: none;
+    }
+
+    .data-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+    }
+
+    .data-table tr:hover {
+        background: #f7fafc;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+/* ✅ Ячейка времени */
+.time-cell {
+    font-weight: 600;
+    color: #1e88e5;
+    white-space: nowrap;
+}
+
+.empty-state {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    color: #2d3748;
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.empty-state p {
+    color: #718096;
+    margin: 0 0 25px 0;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .data-table {
+        font-size: 12px;
+    }
+
+        .data-table th,
+        .data-table td {
+            padding: 10px 8px;
+        }
+}
+/* ==================== СТРАНИЦА ОТМЕТКИ ПОСЕЩАЕМОСТИ ==================== */
+.mark-attendance-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+    .page-header h1 {
+        color: #2d3748;
+        margin: 0 0 8px 0;
+        font-size: 32px;
+    }
+
+    .page-header .subtitle {
+        color: #718096;
+        margin: 0;
+        font-size: 16px;
+    }
+
+.students-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+    .students-table th {
+        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .students-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .students-table tr:hover {
+        background: #f7fafc;
+    }
+
+    .students-table tr.student-row.absent {
+        background: #fff5f5;
+    }
+
+        .students-table tr.student-row.absent:hover {
+            background: #fee2e2;
+        }
+
+.student-name {
+    display: flex;
+    flex-direction: column;
+}
+
+    .student-name strong {
+        font-size: 15px;
+        color: #2d3748;
+    }
+
+    .student-name span {
+        font-size: 13px;
+        color: #718096;
+    }
+
+.students-table small {
+    color: #718096;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
+
+.checkbox-cell {
+    text-align: center;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.present-checkbox {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: #10b981;
+}
+
+.notes-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+    .notes-input:focus {
+        outline: none;
+        border-color: #1e88e5;
+        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+    }
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-save {
+    background: #10b981;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    .btn-save:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+.btn-cancel {
+    background: #6b7280;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+    .btn-cancel:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+
+.empty-state {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    color: #2d3748;
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.empty-state p {
+    color: #718096;
+    margin: 0 0 25px 0;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .students-table {
+        font-size: 12px;
+    }
+
+        .students-table th,
+        .students-table td {
+            padding: 10px 8px;
+        }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        width: 100%;
+    }
+}
+/* ==================== СТРАНИЦА ВЫБОРА ЗАНЯТИЯ (ATTENDANCE) ==================== */
+.attendance-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+    .page-header h1 {
+        color: #2d3748;
+        margin: 0 0 8px 0;
+        font-size: 32px;
+    }
+
+    .page-header .subtitle {
+        color: #718096;
+        margin: 0;
+        font-size: 16px;
+    }
+
+.info-block {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.info-icon {
+    font-size: 48px;
+}
+
+.info-text h3 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+}
+
+.info-text p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.schedule-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    display: grid;
+    grid-template-columns: 150px 1fr auto;
+    gap: 25px;
+    align-items: center;
+    transition: all 0.3s;
+    border-left: 4px solid transparent;
+}
+
+    .schedule-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .schedule-card.marked {
+        border-left-color: #10b981;
+        background: #f0fdf4;
+    }
+
+.schedule-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-badge {
+    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
+}
+
+.time-start,
+.time-end {
+    font-size: 18px;
+}
+
+.time-separator {
+    margin: 0 8px;
+    opacity: 0.7;
+}
+
+.schedule-info h3 {
+    margin: 0 0 10px 0;
+    color: #2d3748;
+    font-size: 20px;
+}
+
+.schedule-info p {
+    color: #718096;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.schedule-info .sport {
+    font-weight: 600;
+    color: #1e88e5;
+}
+
+.students-count {
+    margin-top: 12px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+    .students-count .total {
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .students-count .marked {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+.schedule-action {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-primary {
+    background: #1e88e5;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+    .btn-primary:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
+    }
+
+.btn-edit {
+    background: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+    .btn-edit:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+
+.back-navigation {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.empty-state {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    color: #2d3748;
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.empty-state p {
+    color: #718096;
+    margin: 0 0 25px 0;
+    font-size: 16px;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .schedule-card {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .schedule-time {
+        justify-content: flex-start;
+    }
+
+    .time-badge {
+        padding: 10px 15px;
+    }
+
+    .schedule-action {
+        justify-content: flex-start;
+    }
+
+    .btn-primary,
+    .btn-edit,
+    .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
+
+    .students-count {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+/* ==================== УВЕДОМЛЕНИЯ (TEMPDATA) ==================== */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+}
+
+    .notification.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: auto;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+    .notification-close:hover {
+        opacity: 1;
+    }
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .notification {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+/* ==================== ЗАМЕТКИ ТРЕНЕРА ==================== */
+.notes-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.note-form-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+    .note-form-card h3 {
+        margin-top: 0;
+        color: #2d3748;
+        margin-bottom: 20px;
+    }
+
+.notes-list h3 {
+    color: #2d3748;
+    margin-bottom: 20px;
+}
+
+.note-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+    border-left: 4px solid #1e88e5;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+    .note-header h4 {
+        margin: 0;
+        color: #2d3748;
+        font-size: 18px;
+    }
+
+.note-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.note-date {
+    color: #718096;
+    font-size: 13px;
+}
+
+.note-content {
+    color: #4a5568;
+    line-height: 1.6;
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+    .btn-delete:hover {
+        transform: scale(1.2);
+    }
+
+.btn-save {
+    background: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+    .btn-save:hover {
+        background: #059669;
+    }
+
+/* ==================== РАСПИСАНИЕ ==================== */
+.schedule-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .schedule-table th {
+        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .schedule-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .schedule-table tr:hover {
+        background: #f7fafc;
+    }
+
+.day-cell {
+    background: #e3f2fd;
+    font-weight: 600;
+    color: #1e88e5;
+    vertical-align: top;
+}
+
+.time {
+    font-weight: 600;
+    color: #1e88e5;
+}
+
+.badge {
+    background: #10b981;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-attendance {
+    background: #1e88e5;
+    color: white;
+}
+
+    .btn-attendance:hover {
+        background: #1565c0;
+    }
