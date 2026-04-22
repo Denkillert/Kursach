@@ -648,3 +648,709 @@ small {
             padding: 10px 8px;
         }
 }
+/* ==================== СТРАНИЦА ОТМЕТКИ ПОСЕЩАЕМОСТИ ==================== */
+.mark-attendance-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+    .page-header h1 {
+        color: #2d3748;
+        margin: 0 0 8px 0;
+        font-size: 32px;
+    }
+
+    .page-header .subtitle {
+        color: #718096;
+        margin: 0;
+        font-size: 16px;
+    }
+
+.students-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+    .students-table th {
+        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .students-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .students-table tr:hover {
+        background: #f7fafc;
+    }
+
+    .students-table tr.student-row.absent {
+        background: #fff5f5;
+    }
+
+        .students-table tr.student-row.absent:hover {
+            background: #fee2e2;
+        }
+
+.student-name {
+    display: flex;
+    flex-direction: column;
+}
+
+    .student-name strong {
+        font-size: 15px;
+        color: #2d3748;
+    }
+
+    .student-name span {
+        font-size: 13px;
+        color: #718096;
+    }
+
+.students-table small {
+    color: #718096;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
+
+.checkbox-cell {
+    text-align: center;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.present-checkbox {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: #10b981;
+}
+
+.notes-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+    .notes-input:focus {
+        outline: none;
+        border-color: #1e88e5;
+        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+    }
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-save {
+    background: #10b981;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    .btn-save:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+.btn-cancel {
+    background: #6b7280;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+    .btn-cancel:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+
+.empty-state {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    color: #2d3748;
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.empty-state p {
+    color: #718096;
+    margin: 0 0 25px 0;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .students-table {
+        font-size: 12px;
+    }
+
+        .students-table th,
+        .students-table td {
+            padding: 10px 8px;
+        }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        width: 100%;
+    }
+}
+/* ==================== СТРАНИЦА ВЫБОРА ЗАНЯТИЯ (ATTENDANCE) ==================== */
+.attendance-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+    .page-header h1 {
+        color: #2d3748;
+        margin: 0 0 8px 0;
+        font-size: 32px;
+    }
+
+    .page-header .subtitle {
+        color: #718096;
+        margin: 0;
+        font-size: 16px;
+    }
+
+.info-block {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.info-icon {
+    font-size: 48px;
+}
+
+.info-text h3 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+}
+
+.info-text p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.schedule-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    display: grid;
+    grid-template-columns: 150px 1fr auto;
+    gap: 25px;
+    align-items: center;
+    transition: all 0.3s;
+    border-left: 4px solid transparent;
+}
+
+    .schedule-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .schedule-card.marked {
+        border-left-color: #10b981;
+        background: #f0fdf4;
+    }
+
+.schedule-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-badge {
+    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
+}
+
+.time-start,
+.time-end {
+    font-size: 18px;
+}
+
+.time-separator {
+    margin: 0 8px;
+    opacity: 0.7;
+}
+
+.schedule-info h3 {
+    margin: 0 0 10px 0;
+    color: #2d3748;
+    font-size: 20px;
+}
+
+.schedule-info p {
+    color: #718096;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.schedule-info .sport {
+    font-weight: 600;
+    color: #1e88e5;
+}
+
+.students-count {
+    margin-top: 12px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+    .students-count .total {
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .students-count .marked {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+.schedule-action {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-primary {
+    background: #1e88e5;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+    .btn-primary:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
+    }
+
+.btn-edit {
+    background: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+    .btn-edit:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+
+.back-navigation {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.empty-state {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    color: #2d3748;
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.empty-state p {
+    color: #718096;
+    margin: 0 0 25px 0;
+    font-size: 16px;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .schedule-card {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .schedule-time {
+        justify-content: flex-start;
+    }
+
+    .time-badge {
+        padding: 10px 15px;
+    }
+
+    .schedule-action {
+        justify-content: flex-start;
+    }
+
+    .btn-primary,
+    .btn-edit,
+    .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
+
+    .students-count {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+/* ==================== УВЕДОМЛЕНИЯ (TEMPDATA) ==================== */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+}
+
+    .notification.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: auto;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+    .notification-close:hover {
+        opacity: 1;
+    }
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .notification {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+/* ==================== ЗАМЕТКИ ТРЕНЕРА ==================== */
+.notes-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.note-form-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+    .note-form-card h3 {
+        margin-top: 0;
+        color: #2d3748;
+        margin-bottom: 20px;
+    }
+
+.notes-list h3 {
+    color: #2d3748;
+    margin-bottom: 20px;
+}
+
+.note-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+    border-left: 4px solid #1e88e5;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+    .note-header h4 {
+        margin: 0;
+        color: #2d3748;
+        font-size: 18px;
+    }
+
+.note-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.note-date {
+    color: #718096;
+    font-size: 13px;
+}
+
+.note-content {
+    color: #4a5568;
+    line-height: 1.6;
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+    .btn-delete:hover {
+        transform: scale(1.2);
+    }
+
+.btn-save {
+    background: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+    .btn-save:hover {
+        background: #059669;
+    }
+
+/* ==================== РАСПИСАНИЕ ==================== */
+.schedule-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .schedule-table th {
+        background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .schedule-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .schedule-table tr:hover {
+        background: #f7fafc;
+    }
+
+.day-cell {
+    background: #e3f2fd;
+    font-weight: 600;
+    color: #1e88e5;
+    vertical-align: top;
+}
+
+.time {
+    font-weight: 600;
+    color: #1e88e5;
+}
+
+.badge {
+    background: #10b981;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-attendance {
+    background: #1e88e5;
+    color: white;
+}
+
+    .btn-attendance:hover {
+        background: #1565c0;
+    }

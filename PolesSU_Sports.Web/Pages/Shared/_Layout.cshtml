@@ -17,26 +17,44 @@
                 </div>
             </div>
             <nav class="main-nav">
-                <a href="/">🏠 Главная</a>
                 @if (Context.Session.GetString("UserRole") != null)
                 {
                     @if (Context.Session.GetString("UserRole") == "Student")
                     {
+                        <a href="/Student/Index">🏠 Главная</a>
                         <a href="/Student/Sections">⚽ Секции</a>
                         <a href="/Student/Schedule">📅 Расписание</a>
                     }
                     @if (Context.Session.GetString("UserRole") == "Trainer")
                     {
-                        <a href="/Trainer/Index">📊 Дашборд</a>
-                        <a href="/Trainer/Students">👥 Студенты</a>
+                        <a href="/Trainer/Index">🏠 Главная</a>
                         <a href="/Trainer/Attendance">📝 Посещаемость</a>
+                        <a href="/Trainer/Schedule">📅 Расписание</a>
                     }
-                    <a href="/Account/Logout" class="logout">🚪 Выход</a>
+                    <a href="/Logout" class="logout">🚪 Выход (@Context.Session.GetString("UserLogin"))</a>
+                }
+                else
+                {
+                    <a href="/">🏠 Главная</a>
                 }
             </nav>
         </div>
     </header>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="notification success">
+            ✅ @TempData["SuccessMessage"]
+            <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+    }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="notification error">
+            ⚠️ @TempData["ErrorMessage"]
+            <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+    }
     <main class="main-content">
         <div class="content-wrapper">
             @RenderBody()

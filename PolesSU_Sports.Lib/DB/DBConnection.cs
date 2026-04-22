@@ -1,9 +1,10 @@
-﻿using System;
-using System.Data;
-using Microsoft.Data.SqlClient;
-using System.Configuration;
-using System.Collections.Generic;
+﻿using Microsoft.Data.SqlClient;
 using PolesSU_Sports.Lib.Model;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.Common;
 
 namespace PolesSU_Sports.Lib.DB
 {
@@ -12,6 +13,7 @@ namespace PolesSU_Sports.Lib.DB
         private static DBConnection _instance;
         private readonly string _connectionString;
         private readonly IDbConnectionFactory _connectionFactory;
+        private SqlConnection _connection;
 
         // ✅ Конструктор для DI (веб)
         public DBConnection(IDbConnectionFactory connectionFactory)
@@ -188,6 +190,34 @@ namespace PolesSU_Sports.Lib.DB
             try
             {
                 using (SqlCommand cmd = new SqlCommand(query, GetConnection()))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    if (parameters != null)
+                    {
+                        cmd.Parameters.AddRange(parameters);
+                    }
+                    result = cmd.ExecuteScalar();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка получения значения: " + ex.Message);
+            }
+            return result;
+        }
+        // ✅ ПЕРЕГРУЗКА С ТРАНЗАКЦИЕЙ (ДОБАВИТЬ ЭТО!)
+        public object ExecuteScalar(string query, SqlParameter[] parameters, SqlTransaction transaction)
+        {
+            object result = null;
+            try
+            {
+                // ✅ Сначала убеждаемся, что соединение открыто
+                if (_connection.State != ConnectionState.Open)
+                {
+                    _connection.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
                 {
                     cmd.CommandType = CommandType.Text;
                     if (parameters != null)

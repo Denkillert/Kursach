@@ -217,7 +217,7 @@ namespace PolesSU_Sports.Web.Pages
                                 }, transaction);
 
                             // 2. Создаём аккаунт (Логин = номер билета)
-                            var newAccount = new Account
+                            var newAccount = new PolesSU_Sports.Lib.Model.Account
                             {
                                 Login = StudentCardNumber,
                                 PasswordHash = HashPassword(Password),
