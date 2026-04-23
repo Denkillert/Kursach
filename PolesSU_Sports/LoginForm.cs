@@ -4,7 +4,6 @@ using PolesSU_Sports.Lib.DB;
 using PolesSU_Sports.Lib.Model;
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
 
@@ -17,285 +16,181 @@ namespace PolesSU_Sports
         private Button btnLogin;
         private Button btnExit;
         private Label lblError;
-        private Panel headerPanel;
-        private Panel logoPanel;
-        private Timer animationTimer;
-        private int logoPosition = -100;
-        private int headerHeight = 0;
-        private Panel mainCard;
-        private int cardPosition = 500;
+
+        // ✅ ЦВЕТА ПОЛЕСГУ
+        private readonly Color GreenMain = Color.FromArgb(5, 66, 38);
+        private readonly Color BlueAccent = Color.FromArgb(0, 147, 197);
 
         public LoginForm()
         {
             InitializeComponent();
             InitializeCustomComponents();
-            StartAnimations();
-        }
-
-        private void StartAnimations()
-        {
-            animationTimer = new Timer();
-            animationTimer.Interval = 16; // ~60 FPS
-            animationTimer.Tick += AnimationLoop;
-            animationTimer.Start();
-        }
-
-        private void AnimationLoop(object sender, EventArgs e)
-        {
-            // Анимация логотипа
-            if (logoPosition < 120)
-            {
-                logoPosition += 8;
-                logoPanel.Location = new Point((this.Width - logoPanel.Width) / 2, logoPosition);
-            }
-
-            // Анимация шапки
-            if (headerHeight < 140)
-            {
-                headerHeight += 10;
-                headerPanel.Height = headerHeight;
-                headerPanel.Location = new Point(0, 0);
-            }
-
-            // Анимация карточки
-            if (cardPosition > 160)
-            {
-                cardPosition -= 15;
-                mainCard.Location = new Point((this.Width - mainCard.Width) / 2, cardPosition);
-            }
-            else if (logoPosition >= 120 && headerHeight >= 140 && cardPosition <= 160)
-            {
-                animationTimer.Stop();
-            }
         }
 
         private void InitializeCustomComponents()
         {
-            this.Text = "Авторизация - ПолесГУ Спорт";
-            this.Size = new System.Drawing.Size(900, 600);
+            // === ОСНОВНЫЕ НАСТРОЙКИ ===
+            this.Text = "";
+            this.Size = new Size(420, 600);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.None;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.BackColor = Color.FromArgb(245, 247, 250);
+            this.BackColor = Color.White;
 
-            // ===== ГРАДИЕНТНЫЙ ФОН =====
-            this.Paint += (s, e) =>
+            // === ШАПКА ===
+            Panel headerPanel = new Panel
             {
-                using (LinearGradientBrush brush = new LinearGradientBrush(
-                    this.ClientRectangle,
-                    Color.FromArgb(245, 247, 250),
-                    Color.FromArgb(230, 235, 245),
-                    LinearGradientMode.Vertical))
-                {
-                    e.Graphics.FillRectangle(brush, this.ClientRectangle);
-                }
+                Location = new Point(0, 0),
+                Size = new Size(420, 160),
+                BackColor = GreenMain
             };
 
-            // ===== ШАПКА С ЛОГОТИПОМ =====
-            headerPanel = new Panel
+            Label titleText = new Label
             {
-                Dock = DockStyle.Top,
-                Height = 140,
-                BackColor = Color.Transparent
-            };
-
-            logoPanel = new Panel
-            {
-                Size = new Size(200, 120),
-                Location = new Point((this.Width - 200) / 2, -100),
-                BackColor = Color.Transparent
-            };
-
-            // Логотип ПолесГУ (стилизованная буква "П")
-            var logoLabel = new Label
-            {
-                Text = "🎓",
-                Font = new Font("Segoe UI Emoji", 60, FontStyle.Bold),
-                ForeColor = Color.FromArgb(0, 86, 179),
+                Text = "ПолесГУ Спорт",
+                Font = new Font("Segoe UI", 26, FontStyle.Bold),
+                ForeColor = Color.White,
                 AutoSize = false,
-                Size = new Size(80, 80),
-                Location = new Point(60, 10),
-                BackColor = Color.Transparent
+                Size = new Size(380, 50),
+                Location = new Point(20, 30),
+                TextAlign = ContentAlignment.MiddleCenter
             };
 
-            var universityName = new Label
+            Label subtitleText = new Label
             {
-                Text = "ПолесГУ",
-                Font = new Font("Segoe UI", 24, FontStyle.Bold),
-                ForeColor = Color.FromArgb(0, 86, 179),
+                Text = "Система управления спортивными секциями",
+                Font = new Font("Segoe UI", 11),
+                ForeColor = Color.FromArgb(190, 225, 210),
                 AutoSize = false,
-                Size = new Size(200, 40),
-                Location = new Point(0, 75),
-                TextAlign = ContentAlignment.MiddleCenter,
-                BackColor = Color.Transparent
+                Size = new Size(380, 30),
+                Location = new Point(20, 90),
+                TextAlign = ContentAlignment.MiddleCenter
             };
 
-            var sportsText = new Label
-            {
-                Text = "Спорт",
-                Font = new Font("Segoe UI", 14, FontStyle.Regular),
-                ForeColor = Color.FromArgb(0, 61, 130),
-                AutoSize = false,
-                Size = new Size(200, 25),
-                Location = new Point(0, 105),
-                TextAlign = ContentAlignment.MiddleCenter,
-                BackColor = Color.Transparent
-            };
-
-            logoPanel.Controls.AddRange(new Control[] { logoLabel, universityName, sportsText });
-            headerPanel.Controls.Add(logoPanel);
+            headerPanel.Controls.AddRange(new Control[] { titleText, subtitleText });
             this.Controls.Add(headerPanel);
 
-            // ===== ОСНОВНАЯ КАРТОЧКА АВТОРИЗАЦИИ =====
-            mainCard = new Panel
+            // === ЗАГОЛОВОК ФОРМЫ ===
+            Label formTitle = new Label
             {
-                Size = new Size(450, 380),
-                Location = new Point((this.Width - 450) / 2, 500),
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.None
+                Text = "Вход в систему",
+                Font = new Font("Segoe UI", 20, FontStyle.Bold),
+                ForeColor = Color.FromArgb(50, 50, 50),
+                Location = new Point(0, 180),
+                Size = new Size(420, 35),
+                TextAlign = ContentAlignment.MiddleCenter
             };
+            this.Controls.Add(formTitle);
 
-            // Заголовок карточки
-            Label lblTitle = new Label
-            {
-                Text = "Система управления\nспортивными секциями",
-                Font = new Font("Microsoft Sans Serif", 14, FontStyle.Bold),
-                Location = new Point(40, 30),
-                Size = new Size(370, 50),
-                TextAlign = ContentAlignment.MiddleCenter,
-                ForeColor = Color.FromArgb(0, 61, 130),
-                BackColor = Color.Transparent
-            };
-
-            // Разделительная линия
-            var separator = new Panel
-            {
-                Location = new Point(40, 90),
-                Size = new Size(370, 3),
-                BackColor = Color.FromArgb(0, 86, 179)
-            };
-
-            // Логин
+            // === ПОЛЕ ЛОГИНА ===
             Label lblLogin = new Label
             {
-                Text = "Логин:",
-                Location = new Point(60, 115),
-                Size = new Size(80, 25),
-                Font = new Font("Segoe UI", 10, FontStyle.SemiBold),
-                ForeColor = Color.FromArgb(0, 61, 130),
-                BackColor = Color.Transparent
+                Text = "Логин",
+                Font = new Font("Segoe UI", 10),
+                ForeColor = Color.FromArgb(80, 80, 80),
+                Location = new Point(50, 230),
+                AutoSize = true
             };
+
             txtLogin = new TextBox
             {
-                Location = new Point(140, 113),
-                Size = new Size(250, 30),
-                PlaceholderText = "Введите логин",
+                Location = new Point(50, 255),
+                Size = new Size(320, 40),
                 Font = new Font("Segoe UI", 11),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                PlaceholderText = "Введите логин"
             };
 
-            // Пароль
+            this.Controls.AddRange(new Control[] { lblLogin, txtLogin });
+
+            // === ПОЛЕ ПАРОЛЯ ===
             Label lblPassword = new Label
             {
-                Text = "Пароль:",
-                Location = new Point(60, 160),
-                Size = new Size(80, 25),
-                Font = new Font("Segoe UI", 10, FontStyle.SemiBold),
-                ForeColor = Color.FromArgb(0, 61, 130),
-                BackColor = Color.Transparent
+                Text = "Пароль",
+                Font = new Font("Segoe UI", 10),
+                ForeColor = Color.FromArgb(80, 80, 80),
+                Location = new Point(50, 310),
+                AutoSize = true
             };
+
             txtPassword = new TextBox
             {
-                Location = new Point(140, 158),
-                Size = new Size(250, 30),
-                PasswordChar = '●',
-                PlaceholderText = "Введите пароль",
+                Location = new Point(50, 335),
+                Size = new Size(320, 40),
                 Font = new Font("Segoe UI", 11),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                PasswordChar = '●',
+                PlaceholderText = "Введите пароль"
             };
 
-            // Кнопка "Войти"
+            this.Controls.AddRange(new Control[] { lblPassword, txtPassword });
+
+            // === КНОПКА ВОЙТИ ===
             btnLogin = new Button
             {
-                Text = "Войти в систему",
-                Location = new Point(140, 210),
-                Size = new Size(250, 45),
-                FlatStyle = FlatStyle.Flat,
+                Text = "Войти",
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                Cursor = Cursors.Hand,
-                BackColor = Color.FromArgb(0, 86, 179),
-                ForeColor = Color.White
+                ForeColor = Color.White,
+                BackColor = BlueAccent,
+                Location = new Point(50, 400),
+                Size = new Size(320, 45),
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
             };
             btnLogin.FlatAppearance.BorderSize = 0;
-            btnLogin.FlatAppearance.MouseOverBackColor = Color.FromArgb(0, 61, 130);
-            btnLogin.FlatAppearance.MouseDownBackColor = Color.FromArgb(0, 51, 102);
+            btnLogin.FlatAppearance.MouseOverBackColor = Color.FromArgb(0, 130, 175);
             btnLogin.Click += BtnLogin_Click;
+            this.Controls.Add(btnLogin);
 
-            // Анимация кнопки при наведении
-            btnLogin.MouseEnter += (s, e) =>
-            {
-                btnLogin.BackColor = Color.FromArgb(0, 76, 159);
-                btnLogin.Location = new Point(140, 208);
-                btnLogin.Size = new Size(250, 49);
-            };
-            btnLogin.MouseLeave += (s, e) =>
-            {
-                btnLogin.BackColor = Color.FromArgb(0, 86, 179);
-                btnLogin.Location = new Point(140, 210);
-                btnLogin.Size = new Size(250, 45);
-            };
-
-            // Кнопка "Выход"
+            // === КНОПКА ОТМЕНА ===
             btnExit = new Button
             {
-                Text = "Выход",
-                Location = new Point(140, 270),
-                Size = new Size(250, 40),
-                FlatStyle = FlatStyle.Flat,
+                Text = "Отмена",
                 Font = new Font("Segoe UI", 11),
-                Cursor = Cursors.Hand,
+                ForeColor = Color.FromArgb(80, 80, 80),
                 BackColor = Color.White,
-                ForeColor = Color.FromArgb(0, 86, 179)
+                Location = new Point(50, 455),
+                Size = new Size(320, 42),
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
             };
             btnExit.FlatAppearance.BorderSize = 1;
-            btnExit.FlatAppearance.BorderColor = Color.FromArgb(0, 86, 179);
-            btnExit.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 245, 255);
+            btnExit.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            btnExit.FlatAppearance.MouseOverBackColor = Color.FromArgb(245, 245, 245);
             btnExit.Click += (s, e) => Application.Exit();
+            this.Controls.Add(btnExit);
 
-            // Ошибка
+            // === ОШИБКА ===
             lblError = new Label
             {
                 Text = "",
-                ForeColor = Color.FromArgb(220, 53, 69),
-                Location = new Point(60, 320),
-                Size = new Size(330, 30),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 9, FontStyle.Regular),
-                BackColor = Color.Transparent
-            };
-
-            mainCard.Controls.AddRange(new Control[] { lblTitle, separator, lblLogin, txtLogin, lblPassword, txtPassword, btnLogin, btnExit, lblError });
-            this.Controls.Add(mainCard);
-
-            // Футер
-            var footerLabel = new Label
-            {
-                Text = "© 2025 ПолесГУ. Все права защищены.",
                 Font = new Font("Segoe UI", 9),
-                ForeColor = Color.FromArgb(100, 100, 100),
-                AutoSize = true,
-                Location = new Point((this.Width - 250) / 2, this.Height - 40),
-                BackColor = Color.Transparent
+                ForeColor = Color.FromArgb(200, 50, 50),
+                Location = new Point(50, 510),
+                Size = new Size(320, 25),
+                TextAlign = ContentAlignment.MiddleCenter
             };
-            this.Controls.Add(footerLabel);
+            this.Controls.Add(lblError);
+
+            // === ФУТЕР ===
+            Label footerText = new Label
+            {
+                Text = "© 2026 ПолесГУ",
+                Font = new Font("Segoe UI", 8),
+                ForeColor = Color.FromArgb(150, 150, 150),
+                Location = new Point(0, 570),
+                Size = new Size(420, 20),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            this.Controls.Add(footerText);
         }
 
+        // === ФУНКЦИОНАЛ — БЕЗ ИЗМЕНЕНИЙ ===
         private void BtnLogin_Click(object sender, EventArgs e)
         {
             string login = txtLogin.Text.Trim();
             string password = txtPassword.Text.Trim();
 
-            // Проверка ввода
             if (string.IsNullOrEmpty(login))
             {
                 lblError.Text = "⚠️ Введите логин";
@@ -312,18 +207,13 @@ namespace PolesSU_Sports
 
             try
             {
-                // ✅ ХЕШИРУЕМ ПАРОЛЬ перед аутентификацией
                 string passwordHash = HashPassword(password);
-
-                // Аутентификация с хешированным паролем
                 Account account = DBConnection.Instance.Authenticate(login, passwordHash);
 
                 if (account != null)
                 {
-                    // Обновляем время входа
                     DBConnection.Instance.UpdateLastLogin(account.AccountID);
 
-                    // Создаём сессию
                     User.CurrentUser = new User
                     {
                         UserId = account.AccountID,
@@ -343,11 +233,9 @@ namespace PolesSU_Sports
                         case UserRole.Administrator:
                             targetForm = new AdminForm();
                             break;
-
                         case UserRole.Manager:
                             targetForm = new ManagerForm();
                             break;
-
                         case UserRole.Trainer:
                         case UserRole.Student:
                             MessageBox.Show("Для вашей роли используйте веб-интерфейс", "Информация",
@@ -355,7 +243,6 @@ namespace PolesSU_Sports
                             User.Logout();
                             this.Close();
                             return;
-
                         default:
                             MessageBox.Show("Неизвестная роль", "Ошибка",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -367,7 +254,6 @@ namespace PolesSU_Sports
                     if (targetForm != null)
                     {
                         this.Hide();
-
                         targetForm.FormClosed += (s, args) =>
                         {
                             if (targetForm.DialogResult == DialogResult.Retry)

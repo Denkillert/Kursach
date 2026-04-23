@@ -7,9 +7,6 @@
     <Compile Update="Admin\Attendance\AttendanceMarkForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Admin\Forms\Dictionary\AccountEditForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Admin\Forms\Dictionary\AccountForm.cs">
       <SubType>Form</SubType>
     </Compile>
