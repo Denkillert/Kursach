@@ -1,0 +1,175 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Student.MyRequestsModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Мои заявки";
+}
+@using System.Data
+
+<div class="my-requests-page">
+    <div class="page-header">
+        <h1>📋 Мои заявки</h1>
+        <p class="subtitle">История заявок на вступление/выход из секций</p>
+    </div>
+
+    @if (Model.Requests.Rows.Count > 0)
+    {
+        <!-- Desktop View -->
+        <div class="desktop-table-view">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>📅 Дата</th>
+                            <th>Тип</th>
+                            <th>Секция</th>
+                            <th>Вид спорта</th>
+                            <th>Статус</th>
+                            <th>Дата ответа</th>
+                            <th>Комментарий</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (DataRow row in Model.Requests.Rows)
+                        {
+                            var statusClass = row["Status"].ToString() switch
+                            {
+                                "Approved" => "status-approved",
+                                "Rejected" => "status-rejected",
+                                _ => "status-pending"
+                            };
+
+                            var statusText = row["Status"].ToString() switch
+                            {
+                                "Approved" => "✅ Одобрено",
+                                "Rejected" => "❌ Отклонено",
+                                _ => "⏳ На рассмотрении"
+                            };
+
+                            <tr>
+                                <td>@Convert.ToDateTime(row["RequestDate"]).ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@(row["RequestType"].ToString() == "Join" ? "📝 Вступление" : "🚪 Выход")</td>
+                                <td>@row["SectionName"]</td>
+                                <td>@row["SportName"]</td>
+                                <td><span class="status-badge @statusClass">@statusText</span></td>
+                                <td>@(row["ResponseDate"] != DBNull.Value ? Convert.ToDateTime(row["ResponseDate"]).ToString("dd.MM.yyyy") : "—")</td>
+                                <td>@(row["RejectionReason"] != DBNull.Value ? row["RejectionReason"].ToString() : "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Mobile View -->
+        <div class="mobile-card-view">
+            @foreach (DataRow row in Model.Requests.Rows)
+            {
+                var statusClass = row["Status"].ToString() switch
+                {
+                    "Approved" => "status-approved",
+                    "Rejected" => "status-rejected",
+                    _ => "status-pending"
+                };
+
+                var statusText = row["Status"].ToString() switch
+                {
+                    "Approved" => "✅ Одобрено",
+                    "Rejected" => "❌ Отклонено",
+                    _ => "⏳ На рассмотрении"
+                };
+
+                <div class="request-card-mobile">
+                    <div class="request-header">
+                        <span class="request-type">@(row["RequestType"].ToString() == "Join" ? "📝 Вступление" : "🚪 Выход")</span>
+                        <span class="status-badge @statusClass">@statusText</span>
+                    </div>
+                    <div class="request-body">
+                        <p><strong>Секция:</strong> @row["SectionName"]</p>
+                        <p><strong>Вид спорта:</strong> @row["SportName"]</p>
+                        <p><strong>Дата заявки:</strong> @Convert.ToDateTime(row["RequestDate"]).ToString("dd.MM.yyyy HH:mm")</p>
+                        @if (row["ResponseDate"] != DBNull.Value)
+                        {
+                            <p><strong>Дата ответа:</strong> @Convert.ToDateTime(row["ResponseDate"]).ToString("dd.MM.yyyy")</p>
+                        }
+                        @if (row["RejectionReason"] != DBNull.Value && !string.IsNullOrEmpty(row["RejectionReason"].ToString()))
+                        {
+                            <p class="rejection-reason"><strong>Комментарий:</strong> @row["RejectionReason"]</p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h2>У вас пока нет заявок</h2>
+            <p>Подайте заявку на вступление в секцию</p>
+            <a href="/Student/Sections" class="btn">🔍 Все секции</a>
+        </div>
+    }
+</div>
+
+<style>
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .request-card-mobile {
+        background: white;
+        padding: 15px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        border-left: 4px solid #0093c5;
+    }
+
+    .request-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .request-type {
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .request-body p {
+        margin: 6px 0;
+        color: #718096;
+        font-size: 14px;
+    }
+
+    .rejection-reason {
+        background: #fee2e2;
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 10px;
+        color: #991b1b;
+    }
+</style>

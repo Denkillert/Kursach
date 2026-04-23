@@ -1,15 +1,16 @@
 ﻿using Microsoft.Data.SqlClient;
 using PolesSU_Sports.Lib.DB;
 using PolesSU_Sports.Lib.Model;
-using System.Windows.Forms.DataVisualization.Charting;
+using PolesSU_Sports.Management;
 using PolesSU_Sports.Management.SettingsForms;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Collections.Generic;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PolesSU_Sports.Management
 {
@@ -87,7 +88,7 @@ namespace PolesSU_Sports.Management
             CreateMenuButton("🎓 По факультетам", LoadFacultyReports, false);
             CreateMenuButton("👥 По группам", LoadGroupReports, false);
             CreateMenuButton("⚽ По секциям", LoadSectionReports, false);
-            //CreateMenuButton("🎓 Заявки студентов", LoadStudentRequests, false);
+            CreateMenuButton("🎓 Заявки студентов", LoadStudentRequests, false);
             CreateMenuButton("⚙️ Настройки", LoadSettings, false);
 
             // Spacer
@@ -2445,42 +2446,242 @@ namespace PolesSU_Sports.Management
         // ======================================== ЗАЯВКИ
         private void LoadStudentRequests()
         {
-            headerLabel.Text = "🎓 Заявки студентов на запись в секции";
+            headerLabel.Text = "🎓 Заявки студентов";
             contentPanel.Controls.Clear();
 
-            var infoPanel = new Panel
+            // Заголовок с информацией
+            var titlePanel = new Panel
             {
-                Location = new Point(50, 50),
-                Size = new Size(500, 250),
+                Dock = DockStyle.Top,
+                Height = 80,
                 BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
+                Padding = new Padding(30, 15, 30, 15)
             };
 
             var lblTitle = new Label
             {
-                Text = "📝 Заявки студентов",
-                Font = new Font("Segoe UI", 16, FontStyle.Bold),
-                Location = new Point(20, 20),
-                AutoSize = true,
-                ForeColor = Color.FromArgb(0, 61, 130)
+                Text = "🎓 Заявки студентов на запись в секции",
+                Font = new Font("Segoe UI", 18, FontStyle.Bold),
+                ForeColor = GreenMain,
+                Location = new Point(0, 10),
+                AutoSize = true
             };
 
             var lblInfo = new Label
             {
-                Text = "Функционал в разработке.\n\n" +
-                       "В будущем здесь будет:\n" +
-                       "• Просмотр заявок от студентов\n" +
-                       "• Одобрение/отклонение заявок\n" +
-                       "• Автоматическая запись в секции\n" +
-                       "• Уведомления о новых заявках",
-                Location = new Point(20, 70),
-                Size = new Size(460, 160),
-                Font = new Font("Segoe UI", 10),
-                ForeColor = Color.Gray
+                Text = "Ожидают обработки: 0 заявок",
+                Name = "lblInfo",
+                Font = new Font("Segoe UI", 11),
+                ForeColor = Color.FromArgb(100, 100, 100),
+                Location = new Point(0, 45),
+                AutoSize = true
             };
 
-            infoPanel.Controls.AddRange(new Control[] { lblTitle, lblInfo });
-            contentPanel.Controls.Add(infoPanel);
+            var btnRefresh = new Button
+            {
+                Text = "🔄 Обновить",
+                Location = new Point(850, 20),
+                Size = new Size(120, 35),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = BlueAccent,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnRefresh.FlatAppearance.BorderSize = 0;
+            btnRefresh.Click += (s, e) => LoadRequestsData();
+
+            titlePanel.Controls.AddRange(new Control[] { lblTitle, lblInfo, btnRefresh });
+
+            // Таблица заявок
+            var dgvRequests = new DataGridView
+            {
+                Name = "dgvRequests",
+                Dock = DockStyle.Fill,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = GreenMain,
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                },
+                RowHeadersVisible = false,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+            dgvRequests.CellFormatting += (s, e) =>
+            {
+                if (dgvRequests.Columns[e.ColumnIndex].HeaderText == "Тип")
+                {
+                    if (e.Value?.ToString() == "📝 Вступление")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(220, 255, 220);
+                        e.CellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                    }
+                    else if (e.Value?.ToString() == "🚪 Выход")
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(255, 240, 220);
+                        e.CellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                    }
+                }
+            };
+
+            // Панель кнопок
+            var actionPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 70,
+                BackColor = Color.White,
+                Padding = new Padding(30, 15, 30, 15)
+            };
+
+            var btnApprove = new Button
+            {
+                Name = "btnApprove",
+                Text = "✅ Одобрить",
+                Location = new Point(30, 15),
+                Size = new Size(140, 40),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(40, 167, 69),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Enabled = false
+            };
+            btnApprove.FlatAppearance.BorderSize = 0;
+            btnApprove.Click += BtnApprove_Click;
+
+            var btnReject = new Button
+            {
+                Name = "btnReject",
+                Text = "❌ Отклонить",
+                Location = new Point(180, 15),
+                Size = new Size(140, 40),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(220, 53, 69),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Enabled = false
+            };
+            btnReject.FlatAppearance.BorderSize = 0;
+            btnReject.Click += BtnReject_Click;
+
+            // Включение кнопок при выборе
+            dgvRequests.SelectionChanged += (s, e) =>
+            {
+                bool hasSelection = dgvRequests.SelectedRows.Count > 0;
+                btnApprove.Enabled = hasSelection;
+                btnReject.Enabled = hasSelection;
+            };
+
+            actionPanel.Controls.AddRange(new Control[] { btnApprove, btnReject });
+
+            // Добавляем всё
+            contentPanel.Controls.Add(dgvRequests);
+            contentPanel.Controls.Add(actionPanel);
+            contentPanel.Controls.Add(titlePanel);
+
+            // Загружаем данные
+            LoadRequestsData();
+        }
+
+        private void LoadRequestsData()
+        {
+            try
+            {
+                var dgv = contentPanel.Controls.Find("dgvRequests", true).FirstOrDefault() as DataGridView;
+                var lblInfo = contentPanel.Controls.Find("lblInfo", true).FirstOrDefault() as Label;
+
+                if (dgv == null) return;
+
+                var data = DBConnection.Instance.ExecuteQuery(@"
+            SELECT 
+                r.RequestID,
+                r.StudentCardNumber AS [Билет],
+                s.LastName + ' ' + s.FirstName + ' ' + ISNULL(s.MiddleName, '') AS [Студент],
+                s.GroupName AS [Группа],
+                f.FacultyName AS [Факультет],
+                sec.SectionName AS [Секция],
+                sp.SportName AS [Вид спорта],
+                CASE WHEN r.RequestType = 'Join' THEN '📝 Вступление' ELSE '🚪 Выход' END AS [Тип],
+                r.RequestDate AS [Дата заявки]
+            FROM StudentSectionRequests r
+            JOIN Students s ON r.StudentCardNumber = s.StudentCardNumber
+            JOIN Faculties f ON s.FacultyID = f.FacultyID
+            JOIN Sections sec ON r.SectionID = sec.SectionID
+            JOIN Sports sp ON sec.SportID = sp.SportID
+            WHERE r.Status = 'Pending'
+            ORDER BY r.RequestDate DESC");
+
+                dgv.DataSource = data;
+
+                if (lblInfo != null)
+                    lblInfo.Text = $"Ожидают обработки: {data.Rows.Count} заявок";
+
+                dgv.ClearSelection();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки заявок: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnApprove_Click(object sender, EventArgs e)
+        {
+            var dgv = contentPanel.Controls.Find("dgvRequests", true).FirstOrDefault() as DataGridView;
+            if (dgv == null || dgv.SelectedRows.Count == 0) return;
+
+            var requestId = Convert.ToInt32(dgv.SelectedRows[0].Cells["RequestID"].Value);
+            var studentName = dgv.SelectedRows[0].Cells["Студент"].Value.ToString();
+            var requestType = dgv.SelectedRows[0].Cells["Тип"].Value.ToString();
+
+            if (MessageBox.Show($"Одобрить заявку?\n\nСтудент: {studentName}\nДействие: {requestType}",
+                "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                var managerId = User.CurrentUser?.UserId ?? 0;
+                DBConnection.Instance.ProcessRequest(requestId, true, managerId);
+                MessageBox.Show("✅ Заявка одобрена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadRequestsData();
+                LoadDashboard(); // Обновить счётчик
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnReject_Click(object sender, EventArgs e)
+        {
+            var dgv = contentPanel.Controls.Find("dgvRequests", true).FirstOrDefault() as DataGridView;
+            if (dgv == null || dgv.SelectedRows.Count == 0) return;
+
+            var requestId = Convert.ToInt32(dgv.SelectedRows[0].Cells["RequestID"].Value);
+            var studentName = dgv.SelectedRows[0].Cells["Студент"].Value.ToString();
+
+            using (var form = new RejectReasonForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        var managerId = User.CurrentUser?.UserId ?? 0;
+                        DBConnection.Instance.ProcessRequest(requestId, false, managerId, form.Reason);
+                        MessageBox.Show("❌ Заявка отклонена", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadRequestsData();
+                        LoadDashboard();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
 
         // ======================================== НАСТРОЙКИ
@@ -2503,7 +2704,198 @@ namespace PolesSU_Sports.Management
             AddSettingCard(settingsPanel, "📊 Настройка отчётов", "Шаблоны и параметры генерации отчётов",
                 Color.FromArgb(40, 167, 69), () => new PolesSU_Sports.Management.SettingsForms.ReportSettingsForm().ShowDialog());
 
+            // ✅ НОВАЯ КНОПКА: Управление студентами в секциях
+            AddSettingCard(settingsPanel, "🎓 Студенты в секциях", "Добавление и удаление студентов из секций",
+                Color.FromArgb(255, 193, 7), () => ShowSectionStudentsManager());
+
             contentPanel.Controls.Add(settingsPanel);
+        }
+
+        // ✅ НОВЫЙ МЕТОД: Управление студентами в секциях
+        private void ShowSectionStudentsManager()
+        {
+            headerLabel.Text = "🎓 Студенты в секциях";
+            contentPanel.Controls.Clear();
+
+            // Панель фильтров
+            var filterPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 80,
+                BackColor = Color.White,
+                Padding = new Padding(30, 15, 30, 15)
+            };
+
+            var lblSection = new Label
+            {
+                Text = "Выберите секцию:",
+                Location = new Point(0, 10),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                ForeColor = GreenMain
+            };
+
+            var cmbSection = new ComboBox
+            {
+                Name = "cmbSection",
+                Location = new Point(0, 35),
+                Width = 400,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 10)
+            };
+            LoadSectionsToComboBox(cmbSection);
+            cmbSection.SelectedIndexChanged += (s, e) => LoadSectionStudentsData();
+
+            var btnLoad = new Button
+            {
+                Text = "📋 Загрузить",
+                Location = new Point(420, 33),
+                Size = new Size(120, 35),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = BlueAccent,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnLoad.FlatAppearance.BorderSize = 0;
+            btnLoad.Click += (s, e) => LoadSectionStudentsData();
+
+            filterPanel.Controls.AddRange(new Control[] { lblSection, cmbSection, btnLoad });
+
+            // Таблица студентов
+            var dgvStudents = new DataGridView
+            {
+                Name = "dgvStudents",
+                Dock = DockStyle.Fill,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = GreenMain,
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                },
+                RowHeadersVisible = false,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            // Панель кнопок
+            var actionPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 70,
+                BackColor = Color.White,
+                Padding = new Padding(30, 15, 30, 15)
+            };
+
+            var btnRemove = new Button
+            {
+                Name = "btnRemove",
+                Text = "🗑️ Удалить из секции",
+                Location = new Point(30, 15),
+                Size = new Size(200, 40),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(220, 53, 69),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Enabled = false
+            };
+            btnRemove.FlatAppearance.BorderSize = 0;
+            btnRemove.Click += BtnRemoveStudent_Click;
+
+            // Включение кнопки при выборе
+            dgvStudents.SelectionChanged += (s, e) =>
+            {
+                btnRemove.Enabled = dgvStudents.SelectedRows.Count > 0;
+            };
+
+            actionPanel.Controls.Add(btnRemove);
+
+            // Добавляем всё
+            contentPanel.Controls.Add(dgvStudents);
+            contentPanel.Controls.Add(actionPanel);
+            contentPanel.Controls.Add(filterPanel);
+
+            // Автозагрузка при открытии
+            if (cmbSection.SelectedValue != null && Convert.ToInt32(cmbSection.SelectedValue) > 0)
+            {
+                LoadSectionStudentsData();
+            }
+        }
+
+        private void LoadSectionStudentsData()
+        {
+            var cmbSection = contentPanel.Controls.Find("cmbSection", true).FirstOrDefault() as ComboBox;
+            var dgv = contentPanel.Controls.Find("dgvStudents", true).FirstOrDefault() as DataGridView;
+
+            if (cmbSection == null || dgv == null) return;
+
+            int sectionID = 0;
+            if (cmbSection.SelectedValue != null && cmbSection.SelectedValue != DBNull.Value)
+            {
+                sectionID = Convert.ToInt32(cmbSection.SelectedValue);
+            }
+
+            if (sectionID == 0)
+            {
+                dgv.DataSource = null;
+                return;
+            }
+
+            try
+            {
+                var data = DBConnection.Instance.GetSectionStudents(sectionID);
+                dgv.DataSource = data;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnRemoveStudent_Click(object sender, EventArgs e)
+        {
+            var dgv = contentPanel.Controls.Find("dgvStudents", true).FirstOrDefault() as DataGridView;
+            var cmbSection = contentPanel.Controls.Find("cmbSection", true).FirstOrDefault() as ComboBox;
+
+            if (dgv == null || dgv.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите студента из таблицы для исключения", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show("Исключить студента из секции?", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                var studentCard = dgv.SelectedRows[0].Cells["StudentCardNumber"].Value.ToString();
+                int sectionID = Convert.ToInt32(cmbSection.SelectedValue);
+
+                // мягкое удаление - IsActive = 0
+                DBConnection.Instance.ExecuteCommand(
+                    "UPDATE StudentSections SET IsActive = 0 WHERE StudentCardNumber = @StudentCard AND SectionID = @SectionID",
+                    new[] {
+                new SqlParameter("@StudentCard", studentCard),
+                new SqlParameter("@SectionID", sectionID)
+                    });
+
+                MessageBox.Show("✅ Студент исключен из секции", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                LoadSectionStudentsData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void AddSettingCard(FlowLayoutPanel parent, string title, string description, Color color, Action click)

@@ -55,6 +55,9 @@
     <Compile Update="Management\SettingsForms\ReportSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Management\SettingsForms\StudentRequestsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Management\SettingsForms\UserManagementForm.cs">
       <SubType>Form</SubType>
     </Compile>

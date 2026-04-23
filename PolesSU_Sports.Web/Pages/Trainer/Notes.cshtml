@@ -26,7 +26,7 @@
                 <label>Содержание:</label>
                 <textarea asp-for="Content" required
                           class="form-control"
-                          rows="8"
+                          rows="4"
                           placeholder="Что нужно подготовить, план занятия..."></textarea>
             </div>
             <button type="submit" class="btn btn-save">💾 Сохранить заметку</button>
@@ -39,27 +39,55 @@
 
         @if (Model.Notes.Rows.Count > 0)
         {
-            @foreach (DataRow row in Model.Notes.Rows)
-            {
-                <div class="note-card">
-                    <div class="note-header">
-                        <h4>@row["Title"]</h4>
-                        <div class="note-actions">
-                            <span class="note-date">📅 @Convert.ToDateTime(row["NoteDate"]).ToString("dd.MM.yyyy")</span>
-                            <form method="post" asp-page-handler="Delete" style="display: inline;">
+            <!-- Desktop View -->
+            <div class="desktop-table-view">
+                @foreach (DataRow row in Model.Notes.Rows)
+                {
+                    <div class="note-card">
+                        <div class="note-header">
+                            <h4>@row["Title"]</h4>
+                            <div class="note-actions">
+                                <span class="note-date">📅 @Convert.ToDateTime(row["NoteDate"]).ToString("dd.MM.yyyy")</span>
+                                <form method="post" asp-page-handler="Delete" style="display: inline;">
+                                    <input type="hidden" name="id" value="@row["NoteID"]" />
+                                    <button type="submit" class="btn-delete"
+                                            onclick="return confirm('Удалить заметку?')">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="note-content">
+                            @row["Content"]
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Mobile View -->
+            <div class="mobile-card-view">
+                @foreach (DataRow row in Model.Notes.Rows)
+                {
+                    <div class="note-card-mobile">
+                        <div class="mobile-note-header">
+                            <h4>@row["Title"]</h4>
+                            <span class="mobile-note-date">📅 @Convert.ToDateTime(row["NoteDate"]).ToString("dd.MM.yyyy")</span>
+                        </div>
+                        <div class="mobile-note-content">
+                            @row["Content"]
+                        </div>
+                        <div class="mobile-note-actions">
+                            <form method="post" asp-page-handler="Delete">
                                 <input type="hidden" name="id" value="@row["NoteID"]" />
-                                <button type="submit" class="btn-delete"
+                                <button type="submit" class="btn-delete-mobile"
                                         onclick="return confirm('Удалить заметку?')">
-                                    🗑️
+                                    🗑️ Удалить
                                 </button>
                             </form>
                         </div>
                     </div>
-                    <div class="note-content">
-                        @row["Content"]
-                    </div>
-                </div>
-            }
+                }
+            </div>
         }
         else
         {

@@ -8,15 +8,9 @@ namespace PolesSU_Sports.Web.Pages.Student
 {
     public class SectionsModel : PageModel
     {
-        private readonly DBConnection _dbConnection;
-
-        public SectionsModel(DBConnection dbConnection)
-        {
-            _dbConnection = dbConnection;
-        }
-
         public List<Section> AllSections { get; set; }
         public List<int> EnrolledSectionIds { get; set; }
+        public List<int> PendingRequestSectionIds { get; set; }
         public string SuccessMessage { get; set; }
         public string ErrorMessage { get; set; }
 
@@ -26,58 +20,64 @@ namespace PolesSU_Sports.Web.Pages.Student
             if (role != "Student")
                 return RedirectToPage("/Index");
 
-            var studentCardNumber = HttpContext.Session.GetString("UserLogin");
+            var studentCard = HttpContext.Session.GetString("UserLogin");
 
-            AllSections = _dbConnection.GetSections();
+            AllSections = DBConnection.Instance.GetSections();
 
-            // Получаем ID секций, куда уже записан студент
+            // Получаем секции, где студент уже записан
+            var enrolled = DBConnection.Instance.ExecuteQuery(@"
+                SELECT SectionID FROM StudentSections 
+                WHERE StudentCardNumber = @StudentCard AND IsActive = 1",
+                new[] { new SqlParameter("@StudentCard", studentCard) });
+
             EnrolledSectionIds = new List<int>();
-            var enrolled = _dbConnection.ExecuteQuery(
-                "SELECT SectionID FROM StudentSections WHERE StudentCardNumber = @CardNumber AND IsActive = 1",
-                new[] { new SqlParameter("@CardNumber", studentCardNumber) });
-
             foreach (System.Data.DataRow row in enrolled.Rows)
             {
                 EnrolledSectionIds.Add(Convert.ToInt32(row["SectionID"]));
             }
 
+            // Получаем секции, куда есть pending заявки
+            var pending = DBConnection.Instance.ExecuteQuery(@"
+                SELECT SectionID FROM StudentSectionRequests 
+                WHERE StudentCardNumber = @StudentCard AND Status = 'Pending' AND RequestType = 'Join'",
+                new[] { new SqlParameter("@StudentCard", studentCard) });
+
+            PendingRequestSectionIds = new List<int>();
+            foreach (System.Data.DataRow row in pending.Rows)
+            {
+                PendingRequestSectionIds.Add(Convert.ToInt32(row["SectionID"]));
+            }
+
             return Page();
         }
 
-        public IActionResult OnPostEnroll(int sectionId)
+        public IActionResult OnPostRequestJoin(int sectionId)
         {
             var role = HttpContext.Session.GetString("UserRole");
             if (role != "Student")
                 return RedirectToPage("/Index");
 
-            var studentCardNumber = HttpContext.Session.GetString("UserLogin");
+            var studentCard = HttpContext.Session.GetString("UserLogin");
 
             try
             {
                 // Проверяем, не записан ли уже
-                var exists = _dbConnection.ExecuteScalar(
-                    "SELECT COUNT(*) FROM StudentSections WHERE StudentCardNumber = @CardNumber AND SectionID = @SectionID AND IsActive = 1",
-                    new[] {
-                        new SqlParameter("@CardNumber", studentCardNumber),
-                        new SqlParameter("@SectionID", sectionId)
-                    });
-
-                if (Convert.ToInt32(exists) > 0)
+                if (DBConnection.Instance.IsEnrolledInSection(studentCard, sectionId))
                 {
-                    ErrorMessage = "❌ Вы уже записаны в эту секцию";
+                    ErrorMessage = "Вы уже записаны в эту секцию";
                     return RedirectToPage();
                 }
 
-                // Создаём запись
-                _dbConnection.ExecuteCommand(@"
-                    INSERT INTO StudentSections (StudentCardNumber, SectionID, EnrollmentDate, IsActive)
-                    VALUES (@CardNumber, @SectionID, GETDATE(), 1)",
-                    new[] {
-                        new SqlParameter("@CardNumber", studentCardNumber),
-                        new SqlParameter("@SectionID", sectionId)
-                    });
+                // Проверяем, нет ли уже pending заявки
+                if (DBConnection.Instance.HasPendingRequest(studentCard, sectionId, "Join"))
+                {
+                    ErrorMessage = "У вас уже есть заявка в эту секцию";
+                    return RedirectToPage();
+                }
 
-                SuccessMessage = "✅ Заявка на запись отправлена!";
+                // Создаём заявку
+                DBConnection.Instance.CreateSectionRequest(studentCard, sectionId, "Join");
+                SuccessMessage = "✅ Заявка отправлена! Менеджер рассмотрит её в ближайшее время.";
             }
             catch (Exception ex)
             {
