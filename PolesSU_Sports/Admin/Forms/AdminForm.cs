@@ -68,15 +68,6 @@ namespace PolesSU_Sports.Admin
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.Fill
             };
-            PictureBox logoPictureBox = new PictureBox
-            {
-                Image = Properties.Resources.PolesSU_Emblem,  // ✅ Твоё изображение
-                Size = new Size(150, 150),
-                Location = new Point(135, 15),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BackColor = Color.Transparent
-            };
-            headerPanel.Controls.Add(logoPictureBox);
             logoPanel.Controls.Add(logoLabel);
             sidebarPanel.Controls.Add(logoPanel);
 
@@ -148,7 +139,7 @@ namespace PolesSU_Sports.Admin
 
             headerLabel = new Label
             {
-                Text = "Главная",
+                Text = "Дашборд",
                 Font = new Font("Segoe UI", 22, FontStyle.Bold),
                 ForeColor = GreenMain,
                 AutoSize = true,
