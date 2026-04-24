@@ -55,9 +55,17 @@ namespace PolesSU_Sports.Management
             var logoPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 90,
+                Height = 180,
                 BackColor = GreenMain,
                 Padding = new Padding(20, 25, 20, 20)
+            };
+            var logoPictureBox = new PictureBox
+            {
+                Image = Properties.Resources.PolesSU_Emblem,
+                Size = new Size(160, 160),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent,
+                Location = new Point(40, 80)  // ✅ Эмблема НИЖЕ
             };
             var logoLabel = new Label
             {
@@ -65,11 +73,11 @@ namespace PolesSU_Sports.Management
                 Font = new Font("Segoe UI", 22, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = false,
-                Size = new Size(220, 50),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.Fill
+                Size = new Size(220, 80),
+                TextAlign = ContentAlignment.TopCenter,
+                Location = new Point(20, 10),
             };
-            logoPanel.Controls.Add(logoLabel);
+            logoPanel.Controls.AddRange(logoLabel, logoPictureBox);
             sidebarPanel.Controls.Add(logoPanel);
 
             // Разделитель

@@ -54,30 +54,33 @@ namespace PolesSU_Sports.Admin
             var logoPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 90,
+                Height = 200,
                 BackColor = GreenMain,
-                Padding = new Padding(20, 25, 20, 20)
+                Padding = new Padding(0)
             };
-            var logoLabel = new Label
+
+            var logoPictureBox = new PictureBox
             {
-                Text = "PolesSU\nSports",
-                Font = new Font("Segoe UI", 22, FontStyle.Bold),
+                Image = Properties.Resources.PolesSU_Emblem,
+                Size = new Size(160, 160),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent,
+                Location = new Point(40, 102)  // ✅ Эмблема НИЖЕ
+            };
+
+            var logoText = new Label
+            {
+                Text = "PolesSU Sports",
+                Font = new Font("Segoe UI", 28, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = false,
-                Size = new Size(220, 50),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.Fill
+                Size = new Size(220, 120),
+                Location = new Point(20, 10),  // ✅ Текст ВВЕРХУ
+                TextAlign = ContentAlignment.TopRight
+                
             };
-            PictureBox logoPictureBox = new PictureBox
-            {
-                Image = Properties.Resources.PolesSU_Emblem,  // ✅ Твоё изображение
-                Size = new Size(150, 150),
-                Location = new Point(135, 15),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BackColor = Color.Transparent
-            };
-            headerPanel.Controls.Add(logoPictureBox);
-            logoPanel.Controls.Add(logoLabel);
+
+            logoPanel.Controls.AddRange(new Control[] { logoText, logoPictureBox });
             sidebarPanel.Controls.Add(logoPanel);
 
             // Разделитель
