@@ -20,7 +20,7 @@ namespace PolesSU_Sports.Lib.Model
 
     public class TrainerStats
     {
-        public int TrainerID { get; set; }
+        public string TrainerID { get; set; }
         public string TrainerName { get; set; }
         public string Qualification { get; set; }
         public int SectionsCount { get; set; }

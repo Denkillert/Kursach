@@ -17,7 +17,7 @@ namespace PolesSU_Sports.Lib.Model
         public string PasswordHash { get; set; }
         public AccountRole Role { get; set; }
         public string StudentCardNumber { get; set; }
-        public int? TrainerID { get; set; }
+        public string TrainerID { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? LastLogin { get; set; }

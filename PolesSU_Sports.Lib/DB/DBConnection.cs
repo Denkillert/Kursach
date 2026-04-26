@@ -275,7 +275,6 @@ namespace PolesSU_Sports.Lib.DB
             {
                 trainers.Add(new Trainer
                 {
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
                     DocumentNumber = row["DocumentNumber"].ToString(),
                     LastName = row["LastName"].ToString(),
                     FirstName = row["FirstName"].ToString(),
@@ -298,7 +297,7 @@ namespace PolesSU_Sports.Lib.DB
                 SELECT sec.*, sp.SportName, t.LastName + ' ' + t.FirstName AS TrainerName
                 FROM Sections sec
                 JOIN Sports sp ON sec.SportID = sp.SportID
-                JOIN Trainers t ON sec.TrainerID = t.TrainerID
+                JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
                 ORDER BY sec.SectionName");
 
             foreach (DataRow row in dt.Rows)
@@ -309,7 +308,7 @@ namespace PolesSU_Sports.Lib.DB
                     SectionName = row["SectionName"].ToString(),
                     SportID = Convert.ToInt32(row["SportID"]),
                     SportName = row["SportName"].ToString(),
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
+                    TrainerID = row["TrainerID"].ToString(),
                     TrainerName = row["TrainerName"].ToString(),
                     MaxStudents = row["MaxStudents"] != DBNull.Value ? Convert.ToInt32(row["MaxStudents"]) : null,
                     PricePerMonth = Convert.ToDecimal(row["PricePerMonth"]),
@@ -401,13 +400,13 @@ namespace PolesSU_Sports.Lib.DB
             }
         }
 
-        public bool DeleteTrainer(int trainerID)
+        public bool DeleteTrainer(string DocumentNumber)
         {
             try
             {
                 int result = ExecuteCommand(
-                    "DELETE FROM Trainers WHERE TrainerID = @TrainerID",
-                    new[] { new SqlParameter("@TrainerID", trainerID) });
+                    "DELETE FROM Trainers WHERE DocumentNumber = @DocumentNumber",
+                    new[] { new SqlParameter("@DocumentNumber", DocumentNumber) });
                 return result > 0;
             }
             catch (Exception ex)
@@ -454,7 +453,7 @@ namespace PolesSU_Sports.Lib.DB
                         Login = row["Login"].ToString(),
                         Role = (AccountRole)Enum.Parse(typeof(AccountRole), row["Role"].ToString()),
                         StudentCardNumber = row["StudentCardNumber"] != DBNull.Value ? row["StudentCardNumber"].ToString() : null,
-                        TrainerID = row["TrainerID"] != DBNull.Value ? Convert.ToInt32(row["TrainerID"]) : null,
+                        TrainerID = row["TrainerID"] != DBNull.Value ? row["TrainerID"].ToString() : null,
                         IsActive = Convert.ToBoolean(row["IsActive"]),
                         CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
                         LastLogin = row["LastLogin"] != DBNull.Value ? Convert.ToDateTime(row["LastLogin"]) : null
@@ -478,7 +477,7 @@ namespace PolesSU_Sports.Lib.DB
                     t.LastName + ' ' + t.FirstName AS TrainerName
                 FROM Accounts a
                 LEFT JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
-                LEFT JOIN Trainers t ON a.TrainerID = t.TrainerID
+                LEFT JOIN Trainers t ON a.TrainerID = t.DocumentNumber  
                 ORDER BY a.Login");
 
             foreach (DataRow row in dt.Rows)
@@ -489,7 +488,7 @@ namespace PolesSU_Sports.Lib.DB
                     Login = row["Login"].ToString(),
                     Role = (AccountRole)Enum.Parse(typeof(AccountRole), row["Role"].ToString()),
                     StudentCardNumber = row["StudentCardNumber"] != DBNull.Value ? row["StudentCardNumber"].ToString() : null,
-                    TrainerID = row["TrainerID"] != DBNull.Value ? Convert.ToInt32(row["TrainerID"]) : null,
+                    TrainerID = row["TrainerID"] != DBNull.Value ? row["TrainerID"].ToString() : null,
                     IsActive = Convert.ToBoolean(row["IsActive"]),
                     CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
                     LastLogin = row["LastLogin"] != DBNull.Value ? Convert.ToDateTime(row["LastLogin"]) : null
