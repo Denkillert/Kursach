@@ -38,7 +38,7 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                 "SELECT TrainerID FROM Accounts WHERE AccountID = @AccountID",
                 new[] { new SqlParameter("@AccountID", accountId) });
 
-            int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+            string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
             try
             {
@@ -86,10 +86,10 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                 "SELECT TrainerID FROM Accounts WHERE AccountID = @AccountID",
                 new[] { new SqlParameter("@AccountID", accountId) });
 
-            int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+            string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
             var trainer = DBConnection.Instance.ExecuteQuery(
-                "SELECT LastName, FirstName FROM Trainers WHERE TrainerID = @TrainerID",
+                "SELECT LastName, FirstName FROM Trainers WHERE DocumentNumber = @TrainerID",
                 new[] { new SqlParameter("@TrainerID", trainerId) });
 
             if (trainer.Rows.Count > 0)

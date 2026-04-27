@@ -99,8 +99,7 @@ namespace PolesSU_Sports.Admin.Attendance
             this.Controls.AddRange(new Control[] { lblTitle, rbPresent, rbAbsent, lblNotes, txtNotes, btnSave, btnCancel });
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -515,8 +514,7 @@ namespace PolesSU_Sports.Admin.Attendance
             }
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -1001,8 +999,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
             }
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -1375,8 +1372,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary.Achievements
             }
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
@@ -1616,8 +1612,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
             txtPhone.Clear();
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
@@ -1974,24 +1969,41 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
 
         private void BtnDelete_Click(object sender, EventArgs e)
         {
-            if (currentScheduleID == 0) { MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-            if (MessageBox.Show("Удалить запись расписания?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (currentScheduleID == 0)
+            {
+                MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show("Удалить запись расписания?\n\n⚠️ Все связанные записи о посещаемости также будут удалены!",
+                "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 try
                 {
-                    DBConnection.Instance.ExecuteCommand("DELETE FROM Schedule WHERE ScheduleID = @ScheduleID", new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+                    // ✅ Сначала удаляем связанные записи из Attendance
+                    DBConnection.Instance.ExecuteCommand(
+                        "DELETE FROM Attendance WHERE ScheduleID = @ScheduleID",
+                        new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+
+                    // ✅ Затем удаляем запись из Schedule
+                    DBConnection.Instance.ExecuteCommand(
+                        "DELETE FROM Schedule WHERE ScheduleID = @ScheduleID",
+                        new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+
                     MessageBox.Show("✅ Удалено", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadSchedule();
                     ClearForm();
                 }
-                catch (Exception ex) { MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
         private void ClearForm() { currentScheduleID = 0; txtRoom.Clear(); }
     }
-}
-using System;
+}using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
@@ -2144,8 +2156,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
 
         private void ClearForm() { currentSportID = 0; txtSportName.Clear(); txtDescription.Clear(); }
     }
-}
-using System;
+}using System;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -2201,30 +2212,33 @@ namespace PolesSU_Sports.Admin
             var logoPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 90,
+                Height = 200,
                 BackColor = GreenMain,
-                Padding = new Padding(20, 25, 20, 20)
+                Padding = new Padding(0)
             };
-            var logoLabel = new Label
+
+            var logoPictureBox = new PictureBox
             {
-                Text = "PolesSU\nSports",
-                Font = new Font("Segoe UI", 22, FontStyle.Bold),
+                Image = Properties.Resources.PolesSU_Emblem,
+                Size = new Size(160, 160),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent,
+                Location = new Point(40, 102)  // ✅ Эмблема НИЖЕ
+            };
+
+            var logoText = new Label
+            {
+                Text = "PolesSU Sports",
+                Font = new Font("Segoe UI", 28, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = false,
-                Size = new Size(220, 50),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.Fill
+                Size = new Size(220, 120),
+                Location = new Point(20, 10),  // ✅ Текст ВВЕРХУ
+                TextAlign = ContentAlignment.TopCenter
+                
             };
-            PictureBox logoPictureBox = new PictureBox
-            {
-                Image = Properties.Resources.PolesSU_Emblem,  // ✅ Твоё изображение
-                Size = new Size(150, 150),
-                Location = new Point(135, 15),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BackColor = Color.Transparent
-            };
-            headerPanel.Controls.Add(logoPictureBox);
-            logoPanel.Controls.Add(logoLabel);
+
+            logoPanel.Controls.AddRange(new Control[] { logoText, logoPictureBox });
             sidebarPanel.Controls.Add(logoPanel);
 
             // Разделитель
@@ -2427,23 +2441,23 @@ namespace PolesSU_Sports.Admin
 
             AddModernStatCard(statsPanel, "🏛️ Факультеты",
                 Count("SELECT COUNT(*) FROM Faculties"),
-                Color.FromArgb(0, 102, 204), "факультет(ов)");
+                Color.FromArgb(0, 102, 204), "");
 
             AddModernStatCard(statsPanel, "👨‍ Тренеры",
                 Count("SELECT COUNT(*) FROM Trainers"),
-                Color.FromArgb(40, 167, 69), "тренер(ов)");
+                Color.FromArgb(40, 167, 69), "");
 
             AddModernStatCard(statsPanel, "🎓 Студенты",
                 Count("SELECT COUNT(*) FROM Students"),
-                Color.FromArgb(255, 193, 7), "студент(ов)");
+                Color.FromArgb(255, 193, 7), "");
 
             AddModernStatCard(statsPanel, "⚽ Секции",
                 Count("SELECT COUNT(*) FROM Sections"),
-                Color.FromArgb(220, 53, 69), "секцй(и)");
+                Color.FromArgb(220, 53, 69), "");
 
             AddModernStatCard(statsPanel, "📋 Посещаемость",
                 Count("SELECT COUNT(*) FROM Attendance"),
-                Color.FromArgb(108, 117, 125), "записей");
+                Color.FromArgb(108, 117, 125), "");
 
             contentPanel.Controls.Add(statsPanel);
 
@@ -2726,7 +2740,9 @@ namespace PolesSU_Sports.Admin
                 },
                 RowHeadersVisible = false,
                 BorderStyle = BorderStyle.None,
-                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
+                ColumnHeadersHeight = 40
             };
             // ✅ RowTemplate.Height задаём ОТДЕЛЬНО:
             currentDgv.RowTemplate.Height = 40;
@@ -2842,7 +2858,7 @@ namespace PolesSU_Sports.Admin
                         break;
                     case "Тренеры":
                         query = @"
-                            SELECT TrainerID AS [ID], DocumentNumber AS [Документ],
+                            SELECT DocumentNumber AS [Документ],
                             LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS [ФИО],
                             Qualification AS [Квалификация], Specialization AS [Специализация],
                             Phone AS [Телефон], HireDate AS [Дата приёма]
@@ -2856,7 +2872,7 @@ namespace PolesSU_Sports.Admin
                             sec.MaxStudents AS [Макс. студентов], sec.PricePerMonth AS [Цена]
                             FROM Sections sec
                             JOIN Sports sp ON sec.SportID = sp.SportID
-                            JOIN Trainers t ON sec.TrainerID = t.TrainerID
+                            JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
                             ORDER BY sec.SectionName";
                         break;
                     case "Посещаемость":
@@ -3003,16 +3019,6 @@ namespace PolesSU_Sports.Admin
                 BackColor = Color.Transparent
             };
 
-            var arrowLabel = new Label
-            {
-                Text = "→",
-                Font = new Font("Segoe UI", 24),
-                ForeColor = accent,
-                Location = new Point(260, 20),
-                AutoSize = true,
-                BackColor = Color.Transparent
-            };
-
             card.MouseEnter += (s, e) => card.BackColor = Color.FromArgb(250, 250, 250);
             card.MouseLeave += (s, e) => card.BackColor = Color.White;
 
@@ -3020,9 +3026,8 @@ namespace PolesSU_Sports.Admin
             iconLabel.Click += (s, e) => click();
             titleLabel.Click += (s, e) => click();
             descLabel.Click += (s, e) => click();
-            arrowLabel.Click += (s, e) => click();
 
-            card.Controls.AddRange(new Control[] { iconLabel, titleLabel, descLabel, arrowLabel });
+            card.Controls.AddRange(new Control[] { iconLabel, titleLabel, descLabel });
             grid.Controls.Add(card);
         }
 
@@ -3081,7 +3086,7 @@ namespace PolesSU_Sports.Admin
                         }
                         break;
                     case "Тренеры":
-                        int tid = Convert.ToInt32(currentDgv.SelectedRows[0].Cells["ID"].Value);
+                        string tid = currentDgv.SelectedRows[0].Cells["ID"].Value.ToString();
                         using (var form = new PolesSU_Sports.Admin.Trainers.TrainerForm(tid))
                         {
                             if (form.ShowDialog() == DialogResult.OK) LoadGridData();
@@ -3131,7 +3136,7 @@ namespace PolesSU_Sports.Admin
                         deleted = DBConnection.Instance.DeleteStudent(card);
                         break;
                     case "Тренеры":
-                        int tid = Convert.ToInt32(currentDgv.SelectedRows[0].Cells["ID"].Value);
+                        string tid = currentDgv.SelectedRows[0].Cells["ID"].Value.ToString();
                         deleted = DBConnection.Instance.DeleteTrainer(tid);
                         break;
                     case "Секции":
@@ -3322,8 +3327,7 @@ namespace PolesSU_Sports.Admin
             }
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using System.Windows.Forms;
 using System.IO;
@@ -3513,8 +3517,7 @@ namespace PolesSU_Sports.Admin.Report
             }
         }
     }
-}
-using PolesSU_Sports.Lib.DB;
+}using PolesSU_Sports.Lib.DB;
 using System;
 using System.Data;
 using System.Windows.Forms;
@@ -3916,8 +3919,7 @@ namespace PolesSU_Sports.Admin.Report
         public object Value { get; set; }
         public override string ToString() => Text;
     }
-}
-using System;
+}using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
@@ -4128,11 +4130,10 @@ namespace PolesSU_Sports.Admin.Sections
             try
             {
                 DataTable dt = DBConnection.Instance.ExecuteQuery(
-                    "SELECT TrainerID, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Trainers ORDER BY LastName");
-
+                     "SELECT DocumentNumber, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Trainers ORDER BY LastName");
                 cmbTrainer.DataSource = dt;
                 cmbTrainer.DisplayMember = "FullName";
-                cmbTrainer.ValueMember = "TrainerID";
+                cmbTrainer.ValueMember = "DocumentNumber";
             }
             catch (Exception ex)
             {
@@ -4253,8 +4254,7 @@ namespace PolesSU_Sports.Admin.Sections
             return newParams;
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
@@ -4562,8 +4562,7 @@ namespace PolesSU_Sports.Admin.Students
             }
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -4948,8 +4947,7 @@ namespace PolesSU_Sports.Admin.Students
             }
         }
     }
-}
-using System;
+}using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
@@ -4961,7 +4959,7 @@ namespace PolesSU_Sports.Admin.Trainers
     public partial class TrainerForm : Form
     {
         private bool isEditMode = false;
-        private int currentTrainerID = 0;
+        private string currentDocumentNumber = null;  
 
         // Элементы управления
         private TextBox txtDocumentNumber;
@@ -4982,13 +4980,13 @@ namespace PolesSU_Sports.Admin.Trainers
         }
 
         // Конструктор для редактирования
-        public TrainerForm(int trainerID) : this()
+        public TrainerForm(string documentNumber) : this()
         {
             isEditMode = true;
-            currentTrainerID = trainerID;
-            LoadTrainerData(trainerID);
+            currentDocumentNumber = documentNumber;  // ✅ Теперь присваиваем string
+            LoadTrainerData(documentNumber);
             this.Text = "Редактирование тренера";
-            txtDocumentNumber.Enabled = false; // Нельзя менять номер документа
+            txtDocumentNumber.Enabled = false;  // Нельзя менять номер документа
         }
 
         private void InitializeComponent()
@@ -5007,7 +5005,7 @@ namespace PolesSU_Sports.Admin.Trainers
 
             // Номер документа
             CreateLabel("Номер документа*:", 20, y, labelWidth);
-            txtDocumentNumber = CreateTextBox(inputX, y, inputWidth, "MP3567890");
+            txtDocumentNumber = CreateTextBox(inputX, y, inputWidth, "АВ1234567");
             y += 45;
 
             // Фамилия
@@ -5112,13 +5110,13 @@ namespace PolesSU_Sports.Admin.Trainers
             return txt;
         }
 
-        private void LoadTrainerData(int trainerID)
+        private void LoadTrainerData(string documentNumber)
         {
             try
             {
                 DataTable dt = DBConnection.Instance.ExecuteQuery(
-                    "SELECT * FROM Trainers WHERE TrainerID = @TrainerID",
-                    new[] { new SqlParameter("@TrainerID", trainerID) });
+                    "SELECT * FROM Trainers WHERE DocumentNumber = @DocumentNumber",
+                    new[] { new SqlParameter("@DocumentNumber", documentNumber) });
 
                 if (dt.Rows.Count > 0)
                 {
@@ -5126,12 +5124,12 @@ namespace PolesSU_Sports.Admin.Trainers
                     txtDocumentNumber.Text = row["DocumentNumber"].ToString();
                     txtLastName.Text = row["LastName"].ToString();
                     txtFirstName.Text = row["FirstName"].ToString();
-                    txtMiddleName.Text = row["MiddleName"].ToString();
+                    txtMiddleName.Text = row["MiddleName"] != DBNull.Value ? row["MiddleName"].ToString() : "";
                     dtpBirthDate.Value = Convert.ToDateTime(row["BirthDate"]);
-                    txtPhone.Text = row["Phone"].ToString();
-                    txtEmail.Text = row["Email"].ToString();
-                    txtQualification.Text = row["Qualification"].ToString();
-                    txtSpecialization.Text = row["Specialization"].ToString();
+                    txtPhone.Text = row["Phone"] != DBNull.Value ? row["Phone"].ToString() : "";
+                    txtEmail.Text = row["Email"] != DBNull.Value ? row["Email"].ToString() : "";
+                    txtQualification.Text = row["Qualification"] != DBNull.Value ? row["Qualification"].ToString() : "";
+                    txtSpecialization.Text = row["Specialization"] != DBNull.Value ? row["Specialization"].ToString() : "";
                 }
             }
             catch (Exception ex)
@@ -5156,7 +5154,7 @@ namespace PolesSU_Sports.Admin.Trainers
             try
             {
                 SqlParameter[] parameters = {
-                    new SqlParameter("@DocumentNumber", txtDocumentNumber.Text),
+                    new SqlParameter("@DocumentNumber", txtDocumentNumber.Text),  // ✅ Добавляем @DocumentNumber
                     new SqlParameter("@LastName", txtLastName.Text),
                     new SqlParameter("@FirstName", txtFirstName.Text),
                     new SqlParameter("@MiddleName", string.IsNullOrEmpty(txtMiddleName.Text) ? (object)DBNull.Value : txtMiddleName.Text),
@@ -5169,7 +5167,7 @@ namespace PolesSU_Sports.Admin.Trainers
 
                 if (isEditMode)
                 {
-                    // Обновление
+                    // ✅ Обновление: НЕ обновляем DocumentNumber, только WHERE по нему
                     DBConnection.Instance.ExecuteCommand(@"
                         UPDATE Trainers SET
                             LastName = @LastName,
@@ -5180,15 +5178,15 @@ namespace PolesSU_Sports.Admin.Trainers
                             Email = @Email,
                             Qualification = @Qualification,
                             Specialization = @Specialization
-                        WHERE TrainerID = @TrainerID",
-                        AddParameter(parameters, "@TrainerID", currentTrainerID));
+                        WHERE DocumentNumber = @DocumentNumber",
+                        parameters);  // ✅ parameters уже содержит @DocumentNumber
 
                     MessageBox.Show("✅ Тренер успешно обновлён!", "Успех",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    // Добавление
+                    // Добавление нового тренера
                     DBConnection.Instance.ExecuteCommand(@"
                         INSERT INTO Trainers (DocumentNumber, LastName, FirstName, MiddleName, BirthDate, Phone, Email, Qualification, Specialization)
                         VALUES (@DocumentNumber, @LastName, @FirstName, @MiddleName, @BirthDate, @Phone, @Email, @Qualification, @Specialization)",
@@ -5207,18 +5205,8 @@ namespace PolesSU_Sports.Admin.Trainers
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        // Вспомогательный метод для добавления параметра
-        private SqlParameter[] AddParameter(SqlParameter[] parameters, string name, object value)
-        {
-            SqlParameter[] newParams = new SqlParameter[parameters.Length + 1];
-            parameters.CopyTo(newParams, 0);
-            newParams[parameters.Length] = new SqlParameter(name, value);
-            return newParams;
-        }
     }
-}
-using System;
+}using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
@@ -5320,8 +5308,337 @@ namespace PolesSU_Sports.Management.SettingsForms
             // Загрузка настроек из файла конфигурации
         }
     }
-}
-using System;
+}using System;
+using System.Data;
+using System.Drawing;
+using System.Windows.Forms;
+using Microsoft.Data.SqlClient;
+using PolesSU_Sports.Lib.DB;
+using PolesSU_Sports.Lib.Model;
+
+namespace PolesSU_Sports.Management.SettingsForms
+{
+    public partial class StudentRequestsForm : Form
+    {
+        private DataGridView dgvRequests;
+        private Label lblTitle;
+        private Label lblInfo;
+        private Button btnRefresh;
+        private int currentManagerId;
+
+        public StudentRequestsForm(int managerId)
+        {
+            currentManagerId = managerId;
+            InitializeComponent();
+            LoadRequests();
+        }
+
+        private void InitializeComponent()
+        {
+            this.Text = "🎓 Заявки студентов";
+            this.Size = new Size(1100, 700);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Font = new Font("Segoe UI", 9);
+            this.BackColor = Color.FromArgb(245, 247, 250);
+
+            // Заголовок
+            lblTitle = new Label
+            {
+                Text = "🎓 Заявки студентов на запись в секции",
+                Font = new Font("Segoe UI", 18, FontStyle.Bold),
+                ForeColor = Color.FromArgb(5, 66, 38),
+                Location = new Point(30, 20),
+                AutoSize = true
+            };
+
+            lblInfo = new Label
+            {
+                Text = "Ожидают обработки:",
+                Font = new Font("Segoe UI", 10),
+                ForeColor = Color.FromArgb(100, 100, 100),
+                Location = new Point(30, 55),
+                AutoSize = true
+            };
+
+            // Кнопка обновления
+            btnRefresh = new Button
+            {
+                Text = "🔄 Обновить",
+                Location = new Point(950, 20),
+                Size = new Size(120, 35),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(0, 147, 197),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnRefresh.FlatAppearance.BorderSize = 0;
+            btnRefresh.Click += (s, e) => LoadRequests();
+
+            // Таблица заявок
+            dgvRequests = new DataGridView
+            {
+                Location = new Point(30, 90),
+                Size = new Size(1040, 520),
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = Color.FromArgb(5, 66, 38),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                },
+                RowHeadersVisible = false,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+            dgvRequests.CellFormatting += DgvRequests_CellFormatting;
+
+            // Кнопки действий (появляются при выборе строки)
+            var actionPanel = new Panel
+            {
+                Location = new Point(30, 620),
+                Size = new Size(1040, 50),
+                BackColor = Color.Transparent
+            };
+
+            var btnApprove = new Button
+            {
+                Text = "✅ Одобрить",
+                Location = new Point(0, 0),
+                Size = new Size(130, 40),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(40, 167, 69),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Enabled = false
+            };
+            btnApprove.FlatAppearance.BorderSize = 0;
+            btnApprove.Click += BtnApprove_Click;
+
+            var btnReject = new Button
+            {
+                Text = "❌ Отклонить",
+                Location = new Point(140, 0),
+                Size = new Size(130, 40),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(220, 53, 69),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Enabled = false
+            };
+            btnReject.FlatAppearance.BorderSize = 0;
+            btnReject.Click += BtnReject_Click;
+
+            var btnClose = new Button
+            {
+                Text = "✖ Закрыть",
+                Location = new Point(910, 0),
+                Size = new Size(130, 40),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(108, 117, 125),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.Click += (s, e) => this.Close();
+
+            actionPanel.Controls.AddRange(new Control[] { btnApprove, btnReject, btnClose });
+
+            // Включение кнопок при выборе строки
+            dgvRequests.SelectionChanged += (s, e) =>
+            {
+                bool hasSelection = dgvRequests.SelectedRows.Count > 0;
+                btnApprove.Enabled = hasSelection;
+                btnReject.Enabled = hasSelection;
+            };
+
+            this.Controls.AddRange(new Control[] { lblTitle, lblInfo, btnRefresh, dgvRequests, actionPanel });
+        }
+
+        private void LoadRequests()
+        {
+            try
+            {
+                var data = DBConnection.Instance.ExecuteQuery(@"
+                    SELECT 
+                        r.RequestID,
+                        r.StudentCardNumber AS [Билет],
+                        s.LastName + ' ' + s.FirstName + ' ' + ISNULL(s.MiddleName, '') AS [Студент],
+                        s.GroupName AS [Группа],
+                        f.FacultyName AS [Факультет],
+                        sec.SectionName AS [Секция],
+                        sp.SportName AS [Вид спорта],
+                        CASE WHEN r.RequestType = 'Join' THEN '📝 Вступление' ELSE '🚪 Выход' END AS [Тип],
+                        r.RequestDate AS [Дата заявки]
+                    FROM StudentSectionRequests r
+                    JOIN Students s ON r.StudentCardNumber = s.StudentCardNumber
+                    JOIN Faculties f ON s.FacultyID = f.FacultyID
+                    JOIN Sections sec ON r.SectionID = sec.SectionID
+                    JOIN Sports sp ON sec.SportID = sp.SportID
+                    WHERE r.Status = 'Pending'
+                    ORDER BY r.RequestDate DESC");
+
+                dgvRequests.DataSource = data;
+
+                lblInfo.Text = $"Ожидают обработки: {data.Rows.Count} заявок";
+
+                // Сброс выделения
+                dgvRequests.ClearSelection();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки заявок: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void DgvRequests_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Подсветка типа заявки
+            if (dgvRequests.Columns[e.ColumnIndex].Name == "Тип" ||
+                dgvRequests.Columns[e.ColumnIndex].HeaderText == "Тип")
+            {
+                if (e.Value?.ToString() == "📝 Вступление")
+                {
+                    e.CellStyle.BackColor = Color.FromArgb(220, 255, 220);
+                    e.CellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                }
+                else if (e.Value?.ToString() == "🚪 Выход")
+                {
+                    e.CellStyle.BackColor = Color.FromArgb(255, 240, 220);
+                    e.CellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                }
+            }
+        }
+
+        private void BtnApprove_Click(object sender, EventArgs e)
+        {
+            if (dgvRequests.SelectedRows.Count == 0) return;
+
+            var requestId = Convert.ToInt32(dgvRequests.SelectedRows[0].Cells["RequestID"].Value);
+            var studentName = dgvRequests.SelectedRows[0].Cells["Студент"].Value.ToString();
+            var requestType = dgvRequests.SelectedRows[0].Cells["Тип"].Value.ToString();
+
+            if (MessageBox.Show($"Одобрить заявку?\n\nСтудент: {studentName}\nДействие: {requestType}",
+                "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                DBConnection.Instance.ProcessRequest(requestId, true, currentManagerId);
+                MessageBox.Show("✅ Заявка одобрена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadRequests();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnReject_Click(object sender, EventArgs e)
+        {
+            if (dgvRequests.SelectedRows.Count == 0) return;
+
+            var requestId = Convert.ToInt32(dgvRequests.SelectedRows[0].Cells["RequestID"].Value);
+            var studentName = dgvRequests.SelectedRows[0].Cells["Студент"].Value.ToString();
+
+            using (var form = new RejectReasonForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        DBConnection.Instance.ProcessRequest(requestId, false, currentManagerId, form.Reason);
+                        MessageBox.Show("❌ Заявка отклонена", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadRequests();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+    }
+
+    // Вспомогательная форма для ввода причины отклонения
+    public class RejectReasonForm : Form
+    {
+        public string Reason { get; private set; }
+        private TextBox txtReason;
+
+        public RejectReasonForm()
+        {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            this.Text = "❌ Причина отклонения";
+            this.Size = new Size(450, 250);
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Font = new Font("Segoe UI", 9);
+
+            var lbl = new Label
+            {
+                Text = "Укажите причину отклонения заявки:",
+                Location = new Point(20, 20),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+
+            txtReason = new TextBox
+            {
+                Location = new Point(20, 50),
+                Size = new Size(390, 100),
+                Multiline = true,
+                ScrollBars = ScrollBars.Vertical,
+                Font = new Font("Segoe UI", 10)
+            };
+
+            var btnOk = new Button
+            {
+                Text = "❌ Отклонить",
+                Location = new Point(200, 170),
+                Size = new Size(100, 35),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(220, 53, 69),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnOk.FlatAppearance.BorderSize = 0;
+            btnOk.Click += (s, e) =>
+            {
+                Reason = txtReason.Text.Trim();
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            };
+
+            var btnCancel = new Button
+            {
+                Text = "Отмена",
+                Location = new Point(310, 170),
+                Size = new Size(100, 35),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(108, 117, 125),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnCancel.FlatAppearance.BorderSize = 0;
+            btnCancel.Click += (s, e) => this.DialogResult = DialogResult.Cancel;
+
+            this.Controls.AddRange(new Control[] { lbl, txtReason, btnOk, btnCancel });
+            this.AcceptButton = btnOk;
+            this.CancelButton = btnCancel;
+        }
+    }
+}using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -5806,8 +6123,7 @@ namespace PolesSU_Sports.Management.SettingsForms
             }
         }
     }
-}
-using System;
+}using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -6260,8 +6576,7 @@ namespace PolesSU_Sports.Management
             System.IO.File.WriteAllText(filePath, csvContent.ToString(), Encoding.GetEncoding("windows-1251"));
         }
     }
-}
-using Microsoft.Data.SqlClient;
+}using Microsoft.Data.SqlClient;
 using PolesSU_Sports.Lib.DB;
 using PolesSU_Sports.Lib.Model;
 using PolesSU_Sports.Management;
@@ -6318,9 +6633,17 @@ namespace PolesSU_Sports.Management
             var logoPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 90,
+                Height = 180,
                 BackColor = GreenMain,
                 Padding = new Padding(20, 25, 20, 20)
+            };
+            var logoPictureBox = new PictureBox
+            {
+                Image = Properties.Resources.PolesSU_Emblem,
+                Size = new Size(160, 160),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent,
+                Location = new Point(40, 80)  // ✅ Эмблема НИЖЕ
             };
             var logoLabel = new Label
             {
@@ -6328,11 +6651,11 @@ namespace PolesSU_Sports.Management
                 Font = new Font("Segoe UI", 22, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = false,
-                Size = new Size(220, 50),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.Fill
+                Size = new Size(220, 80),
+                TextAlign = ContentAlignment.TopCenter,
+                Location = new Point(20, 10),
             };
-            logoPanel.Controls.Add(logoLabel);
+            logoPanel.Controls.AddRange(logoLabel, logoPictureBox);
             sidebarPanel.Controls.Add(logoPanel);
 
             // Разделитель
@@ -7946,9 +8269,12 @@ namespace PolesSU_Sports.Management
                 NULLIF(COUNT(DISTINCT sec.SectionID), 0) AS [Ср. занятий/секцию],
             ISNULL(SUM(sec.PricePerMonth * sc.Count), 0) AS [Доход секций]
         FROM Trainers t
-        LEFT JOIN Sections sec ON t.TrainerID = sec.TrainerID
+        LEFT JOIN Sections sec ON t.DocumentNumber = sec.TrainerID
         LEFT JOIN StudentCount sc ON sec.SectionID = sc.SectionID
         LEFT JOIN AttendanceCount ac ON sec.SectionID = ac.SectionID
+        LEFT JOIN Attendance a ON sec.SectionID = (
+            SELECT SectionID FROM Schedule WHERE ScheduleID = a.ScheduleID
+        )
         WHERE a.VisitDate BETWEEN @StartDate AND @EndDate
         GROUP BY t.LastName, t.FirstName, t.Qualification, t.Specialization
         ORDER BY [Доход секций] DESC";
@@ -7980,7 +8306,7 @@ namespace PolesSU_Sports.Management
                  ELSE 0 END AS [Заполненность %]
         FROM Sections sec
         JOIN Sports sp ON sec.SportID = sp.SportID
-        JOIN Trainers t ON sec.TrainerID = t.TrainerID
+        JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
         LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
         WHERE (@SportID IS NULL OR @SportID = 0 OR sp.SportID = @SportID)
         GROUP BY sec.SectionName, sp.SportName, t.LastName, t.FirstName, 
@@ -8062,35 +8388,6 @@ namespace PolesSU_Sports.Management
             dgv.SelectionChanged += (s, e) => dgv.ClearSelection();
         }
         
-        private void UpdateAvailableFields(Panel filterPanel)
-        {
-            var cmbTable = GetControl<ComboBox>(filterPanel, "cmbTable");
-            var fldPanel = GetControl<FlowLayoutPanel>(filterPanel, "fldPanel");
-            if (cmbTable == null || fldPanel == null) return;
-            fldPanel.Controls.Clear();
-
-            var tableFields = new Dictionary<string, string[]>
-            {
-                ["🎓 Students"] = new[] { "StudentCardNumber", "LastName", "FirstName", "GroupName", "Course", "FacultyID" },
-                ["📋 Attendance"] = new[] { "AttendanceID", "StudentCardNumber", "VisitDate", "Status", "Notes" },
-                ["⚽ Sections"] = new[] { "SectionID", "SectionName", "PricePerMonth", "MaxStudents", "TrainerID" },
-                ["👨‍🏫 Trainers"] = new[] { "TrainerID", "LastName", "FirstName", "Qualification", "Specialization" },
-                ["🏛️ Faculties"] = new[] { "FacultyID", "FacultyName", "DeanName" },
-                ["🏆 Achievements"] = new[] { "AchievementID", "CompetitionName", "Place", "AwardType", "CompetitionDate" }
-            };
-
-            string selectedTable = cmbTable.SelectedItem?.ToString() ?? "";
-            if (tableFields.TryGetValue(selectedTable, out string[] fields))
-            {
-                foreach (var field in fields)
-                {
-                    var chk = new CheckBox { Text = field, AutoSize = true, Margin = new Padding(3), Tag = field };
-                    chk.Checked = field.Contains("ID") || field.Contains("Name");
-                    fldPanel.Controls.Add(chk);
-                }
-            }
-        }
-
         // ======================================== ПОДСВЕТКА ПРОБЛЕМНЫХ СТУДЕНТОВ
         private void DgvReport_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
@@ -9180,8 +9477,7 @@ namespace PolesSU_Sports.Management
             this.ResumeLayout(false);
         }
     }
-}
-using PolesSU_Sports.Admin;
+}using PolesSU_Sports.Admin;
 using PolesSU_Sports.Management;
 using PolesSU_Sports.Lib.DB;
 using PolesSU_Sports.Lib.Model;
@@ -9490,8 +9786,7 @@ namespace PolesSU_Sports
             return base.ProcessCmdKey(ref msg, keyData);
         }
     }
-}
-using System;
+}using System;
 using System.Windows.Forms;
 using PolesSU_Sports.Management;
 using PolesSU_Sports.Admin;
@@ -9509,6 +9804,9 @@ namespace PolesSU_Sports
         }
     }
 }
+
+=================библиотека
+
 using Microsoft.Data.SqlClient;
 using PolesSU_Sports.Lib.Model;
 using System;
@@ -9722,13 +10020,8 @@ namespace PolesSU_Sports.Lib.DB
             object result = null;
             try
             {
-                // ✅ Сначала убеждаемся, что соединение открыто
-                if (_connection.State != ConnectionState.Open)
-                {
-                    _connection.Open();
-                }
-
-                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
+                // ✅ Используем соединение из транзакции, а не поле _connection
+                using (SqlCommand cmd = new SqlCommand(query, transaction.Connection, transaction))
                 {
                     cmd.CommandType = CommandType.Text;
                     if (parameters != null)
@@ -9786,7 +10079,6 @@ namespace PolesSU_Sports.Lib.DB
             {
                 trainers.Add(new Trainer
                 {
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
                     DocumentNumber = row["DocumentNumber"].ToString(),
                     LastName = row["LastName"].ToString(),
                     FirstName = row["FirstName"].ToString(),
@@ -9809,7 +10101,7 @@ namespace PolesSU_Sports.Lib.DB
                 SELECT sec.*, sp.SportName, t.LastName + ' ' + t.FirstName AS TrainerName
                 FROM Sections sec
                 JOIN Sports sp ON sec.SportID = sp.SportID
-                JOIN Trainers t ON sec.TrainerID = t.TrainerID
+                JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
                 ORDER BY sec.SectionName");
 
             foreach (DataRow row in dt.Rows)
@@ -9820,7 +10112,7 @@ namespace PolesSU_Sports.Lib.DB
                     SectionName = row["SectionName"].ToString(),
                     SportID = Convert.ToInt32(row["SportID"]),
                     SportName = row["SportName"].ToString(),
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
+                    TrainerID = row["TrainerID"].ToString(),
                     TrainerName = row["TrainerName"].ToString(),
                     MaxStudents = row["MaxStudents"] != DBNull.Value ? Convert.ToInt32(row["MaxStudents"]) : null,
                     PricePerMonth = Convert.ToDecimal(row["PricePerMonth"]),
@@ -9912,13 +10204,13 @@ namespace PolesSU_Sports.Lib.DB
             }
         }
 
-        public bool DeleteTrainer(int trainerID)
+        public bool DeleteTrainer(string DocumentNumber)
         {
             try
             {
                 int result = ExecuteCommand(
-                    "DELETE FROM Trainers WHERE TrainerID = @TrainerID",
-                    new[] { new SqlParameter("@TrainerID", trainerID) });
+                    "DELETE FROM Trainers WHERE DocumentNumber = @DocumentNumber",
+                    new[] { new SqlParameter("@DocumentNumber", DocumentNumber) });
                 return result > 0;
             }
             catch (Exception ex)
@@ -9965,7 +10257,7 @@ namespace PolesSU_Sports.Lib.DB
                         Login = row["Login"].ToString(),
                         Role = (AccountRole)Enum.Parse(typeof(AccountRole), row["Role"].ToString()),
                         StudentCardNumber = row["StudentCardNumber"] != DBNull.Value ? row["StudentCardNumber"].ToString() : null,
-                        TrainerID = row["TrainerID"] != DBNull.Value ? Convert.ToInt32(row["TrainerID"]) : null,
+                        TrainerID = row["TrainerID"] != DBNull.Value ? row["TrainerID"].ToString() : null,
                         IsActive = Convert.ToBoolean(row["IsActive"]),
                         CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
                         LastLogin = row["LastLogin"] != DBNull.Value ? Convert.ToDateTime(row["LastLogin"]) : null
@@ -9989,7 +10281,7 @@ namespace PolesSU_Sports.Lib.DB
                     t.LastName + ' ' + t.FirstName AS TrainerName
                 FROM Accounts a
                 LEFT JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
-                LEFT JOIN Trainers t ON a.TrainerID = t.TrainerID
+                LEFT JOIN Trainers t ON a.TrainerID = t.DocumentNumber  
                 ORDER BY a.Login");
 
             foreach (DataRow row in dt.Rows)
@@ -10000,7 +10292,7 @@ namespace PolesSU_Sports.Lib.DB
                     Login = row["Login"].ToString(),
                     Role = (AccountRole)Enum.Parse(typeof(AccountRole), row["Role"].ToString()),
                     StudentCardNumber = row["StudentCardNumber"] != DBNull.Value ? row["StudentCardNumber"].ToString() : null,
-                    TrainerID = row["TrainerID"] != DBNull.Value ? Convert.ToInt32(row["TrainerID"]) : null,
+                    TrainerID = row["TrainerID"] != DBNull.Value ? row["TrainerID"].ToString() : null,
                     IsActive = Convert.ToBoolean(row["IsActive"]),
                     CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
                     LastLogin = row["LastLogin"] != DBNull.Value ? Convert.ToDateTime(row["LastLogin"]) : null
@@ -10310,7 +10602,6 @@ namespace PolesSU_Sports.Lib.DB
                 throw new Exception("Ошибка обработки заявки: " + ex.Message);
             }
             
-                transaction?.Dispose();
                 if (connection.State == ConnectionState.Open)
                     connection.Close();
                 connection.Dispose();
@@ -10405,8 +10696,7 @@ namespace PolesSU_Sports.Lib.DB
             }
         }
     }
-}
-namespace PolesSU_Sports.Lib.DB
+}namespace PolesSU_Sports.Lib.DB
 {
     public interface IDbConnectionFactory
     {
@@ -10432,7 +10722,7 @@ namespace PolesSU_Sports.Lib.Model
         public string PasswordHash { get; set; }
         public AccountRole Role { get; set; }
         public string StudentCardNumber { get; set; }
-        public int? TrainerID { get; set; }
+        public string TrainerID { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? LastLogin { get; set; }
@@ -10455,8 +10745,7 @@ namespace PolesSU_Sports.Lib.Model
 
         public string StatusText => IsActive ? "✅ Активен" : "❌ Заблокирован";
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
@@ -10489,8 +10778,7 @@ namespace PolesSU_Sports.Lib.Model
             }
         }
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
@@ -10508,8 +10796,7 @@ namespace PolesSU_Sports.Lib.Model
         // Статус текстом
         public string StatusText => Status ? "Присутствовал" : "Отсутствовал";
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
@@ -10520,8 +10807,7 @@ namespace PolesSU_Sports.Lib.Model
         public string DeanName { get; set; }
         public string Phone { get; set; }
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
@@ -10543,14 +10829,13 @@ namespace PolesSU_Sports.Lib.Model
 
     public class TrainerStats
     {
-        public int TrainerID { get; set; }
+        public string TrainerID { get; set; }
         public string TrainerName { get; set; }
         public string Qualification { get; set; }
         public int SectionsCount { get; set; }
         public string Sections { get; set; }
     }
-}
-namespace PolesSU_Sports.Lib.Model
+}namespace PolesSU_Sports.Lib.Model
 {
     public class SectionRequest
     {
@@ -10569,8 +10854,7 @@ namespace PolesSU_Sports.Lib.Model
         public string SectionName { get; set; }
         public string GroupName { get; set; }
     }
-}
-namespace PolesSU_Sports.Lib.Model
+}namespace PolesSU_Sports.Lib.Model
 {
     public class Section
     {
@@ -10578,15 +10862,14 @@ namespace PolesSU_Sports.Lib.Model
         public string SectionName { get; set; }
         public int SportID { get; set; }
         public string SportName { get; set; }  
-        public int TrainerID { get; set; }
+        public string TrainerID { get; set; }
         public string TrainerName { get; set; }  
         public int? MaxStudents { get; set; }
         public decimal PricePerMonth { get; set; }
         public string Description { get; set; }
         public string Requirements { get; set; }
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
@@ -10613,8 +10896,7 @@ namespace PolesSU_Sports.Lib.Model
         // Время в формате строки
         public string TimeText => $"{StartTime:hh\\:mm} - {EndTime:hh\\:mm}";
     }
-}
-namespace PolesSU_Sports.Lib.Model
+}namespace PolesSU_Sports.Lib.Model
 {
     public class Sport
     {
@@ -10622,8 +10904,7 @@ namespace PolesSU_Sports.Lib.Model
         public string SportName { get; set; }
         public string Description { get; set; }
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
@@ -10645,14 +10926,12 @@ namespace PolesSU_Sports.Lib.Model
         // Полное ФИО
         public string FullName => $"{LastName} {FirstName} {MiddleName}".Trim();
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
     public class Trainer
     {
-        public int TrainerID { get; set; }
         public string DocumentNumber { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
@@ -10667,8 +10946,7 @@ namespace PolesSU_Sports.Lib.Model
         // Полное ФИО
         public string FullName => $"{LastName} {FirstName} {MiddleName}".Trim();
     }
-}
-using System;
+}using System;
 
 namespace PolesSU_Sports.Lib.Model
 {
@@ -10709,14 +10987,23 @@ namespace PolesSU_Sports.Lib.Model
         }
     }
 }
-=======================================================ВЕБ
-===============================================CSS
+
+===========================Веб
+
 /* ==================== ЦВЕТОВАЯ ПАЛИТРА ПОЛЕССГУ ==================== */
 :root {
-    --polessu-green-primary: #054226;      /* Фирменный зеленый (основной) */
-    --polessu-green-secondary: #065732;    /* Дополнительный зеленый (фон меню) */
-    --polessu-green-accent: #063b00;       /* Цвет ссылок и акцентов */
-    --polessu-blue: #0093c5;               /* Акцентный синий (кнопки) */
+    --polessu-green-primary: #054226;
+    --polessu-green-secondary: #065732;
+    --polessu-green-accent: #063b00;
+    --polessu-blue: #0093c5;
+    --polessu-blue-dark: #007aa3;
+    --text-dark: #2d3748;
+    --text-light: #718096;
+    --bg-light: #f8f9fa;
+    --white: #ffffff;
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
 }
 
 /* ==================== БАЗОВЫЕ СТИЛИ ==================== */
@@ -10728,32 +11015,26 @@ namespace PolesSU_Sports.Lib.Model
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f8f9fa;
+    background: var(--bg-light);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    color: var(--text-dark);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
 }
 
 /* ==================== ШАПКА ==================== */
 .main-header {
     background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-    color: white;
+    color: var(--white);
     box-shadow: 0 4px 15px rgba(5, 66, 38, 0.2);
     position: sticky;
     top: 0;
     z-index: 1000;
-    animation: fadeInDown 0.8s ease-out;
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .header-container {
@@ -10765,27 +11046,31 @@ body {
     align-items: center;
 }
 
-.logo-section {
+/* Логотип */
+.logo-section .logo {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 15px; /* Расстояние между эмблемой и текстом */
 }
 
-.logo {
-    font-size: 40px;
+    .logo-section .logo .emblem {
+        width: 80px; /* ✅ УВЕЛИЧИЛ (было 45px) */
+        height: 80px;
+        object-fit: contain;
+    }
+
+    .logo-section .logo span {
+        color: white;
+        white-space: nowrap;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+.logo-section .logo-text {
+    display: none;
 }
 
-.logo-text h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0;
-}
-
-.logo-text span {
-    font-size: 12px;
-    opacity: 0.9;
-}
-
+/* Навигация */
 .main-nav {
     display: flex;
     gap: 20px;
@@ -10793,7 +11078,7 @@ body {
 }
 
     .main-nav a {
-        color: white;
+        color: var(--white);
         text-decoration: none;
         padding: 8px 16px;
         border-radius: 6px;
@@ -10825,7 +11110,7 @@ body {
 /* ==================== ФУТЕР ==================== */
 .main-footer {
     background: linear-gradient(135deg, var(--polessu-green-secondary) 0%, var(--polessu-green-accent) 100%);
-    color: white;
+    color: var(--white);
     margin-top: auto;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -10842,7 +11127,7 @@ body {
 .footer-section h3 {
     font-size: 16px;
     margin-bottom: 15px;
-    color: white;
+    color: var(--white);
     font-weight: 600;
 }
 
@@ -10861,6 +11146,145 @@ body {
     opacity: 0.8;
 }
 
+/* ==================== СТРАНИЦА АВТОРИЗАЦИИ ==================== */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 200px);
+    padding: 30px 20px;
+}
+
+.auth-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 550px;
+    overflow: hidden;
+}
+
+.auth-header {
+    padding: 20px 30px;
+    text-align: center;
+}
+
+    .auth-header .auth-logo {
+        margin-bottom: 0px; /* ✅ УБРАЛ отступ (было 5px) */
+    }
+
+        .auth-header .auth-logo .auth-emblem {
+            width: 200px; /* ✅ УВЕЛИЧИЛ (было 100px) */
+            height: 200px;
+            display: block;
+            margin: 0 auto;
+            object-fit: contain;
+        }
+
+    .auth-header h1 {
+        font-size: 28px;
+        margin: 5px 0 2px 0; /* ✅ Уменьшил верхний отступ (было 10px) */
+        font-weight: 700;
+    }
+
+    .auth-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 14px;
+    }
+
+.auth-card form {
+    padding: 30px;
+}
+
+/* Вкладки */
+.tabs {
+    display: flex;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #e2e8f0;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    background: var(--white);
+}
+
+.tab {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: all 0.3s;
+    font-weight: 500;
+    border: none;
+    background: none;
+}
+
+    .tab:hover {
+        background: #f7fafc;
+        color: var(--text-dark);
+    }
+
+    .tab.active {
+        color: var(--polessu-blue);
+        background: rgba(6, 87, 50, 0.1);
+        border-bottom: 3px solid var(--polessu-blue);
+        font-weight: 600;
+    }
+
+/* ==================== ФОРМЫ ==================== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: all 0.3s;
+        font-family: inherit;
+    }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--polessu-blue);
+            box-shadow: 0 0 0 3px rgba(5, 66, 38, 0.1);
+        }
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.form-section {
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .form-section h3 {
+        color: var(--polessu-blue);
+        font-size: 18px;
+        margin: 0 0 20px 0;
+        font-weight: 600;
+    }
+
 .form-control {
     width: 100%;
     padding: 12px 15px;
@@ -10869,8 +11293,8 @@ body {
     font-size: 14px;
     font-family: inherit;
     transition: all 0.3s;
-    resize: vertical; /* ✅ Можно растягивать по вертикали */
-    min-height: 150px; /* ✅ Минимальная высота */
+    resize: vertical;
+    min-height: 150px;
 }
 
     .form-control:focus {
@@ -10883,124 +11307,13 @@ input[type="text"].form-control {
     min-height: auto;
     resize: none;
 }
-/* ==================== КАРТОЧКИ ==================== */
-.welcome-card {
-    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-    color: white;
-    padding: 40px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
 
-    .welcome-card h1 {
-        margin: 0 0 10px 0;
-        font-size: 32px;
-    }
-
-    .welcome-card .group {
-        opacity: 0.9;
-        margin: 0;
-        font-size: 16px;
-    }
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    transition: transform 0.3s;
-}
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    }
-
-.stat-icon {
-    font-size: 48px;
-    margin-bottom: 15px;
-}
-
-.stat-value {
-    font-size: 42px;
-    font-weight: bold;
-    color: var(--polessu-blue);
-    margin: 10px 0;
-}
-
-.stat-label {
-    color: #718096;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-/* ==================== СЕКЦИИ ==================== */
-.sections-block {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
-}
-
-    .sections-block h2 {
-        margin-top: 0;
-        color: #2d3748;
-        font-size: 24px;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 3px solid var(--polessu-blue);
-    }
-
-.sections-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin: 20px 0;
-}
-
-.section-card {
-    background: white;
-    border: 2px solid #e2e8f0;
-    padding: 25px;
-    border-radius: 10px;
-    transition: all 0.3s;
-}
-
-    .section-card:hover {
-        border-color: var(--polessu-blue);
-        box-shadow: 0 4px 15px rgba(5, 66, 38, 0.15);
-        transform: translateY(-3px);
-    }
-
-    .section-card h3 {
-        margin: 0 0 12px 0;
-        color: #2d3748;
-        font-size: 18px;
-    }
-
-    .section-card p {
-        color: #718096;
-        margin: 0 0 10px 0;
-        font-size: 14px;
-    }
-
-.empty {
-    color: #718096;
-    text-align: center;
-    padding: 40px;
-    font-size: 16px;
-    background: #f7fafc;
-    border-radius: 8px;
+small {
+    color: var(--text-light);
+    font-size: 13px;
+    display: block;
+    margin-top: 6px;
+    line-height: 1.5;
 }
 
 /* ==================== КНОПКИ ==================== */
@@ -11008,7 +11321,7 @@ input[type="text"].form-control {
     display: inline-block;
     padding: 12px 24px;
     background: var(--polessu-blue);
-    color: white;
+    color: var(--white);
     border: none;
     border-radius: 6px;
     font-size: 15px;
@@ -11030,6 +11343,12 @@ input[type="text"].form-control {
     font-size: 14px;
 }
 
+.btn-block {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+}
+
 .btn-disabled {
     background: #cbd5e0;
     cursor: not-allowed;
@@ -11040,6 +11359,81 @@ input[type="text"].form-control {
         transform: none;
         background: #cbd5e0;
     }
+
+.btn-pending {
+    background: var(--warning);
+    color: var(--white);
+}
+
+    .btn-pending:hover {
+        background: #d97706;
+    }
+
+.btn-secondary {
+    background: #6b7280;
+    color: var(--white);
+}
+
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+.btn-save {
+    background: var(--success);
+    color: var(--white);
+    padding: 12px 30px;
+}
+
+    .btn-save:hover {
+        background: #059669;
+    }
+
+.btn-cancel {
+    background: #6b7280;
+    color: var(--white);
+    padding: 12px 30px;
+}
+
+    .btn-cancel:hover {
+        background: #4b5563;
+    }
+
+.btn-primary {
+    background: var(--polessu-blue);
+    color: var(--white);
+}
+
+    .btn-primary:hover {
+        background: var(--polessu-green-secondary);
+    }
+
+.btn-edit {
+    background: var(--success);
+    color: var(--white);
+}
+
+    .btn-edit:hover {
+        background: #059669;
+    }
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: var(--error);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+    .btn-delete:hover {
+        transform: scale(1.2);
+    }
+
+.btn-attendance {
+    background: var(--polessu-blue);
+    color: var(--white);
+}
 
 /* ==================== СООБЩЕНИЯ ==================== */
 .error {
@@ -11062,90 +11456,263 @@ input[type="text"].form-control {
     font-weight: 500;
 }
 
-/* ==================== ВКЛАДКИ ==================== */
-.tabs {
-    display: flex;
-    margin-bottom: 25px;
-    border-bottom: 2px solid #e2e8f0;
-    border-radius: 8px 8px 0 0;
-    overflow: hidden;
-    background: white;
-}
-
-.tab {
-    flex: 1;
-    padding: 15px;
-    text-align: center;
-    cursor: pointer;
-    color: #718096;
-    transition: all 0.3s;
+/* Уведомления */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: var(--white);
     font-weight: 500;
-    border: none;
+    font-size: 14px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+}
+
+    .notification.success {
+        background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+    }
+
+.notification-close {
     background: none;
+    border: none;
+    color: var(--white);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: auto;
+    opacity: 0.8;
+    transition: opacity 0.2s;
 }
 
-    .tab:hover {
-        background: #f7fafc;
-        color: #4a5568;
+    .notification-close:hover {
+        opacity: 1;
     }
 
-    .tab.active {
-        color: var(--polessu-blue);
-        background: rgba(6, 87, 50, 0.1);
+/* ==================== КАРТОЧКИ ==================== */
+.welcome-card {
+    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
+    color: var(--white);
+    padding: 40px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+    .welcome-card h1 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+    }
+
+    .welcome-card .group,
+    .welcome-card .role {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 16px;
+    }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: transform 0.3s;
+    border-left: 4px solid var(--polessu-green-primary);
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+.stat-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.stat-value {
+    font-size: 42px;
+    font-weight: bold;
+    color: var(--polessu-blue);
+    margin: 10px 0;
+}
+
+.stat-label {
+    color: var(--text-light);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* ==================== СЕКЦИИ ==================== */
+.sections-block {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+    .sections-block h2 {
+        margin-top: 0;
+        color: var(--text-dark);
+        font-size: 24px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
         border-bottom: 3px solid var(--polessu-blue);
-        font-weight: 600;
     }
 
-/* ==================== ФОРМЫ ==================== */
-.form-group {
-    margin-bottom: 20px;
+.sections-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
 }
 
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: #4a5568;
-        font-weight: 600;
+.sections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.section-card {
+    background: var(--white);
+    border: 2px solid #e2e8f0;
+    padding: 25px;
+    border-radius: 10px;
+    transition: all 0.3s;
+    border-left: 4px solid var(--polessu-blue);
+}
+
+    .section-card:hover {
+        border-color: var(--polessu-blue);
+        box-shadow: 0 4px 15px rgba(5, 66, 38, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .section-card h3 {
+        margin: 0 0 12px 0;
+        color: var(--text-dark);
+        font-size: 18px;
+    }
+
+    .section-card p {
+        color: var(--text-light);
+        margin: 0 0 10px 0;
         font-size: 14px;
     }
 
-    .form-group input,
-    .form-group select {
-        width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #e2e8f0;
-        border-radius: 6px;
-        font-size: 15px;
-        transition: all 0.3s;
+    .section-card .sport {
+        font-weight: 600;
+        color: var(--polessu-blue);
     }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--polessu-blue);
-            box-shadow: 0 0 0 3px rgba(5, 66, 38, 0.1);
-        }
+    .section-card .trainer {
+        color: var(--text-dark);
+    }
 
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    .section-card .price {
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--success);
+        margin: 10px 0;
+    }
+
+    .section-card .description {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+.empty {
+    color: var(--text-light);
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.empty-state {
+    background: var(--white);
+    padding: 60px 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+    .empty-state .empty-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h2 {
+        color: var(--text-dark);
+        margin: 0 0 10px 0;
+        font-size: 24px;
+    }
+
+    .empty-state p {
+        color: var(--text-light);
+        margin: 0 0 25px 0;
+        font-size: 16px;
+    }
+
+.empty-actions {
+    display: flex;
     gap: 15px;
+    justify-content: center;
+}
+
+.actions-block {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.my-requests-link {
+    margin-top: 30px;
+    text-align: center;
 }
 
 /* ==================== ТАБЛИЦЫ ==================== */
+.table-container,
+.table-responsive {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 20px 0;
+}
+
 .data-table {
     width: 100%;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     border-collapse: collapse;
-    margin: 20px 0;
+    margin: 0;
 }
 
     .data-table th {
         background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-        color: white;
+        color: var(--white);
         padding: 15px;
         text-align: left;
         font-weight: 600;
@@ -11166,143 +11733,15 @@ input[type="text"].form-control {
         border-bottom: none;
     }
 
-/* ==================== УТИЛИТЫ ==================== */
-.hidden {
-    display: none;
+.time-cell {
+    font-weight: 600;
+    color: var(--polessu-blue);
+    white-space: nowrap;
 }
 
-.required::after {
-    content: " *";
-    color: #e53e3e;
-}
+/* ==================== СТРАНИЦЫ ==================== */
 
-small {
-    color: #718096;
-    font-size: 13px;
-    display: block;
-    margin-top: 6px;
-    line-height: 1.5;
-}
-
-/* ==================== АДАПТИВНОСТЬ ==================== */
-@media (max-width: 768px) {
-    .header-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .main-nav {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .logo-text h1 {
-        font-size: 20px;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .footer-container {
-        grid-template-columns: 1fr;
-    }
-
-    .content-wrapper {
-        padding: 0 10px;
-    }
-}
-/* ==================== СТРАНИЦА АВТОРИЗАЦИИ ==================== */
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: calc(100vh - 200px);
-    padding: 30px 20px;
-}
-
-.auth-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 550px;
-    overflow: hidden;
-}
-
-.auth-header {
-    background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-    color: white;
-    padding: 30px;
-    text-align: center;
-}
-
-.auth-logo {
-    font-size: 60px;
-    margin-bottom: 10px;
-}
-
-.auth-header h1 {
-    font-size: 28px;
-    margin: 0 0 8px 0;
-    font-weight: 700;
-}
-
-.auth-header p {
-    margin: 0;
-    opacity: 0.9;
-    font-size: 14px;
-}
-
-.auth-card form {
-    padding: 30px;
-}
-
-.form-section {
-    margin-bottom: 25px;
-    padding-bottom: 25px;
-    border-bottom: 2px solid #e2e8f0;
-}
-
-    .form-section:last-of-type {
-        border-bottom: none;
-    }
-
-    .form-section h3 {
-        color: var(--polessu-blue);
-        font-size: 18px;
-        margin: 0 0 20px 0;
-        font-weight: 600;
-    }
-
-.btn-block {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-}
-
-@media (max-width: 600px) {
-    .auth-container {
-        padding: 15px 10px;
-    }
-
-    .auth-header {
-        padding: 20px;
-    }
-
-        .auth-header h1 {
-            font-size: 22px;
-        }
-
-    .auth-card form {
-        padding: 20px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-/* ==================== СТРАНИЦА РАСПИСАНИЯ ==================== */
+/* Расписание */
 .schedule-page {
     padding: 20px 0;
 }
@@ -11312,126 +11751,55 @@ small {
 }
 
     .page-header h1 {
-        color: #2d3748;
+        color: var(--text-dark);
         margin: 0 0 8px 0;
         font-size: 32px;
     }
 
     .page-header .subtitle {
-        color: #718096;
+        color: var(--text-light);
         margin: 0;
         font-size: 16px;
     }
 
-.table-container {
-    background: white;
+.schedule-container {
+    background: var(--white);
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     overflow: hidden;
-    margin: 0; /* ✅ Убираем отступы */
 }
 
-.data-table {
+.schedule-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0; /* ✅ Убираем отступы */
 }
 
-    .data-table th {
-        background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-        color: white;
-        padding: 15px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 14px;
-        border: none;
-    }
-
-    .data-table td {
-        padding: 15px;
-        border-bottom: 1px solid #e2e8f0;
-        font-size: 14px;
-    }
-
-    .data-table tr:hover {
-        background: #f7fafc;
-    }
-
-    .data-table tr:last-child td {
-        border-bottom: none;
-    }
-
-/* ✅ Ячейка времени */
-.time-cell {
+.day-cell {
+    background: rgba(6, 87, 50, 0.1);
     font-weight: 600;
     color: var(--polessu-blue);
-    white-space: nowrap;
+    vertical-align: top;
 }
 
-.empty-state {
-    background: white;
-    padding: 60px 40px;
+.time {
+    font-weight: 600;
+    color: var(--polessu-blue);
+}
+
+.badge {
+    background: var(--success);
+    color: var(--white);
+    padding: 4px 12px;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-.empty-icon {
-    font-size: 80px;
-    margin-bottom: 20px;
-}
-
-.empty-state h2 {
-    color: #2d3748;
-    margin: 0 0 10px 0;
-    font-size: 24px;
-}
-
-.empty-state p {
-    color: #718096;
-    margin: 0 0 25px 0;
-    font-size: 16px;
-}
-
-@media (max-width: 768px) {
-    .data-table {
-        font-size: 12px;
-    }
-
-        .data-table th,
-        .data-table td {
-            padding: 10px 8px;
-        }
-}
-/* ==================== СТРАНИЦА ОТМЕТКИ ПОСЕЩАЕМОСТИ ==================== */
+/* Посещаемость */
 .mark-attendance-page {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px 0;
-}
-
-.page-header {
-    margin-bottom: 30px;
-}
-
-    .page-header h1 {
-        color: #2d3748;
-        margin: 0 0 8px 0;
-        font-size: 32px;
-    }
-
-    .page-header .subtitle {
-        color: #718096;
-        margin: 0;
-        font-size: 16px;
-    }
-
-.students-table-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    margin-bottom: 20px;
 }
 
 .students-table {
@@ -11442,7 +11810,7 @@ small {
 
     .students-table th {
         background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-        color: white;
+        color: var(--white);
         padding: 15px;
         text-align: left;
         font-weight: 600;
@@ -11475,24 +11843,25 @@ small {
 
     .student-name strong {
         font-size: 15px;
-        color: #2d3748;
+        color: var(--text-dark);
     }
 
     .student-name span {
         font-size: 13px;
-        color: #718096;
+        color: var(--text-light);
     }
-
-.students-table small {
-    color: #718096;
-    font-size: 12px;
-    display: block;
-    margin-top: 4px;
-}
 
 .checkbox-cell {
     text-align: center;
+    min-width: 80px;
 }
+
+    .checkbox-cell input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--error);
+    }
 
 .checkbox-label {
     display: inline-flex;
@@ -11502,15 +11871,9 @@ small {
     position: relative;
 }
 
-.present-checkbox {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-    accent-color: #10b981;
-}
-
 .notes-input {
     width: 100%;
+    min-width: 150px;
     padding: 10px 12px;
     border: 2px solid #e2e8f0;
     border-radius: 6px;
@@ -11532,120 +11895,22 @@ small {
     margin-top: 20px;
 }
 
-.btn-save {
-    background: #10b981;
-    color: white;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-    .btn-save:hover {
-        background: #059669;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
-
-.btn-cancel {
-    background: #6b7280;
-    color: white;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
-}
-
-    .btn-cancel:hover {
-        background: #4b5563;
-        transform: translateY(-2px);
-    }
-
-.empty-state {
-    background: white;
-    padding: 60px 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
-}
-
-.empty-icon {
-    font-size: 80px;
-    margin-bottom: 20px;
-}
-
-.empty-state h2 {
-    color: #2d3748;
-    margin: 0 0 10px 0;
-    font-size: 24px;
-}
-
-.empty-state p {
-    color: #718096;
-    margin: 0 0 25px 0;
-    font-size: 16px;
-}
-
-@media (max-width: 768px) {
-    .students-table {
-        font-size: 12px;
-    }
-
-        .students-table th,
-        .students-table td {
-            padding: 10px 8px;
-        }
-
-    .form-actions {
-        flex-direction: column;
-    }
-
-    .btn-save,
-    .btn-cancel {
-        width: 100%;
-    }
-}
-/* ==================== СТРАНИЦА ВЫБОРА ЗАНЯТИЯ (ATTENDANCE) ==================== */
+/* Attendance page */
 .attendance-page {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px 0;
 }
 
-.page-header {
-    margin-bottom: 30px;
-}
-
-    .page-header h1 {
-        color: #2d3748;
-        margin: 0 0 8px 0;
-        font-size: 32px;
-    }
-
-    .page-header .subtitle {
-        color: #718096;
-        margin: 0;
-        font-size: 16px;
-    }
-
 .info-block {
     background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-    color: white;
+    color: var(--white);
     padding: 25px 30px;
     border-radius: 12px;
     margin-bottom: 30px;
     display: flex;
     align-items: center;
     gap: 20px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .info-icon {
@@ -11669,7 +11934,7 @@ small {
 }
 
 .schedule-card {
-    background: white;
+    background: var(--white);
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -11687,7 +11952,7 @@ small {
     }
 
     .schedule-card.marked {
-        border-left-color: #10b981;
+        border-left-color: var(--success);
         background: #f0fdf4;
     }
 
@@ -11699,7 +11964,7 @@ small {
 
 .time-badge {
     background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-    color: white;
+    color: var(--white);
     padding: 12px 20px;
     border-radius: 8px;
     text-align: center;
@@ -11719,12 +11984,12 @@ small {
 
 .schedule-info h3 {
     margin: 0 0 10px 0;
-    color: #2d3748;
+    color: var(--text-dark);
     font-size: 20px;
 }
 
 .schedule-info p {
-    color: #718096;
+    color: var(--text-light);
     margin: 5px 0;
     font-size: 14px;
 }
@@ -11743,11 +12008,11 @@ small {
 
     .students-count .total {
         font-weight: 600;
-        color: #4a5568;
+        color: var(--text-dark);
     }
 
     .students-count .marked {
-        color: #10b981;
+        color: var(--success);
         font-weight: 600;
     }
 
@@ -11756,226 +12021,41 @@ small {
     gap: 10px;
 }
 
-.btn-primary {
-    background: var(--polessu-blue);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
-    white-space: nowrap;
-}
-
-    .btn-primary:hover {
-        background: var(--polessu-green-secondary);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(5, 66, 38, 0.4);
-    }
-
-.btn-edit {
-    background: #10b981;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
-    white-space: nowrap;
-}
-
-    .btn-edit:hover {
-        background: #059669;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-
-.btn-secondary {
-    background: #6b7280;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
-}
-
-    .btn-secondary:hover {
-        background: #4b5563;
-        transform: translateY(-2px);
-    }
-
 .back-navigation {
     margin-top: 30px;
     text-align: center;
 }
 
-.empty-state {
-    background: white;
-    padding: 60px 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
-}
-
-.empty-icon {
-    font-size: 80px;
-    margin-bottom: 20px;
-}
-
-.empty-state h2 {
-    color: #2d3748;
-    margin: 0 0 10px 0;
-    font-size: 24px;
-}
-
-.empty-state p {
-    color: #718096;
-    margin: 0 0 25px 0;
-    font-size: 16px;
-}
-
-.empty-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-}
-
-@media (max-width: 768px) {
-    .schedule-card {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .schedule-time {
-        justify-content: flex-start;
-    }
-
-    .time-badge {
-        padding: 10px 15px;
-    }
-
-    .schedule-action {
-        justify-content: flex-start;
-    }
-
-    .btn-primary,
-    .btn-edit,
-    .btn-secondary {
-        width: 100%;
-        text-align: center;
-    }
-
-    .students-count {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-}
-/* ==================== УВЕДОМЛЕНИЯ (TEMPDATA) ==================== */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    border-radius: 8px;
-    color: white;
-    font-weight: 500;
-    font-size: 14px;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    animation: slideIn 0.3s ease;
-    max-width: 400px;
-}
-
-    .notification.success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    }
-
-    .notification.error {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    }
-
-.notification-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 0;
-    margin-left: auto;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-    .notification-close:hover {
-        opacity: 1;
-    }
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@media (max-width: 600px) {
-    .notification {
-        left: 20px;
-        right: 20px;
-        max-width: none;
-    }
-}
-/* ==================== ЗАМЕТКИ ТРЕНЕРА ==================== */
+/* Заметки */
 .notes-page {
     max-width: 900px;
     margin: 0 auto;
 }
 
 .note-form-card {
-    background: white;
+    background: var(--white);
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     margin-bottom: 30px;
 }
 
     .note-form-card h3 {
         margin-top: 0;
-        color: #2d3748;
+        color: var(--text-dark);
         margin-bottom: 20px;
     }
 
 .notes-list h3 {
-    color: #2d3748;
+    color: var(--text-dark);
     margin-bottom: 20px;
 }
 
 .note-card {
-    background: white;
+    background: var(--white);
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     margin-bottom: 15px;
     border-left: 4px solid var(--polessu-blue);
 }
@@ -11989,7 +12069,7 @@ small {
 
     .note-header h4 {
         margin: 0;
-        color: #2d3748;
+        color: var(--text-dark);
         font-size: 18px;
     }
 
@@ -12000,12 +12080,12 @@ small {
 }
 
 .note-date {
-    color: #718096;
+    color: var(--text-light);
     font-size: 13px;
 }
 
 .note-content {
-    color: #4a5568;
+    color: var(--text-dark);
     line-height: 1.6;
     padding: 15px;
     background: #f7fafc;
@@ -12013,300 +12093,73 @@ small {
     margin-top: 10px;
 }
 
-.btn-delete {
-    background: none;
-    border: none;
-    color: #ef4444;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 5px;
-    transition: transform 0.2s;
+/* Заявки */
+.my-requests-page {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-    .btn-delete:hover {
-        transform: scale(1.2);
-    }
-
-.btn-save {
-    background: #10b981;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-size: 15px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-    .btn-save:hover {
-        background: #059669;
-    }
-
-/* ==================== РАСПИСАНИЕ ==================== */
-.schedule-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    overflow: hidden;
-}
-
-.schedule-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-    .schedule-table th {
-        background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
-        color: white;
-        padding: 15px;
-        text-align: left;
-        font-weight: 600;
-    }
-
-    .schedule-table td {
-        padding: 15px;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .schedule-table tr:hover {
-        background: #f7fafc;
-    }
-
-.day-cell {
-    background: rgba(6, 87, 50, 0.1);
-    font-weight: 600;
-    color: var(--polessu-blue);
-    vertical-align: top;
-}
-
-.time {
-    font-weight: 600;
-    color: var(--polessu-blue);
-}
-
-.badge {
-    background: #10b981;
-    color: white;
+.status-badge {
     padding: 4px 12px;
-    border-radius: 12px;
+    border-radius: 20px;
     font-size: 13px;
     font-weight: 600;
-}
-
-.btn-sm {
-    padding: 6px 12px;
-    font-size: 13px;
-    border-radius: 4px;
-    text-decoration: none;
     display: inline-block;
 }
 
-.btn-attendance {
-    background: var(--polessu-blue);
-    color: white;
+.status-approved {
+    background: #d1fae5;
+    color: #065f46;
 }
 
-    .btn-attendance:hover {
-        background: var(--polessu-blue);
-    }
-/* ==================== АНИМАЦИИ ДЛЯ ПОЛЕСГУ ==================== */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
 }
 
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+.request-card-mobile {
+    background: var(--white);
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--polessu-blue);
 }
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
-@keyframes glow {
-    0%, 100% {
-        box-shadow: 0 4px 15px rgba(0, 86, 179, 0.2);
-    }
-    50% {
-        box-shadow: 0 6px 25px rgba(0, 86, 179, 0.4);
-    }
+.request-type {
+    font-weight: 600;
+    color: var(--text-dark);
 }
 
-/* Применение анимаций к элементам */
-.main-header {
-    animation: fadeInDown 0.6s ease-out;
+.request-body p {
+    margin: 6px 0;
+    color: var(--text-light);
+    font-size: 14px;
 }
 
-.main-content {
-    animation: fadeInUp 0.8s ease-out;
+.rejection-reason {
+    background: #fee2e2;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+    color: #991b1b;
 }
 
-.welcome-card {
-    animation: fadeInUp 0.7s ease-out;
-}
-
-.stat-card {
-    animation: fadeInUp 0.9s ease-out;
-    animation-fill-mode: both;
-}
-
-    .stat-card:nth-child(1) { animation-delay: 0.1s; }
-    .stat-card:nth-child(2) { animation-delay: 0.2s; }
-    .stat-card:nth-child(3) { animation-delay: 0.3s; }
-    .stat-card:nth-child(4) { animation-delay: 0.4s; }
-    .stat-card:nth-child(5) { animation-delay: 0.5s; }
-
-.section-card {
-    animation: fadeInUp 0.8s ease-out;
-    animation-fill-mode: both;
-}
-
-    .section-card:nth-child(1) { animation-delay: 0.1s; }
-    .section-card:nth-child(2) { animation-delay: 0.2s; }
-    .section-card:nth-child(3) { animation-delay: 0.3s; }
-    .section-card:nth-child(4) { animation-delay: 0.4s; }
-    .section-card:nth-child(5) { animation-delay: 0.5s; }
-    .section-card:nth-child(6) { animation-delay: 0.6s; }
-
-.btn:hover {
-    background: var(--polessu-green-secondary);
-    animation: pulse 0.3s ease-in-out;
-}
-
-.main-header:hover {
-    animation: glow 2s infinite;
-}
-
-.data-table tr {
-    transition: all 0.3s ease;
-}
-
-    .data-table tr:hover {
-        transform: scale(1.01);
-        box-shadow: 0 2px 8px rgba(0, 86, 179, 0.15);
-    }
-
-/* Улучшенные эффекты для карточек */
-.stat-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 8px 30px rgba(0, 86, 179, 0.25);
-}
-
-.section-card:hover {
-    transform: translateY(-5px) scale(1.01);
-    box-shadow: 0 6px 25px rgba(0, 86, 179, 0.2);
-}
-
-/* Анимация для футера */
-.main-footer {
-    animation: fadeInUp 1s ease-out;
-}
-
-/* Плавное появление форм */
-.form-control:focus {
-    animation: pulse 0.4s ease-in-out;
-}
-
-/* Анимация для кнопок сохранения/отмены */
-.btn-save, .btn-cancel {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-    .btn-save:hover, .btn-cancel:hover {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 6px 20px rgba(0, 86, 179, 0.3);
-    }
-
-/* Анимация для вкладок */
-.tab {
-    position: relative;
-    overflow: hidden;
-}
-
-    .tab::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: -100%;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, var(--polessu-blue), transparent);
-        transition: left 0.5s ease;
-    }
-
-    .tab:hover::after {
-        left: 100%;
-    }
-
-    .tab.active::after {
-        left: 0;
-        background: var(--polessu-blue);
-    }
-
-/* Эффект свечения для логотипа */
-.logo-section {
-    transition: all 0.4s ease;
-}
-
-    .logo-section:hover {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 10px rgba(0, 86, 179, 0.5));
-    }
-
-/* Анимация для уведомлений */
-.error, .success {
-    animation: slideInLeft 0.5s ease-out;
-}
-
-/* Плавное переключение видимости */
-.hidden {
-    display: none;
-}
-
-.fade-in {
-    animation: fadeInUp 0.5s ease-out;
-}
-
-/* Адаптивные анимации */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
 /* ==================== МОБИЛЬНАЯ АДАПТАЦИЯ ==================== */
-
-/* Скрытие/показ элементов */
 .desktop-table-view {
     display: block;
 }
@@ -12315,7 +12168,6 @@ small {
     display: none;
 }
 
-/* Таблицы на мобильных */
 @media (max-width: 768px) {
     .desktop-table-view {
         display: none;
@@ -12325,18 +12177,53 @@ small {
         display: block;
     }
 
+    .header-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .logo-section .logo .emblem {
+        width: 50px;
+        height: 50px;
+    }
+
+    .logo-section .logo span {
+        font-size: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+
+    .content-wrapper {
+        padding: 0 10px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
     /* Карточки посещаемости */
     .student-card-mobile {
-        background: white;
+        background: var(--white);
         padding: 15px;
         margin-bottom: 12px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        border-left: 4px solid #054226;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid var(--polessu-green-primary);
     }
 
         .student-card-mobile.absent {
-            border-left-color: #dc3545;
+            border-left-color: var(--error);
             background: #fff5f5;
         }
 
@@ -12348,7 +12235,7 @@ small {
 
     .student-number {
         font-weight: bold;
-        color: #054226;
+        color: var(--polessu-green-primary);
         font-size: 18px;
         min-width: 30px;
     }
@@ -12360,20 +12247,20 @@ small {
     .student-fullname {
         font-weight: 600;
         font-size: 16px;
-        color: #2d3748;
+        color: var(--text-dark);
         margin-bottom: 4px;
     }
 
         .student-fullname span {
             font-weight: 400;
-            color: #718096;
+            color: var(--text-light);
         }
 
     .student-meta {
         display: flex;
         gap: 10px;
         font-size: 13px;
-        color: #718096;
+        color: var(--text-light);
     }
 
     .card-actions {
@@ -12399,7 +12286,7 @@ small {
 
     .checkbox-text {
         font-weight: 600;
-        color: #dc3545;
+        color: var(--error);
     }
 
     .notes-input-mobile {
@@ -12410,13 +12297,13 @@ small {
         font-size: 14px;
     }
 
-    /* Карточки расписания */
+    /* Расписание мобильное */
     .schedule-card-mobile {
-        background: white;
+        background: var(--white);
         padding: 15px;
         margin-bottom: 12px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
     .mobile-time {
@@ -12425,7 +12312,7 @@ small {
 
     .time-label {
         background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
-        color: white;
+        color: var(--white);
         padding: 6px 12px;
         border-radius: 6px;
         font-weight: 600;
@@ -12434,13 +12321,13 @@ small {
 
     .mobile-info h3 {
         margin: 0 0 8px 0;
-        color: #2d3748;
+        color: var(--text-dark);
         font-size: 18px;
     }
 
     .mobile-info p {
         margin: 5px 0;
-        color: #718096;
+        color: var(--text-light);
         font-size: 14px;
     }
 
@@ -12452,7 +12339,7 @@ small {
     }
 
     .marked-badge {
-        color: #10b981;
+        color: var(--success);
         font-weight: 600;
     }
 
@@ -12460,10 +12347,9 @@ small {
         margin-top: 15px;
     }
 
-    /* Расписание - дни */
     .day-header-mobile {
-        background: linear-gradient(135deg, #054226 0%, #065732 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--polessu-green-primary) 0%, var(--polessu-green-secondary) 100%);
+        color: var(--white);
         padding: 12px 15px;
         margin: 20px 0 10px 0;
         border-radius: 8px;
@@ -12475,11 +12361,11 @@ small {
         }
 
     .schedule-item-mobile {
-        background: white;
+        background: var(--white);
         padding: 15px;
         margin-bottom: 10px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
     .item-time {
@@ -12487,8 +12373,8 @@ small {
     }
 
     .time-badge-mobile {
-        background: #1e88e5;
-        color: white;
+        background: var(--polessu-blue);
+        color: var(--white);
         padding: 5px 10px;
         border-radius: 6px;
         font-weight: 600;
@@ -12497,12 +12383,12 @@ small {
 
     .item-info h4 {
         margin: 0 0 8px 0;
-        color: #2d3748;
+        color: var(--text-dark);
     }
 
     .item-info p {
         margin: 4px 0;
-        color: #718096;
+        color: var(--text-light);
         font-size: 13px;
     }
 
@@ -12512,22 +12398,22 @@ small {
 
     /* Заметки мобильные */
     .note-card-mobile {
-        background: white;
+        background: var(--white);
         padding: 15px;
         margin-bottom: 12px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         border-left: 4px solid #1e88e5;
     }
 
     .mobile-note-header h4 {
         margin: 0 0 6px 0;
-        color: #2d3748;
+        color: var(--text-dark);
         font-size: 16px;
     }
 
     .mobile-note-date {
-        color: #718096;
+        color: var(--text-light);
         font-size: 13px;
     }
 
@@ -12545,8 +12431,8 @@ small {
     }
 
     .btn-delete-mobile {
-        background: #dc3545;
-        color: white;
+        background: var(--error);
+        color: var(--white);
         border: none;
         padding: 8px 15px;
         border-radius: 6px;
@@ -12556,16 +12442,16 @@ small {
 
     /* Секции мобильные */
     .section-card-mobile {
-        background: white;
+        background: var(--white);
         padding: 15px;
         margin-bottom: 12px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
         .section-card-mobile h3 {
             margin: 0 0 10px 0;
-            color: #2d3748;
+            color: var(--text-dark);
         }
 
     .mobile-section-info {
@@ -12573,356 +12459,17 @@ small {
         flex-direction: column;
         gap: 5px;
         margin-bottom: 12px;
-        color: #718096;
+        color: var(--text-light);
     }
 
-    /* Общие стили */
-    .btn-block {
-        width: 100%;
-        display: block;
-        text-align: center;
-    }
-
-    .btn-sm {
-        padding: 8px 15px;
-        font-size: 14px;
-    }
-
-    /* Уменьшаем отступы */
-    .page-header {
-        margin-bottom: 20px;
-    }
-
-        .page-header h1 {
-            font-size: 24px;
-        }
-
-    /* Формы */
-    .form-control {
-        font-size: 16px; /* Предотвращает зум на iOS */
-    }
-
-    textarea.form-control {
-        min-height: 100px;
-    }
-}
-
-/* Очень маленькие экраны */
-@media (max-width: 480px) {
-    .student-card-mobile {
-        padding: 12px;
-    }
-
-    .student-fullname {
-        font-size: 15px;
-    }
-
-    .time-label,
-    .time-badge-mobile {
-        font-size: 13px;
-        padding: 4px 8px;
-    }
-}
-
-/* ==================== TABLE RESPONSIVE ==================== */
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.data-table {
-    min-width: 700px; /* Чтобы таблица не сжималась слишком сильно */
-}
-
-/* Checkbox cell */
-.checkbox-cell {
-    text-align: center;
-    min-width: 80px;
-}
-
-    .checkbox-cell input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        accent-color: #dc3545;
-    }
-
-/* Notes input */
-.notes-input {
-    width: 100%;
-    min-width: 150px;
-    padding: 8px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-    .notes-input:focus {
-        outline: none;
-        border-color: #1e88e5;
-        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
-    }
-/* ==================== СТУДЕНЧЕСКИЕ СТРАНИЦЫ - МОБИЛЬНАЯ АДАПТАЦИЯ ==================== */
-
-/* Дашборд студента */
-.student-dashboard {
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.welcome-card {
-    background: linear-gradient(135deg, #054226 0%, #065732 100%);
-    color: white;
-    padding: 30px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-}
-
-    .welcome-card h1 {
-        margin: 0 0 10px 0;
-        font-size: 28px;
-    }
-
-    .welcome-card .group {
-        opacity: 0.9;
-        margin: 0;
-        font-size: 16px;
-    }
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    text-align: center;
-    border-left: 4px solid #054226;
-}
-
-.stat-icon {
-    font-size: 40px;
-    margin-bottom: 10px;
-}
-
-.stat-value {
-    font-size: 36px;
-    font-weight: bold;
-    color: #054226;
-}
-
-.stat-label {
-    color: #718096;
-    margin-top: 5px;
-    font-size: 14px;
-}
-
-.sections-block {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-    .sections-block h2 {
-        margin-top: 0;
-        color: #2d3748;
-        margin-bottom: 20px;
-    }
-
-.sections-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.section-card {
-    border: 1px solid #e2e8f0;
-    padding: 20px;
-    border-radius: 8px;
-    border-left: 4px solid #0093c5;
-}
-
-    .section-card h3 {
-        margin: 0 0 10px 0;
-        color: #2d3748;
-        font-size: 18px;
-    }
-
-    .section-card p {
-        color: #718096;
-        margin: 0 0 8px 0;
-        font-size: 14px;
-    }
-
-    .section-card .price {
-        font-size: 16px;
-        font-weight: bold;
-        color: #059669;
-        margin: 10px 0;
-    }
-
-.empty {
-    color: #718096;
-    text-align: center;
-    padding: 30px;
-    background: #f7fafc;
-    border-radius: 8px;
-}
-
-.actions-block {
-    margin-top: 20px;
-    text-align: center;
-}
-
-/* Страница секций */
-.sections-page {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-    .sections-page h1 {
-        color: #2d3748;
-        margin-bottom: 10px;
-    }
-
-.sections-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.section-card .sport {
-    font-weight: 600;
-    color: #0093c5;
-}
-
-.section-card .trainer {
-    color: #4a5568;
-}
-
-.section-card .description {
-    font-size: 14px;
-    line-height: 1.5;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #e2e8f0;
-}
-
-.btn-disabled {
-    background: #cbd5e0;
-    cursor: not-allowed;
-    color: #718096;
-}
-
-    .btn-disabled:hover {
-        background: #cbd5e0;
-        transform: none;
-    }
-
-/* ==================== МОБИЛЬНАЯ АДАПТАЦИЯ ДЛЯ СТУДЕНТА ==================== */
-
-@media (max-width: 768px) {
-    .desktop-table-view {
-        display: none;
-    }
-
-    .mobile-card-view {
-        display: block;
-    }
-
-    /* Дашборд - карточки секций */
-    .section-card-mobile {
-        background: white;
-        padding: 15px;
-        margin-bottom: 12px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        border-left: 4px solid #0093c5;
-    }
-
-        .section-card-mobile h3 {
-            margin: 0 0 10px 0;
-            color: #2d3748;
-            font-size: 16px;
-        }
-
-    .mobile-section-info {
-        margin-bottom: 12px;
-    }
-
-        .mobile-section-info .price {
-            color: #059669;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-    /* Расписание - карточки */
-    .day-header-mobile {
-        background: linear-gradient(135deg, #054226 0%, #065732 100%);
-        color: white;
-        padding: 12px 15px;
-        margin: 20px 0 10px 0;
-        border-radius: 8px;
-    }
-
-        .day-header-mobile h3 {
-            margin: 0;
-            font-size: 16px;
-        }
-
-    .schedule-item-mobile {
-        background: white;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-
-    .item-time {
-        margin-bottom: 10px;
-    }
-
-    .time-badge-mobile {
-        background: #0093c5;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 14px;
-        display: inline-block;
-    }
-
-    .item-info h4 {
-        margin: 0 0 8px 0;
-        color: #2d3748;
-        font-size: 16px;
-    }
-
-    .item-info p {
-        margin: 4px 0;
-        color: #718096;
-        font-size: 13px;
-    }
-
-    /* Секции - полные карточки */
     .section-card-mobile-full {
-        background: white;
+        background: var(--white);
         padding: 0;
         margin-bottom: 15px;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         overflow: hidden;
-        border-left: 4px solid #0093c5;
+        border-left: 4px solid var(--polessu-blue);
     }
 
     .mobile-card-header {
@@ -12936,18 +12483,23 @@ small {
 
         .mobile-card-header h3 {
             margin: 0;
-            color: #2d3748;
+            color: var(--text-dark);
             font-size: 16px;
             flex: 1;
         }
 
-    .enrolled-badge {
-        background: #10b981;
-        color: white;
+    .enrolled-badge,
+    .pending-badge {
+        background: var(--success);
+        color: var(--white);
         padding: 4px 10px;
         border-radius: 20px;
         font-size: 12px;
         font-weight: 600;
+    }
+
+    .pending-badge {
+        background: var(--warning);
     }
 
     .mobile-card-body {
@@ -12956,17 +12508,17 @@ small {
 
         .mobile-card-body p {
             margin: 6px 0;
-            color: #718096;
+            color: var(--text-light);
             font-size: 14px;
         }
 
         .mobile-card-body .sport {
-            color: #0093c5;
+            color: var(--polessu-blue);
             font-weight: 600;
         }
 
         .mobile-card-body .price {
-            color: #059669;
+            color: var(--success);
             font-weight: bold;
             font-size: 16px;
             margin: 10px 0;
@@ -12975,7 +12527,7 @@ small {
             .mobile-card-body .price span {
                 font-size: 13px;
                 font-weight: normal;
-                color: #718096;
+                color: var(--text-light);
             }
 
         .mobile-card-body .description {
@@ -12991,31 +12543,32 @@ small {
         background: #f7fafc;
     }
 
-    /* Общие стили для мобильных */
+    /* Общие мобильные стили */
     .btn-block {
         width: 100%;
         display: block;
         text-align: center;
     }
 
-    .btn-sm {
-        padding: 8px 15px;
-        font-size: 14px;
+    .form-actions {
+        flex-direction: column;
     }
 
-    /* Уменьшаем отступы */
-    .page-header {
-        margin-bottom: 20px;
+    .btn-save,
+    .btn-cancel,
+    .btn-primary,
+    .btn-edit,
+    .btn-secondary {
+        width: 100%;
     }
 
-        .page-header h1 {
-            font-size: 24px;
-        }
+    .form-control {
+        font-size: 16px;
+    }
 
-        .page-header .subtitle {
-            font-size: 14px;
-            color: #718096;
-        }
+    textarea.form-control {
+        min-height: 100px;
+    }
 
     .welcome-card {
         padding: 20px;
@@ -13048,7 +12601,6 @@ small {
     }
 }
 
-/* Очень маленькие экраны */
 @media (max-width: 480px) {
     .stats-grid {
         grid-template-columns: 1fr;
@@ -13078,101 +12630,273 @@ small {
         padding: 12px;
     }
 
+    .time-label,
     .time-badge-mobile {
         font-size: 13px;
         padding: 4px 8px;
     }
-}
 
-/* ==================== TABLE RESPONSIVE ==================== */
-.table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    background: white;
-}
-
-.data-table {
-    min-width: 700px;
-    width: 100%;
-    border-collapse: collapse;
-}
-
-    .data-table th {
-        background: linear-gradient(135deg, #054226 0%, #065732 100%);
-        color: white;
-        padding: 15px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 14px;
+    .student-card-mobile {
+        padding: 12px;
     }
 
-    .data-table td {
-        padding: 15px;
-        border-bottom: 1px solid #e2e8f0;
-        font-size: 14px;
-        vertical-align: middle;
-    }
-
-    .data-table tr:hover {
-        background: #f7fafc;
-    }
-
-.time-cell {
-    font-weight: 600;
-    color: #0093c5;
-    white-space: nowrap;
-}
-
-/* Empty state */
-.empty-state {
-    background: white;
-    padding: 60px 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    text-align: center;
-    margin-top: 20px;
-}
-
-    .empty-state .empty-icon {
-        font-size: 80px;
-        margin-bottom: 20px;
-    }
-
-    .empty-state h2 {
-        color: #2d3748;
-        margin: 0 0 10px 0;
-        font-size: 22px;
-    }
-
-    .empty-state p {
-        color: #718096;
-        margin: 0 0 25px 0;
+    .student-fullname {
         font-size: 15px;
     }
-
-/* Success/Error messages */
-.success {
-    background: #d1fae5;
-    color: #065f46;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border-left: 4px solid #10b981;
 }
 
-.error {
-    background: #fee2e2;
-    color: #991b1b;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border-left: 4px solid #ef4444;
+@media (max-width: 600px) {
+    .auth-container {
+        padding: 15px 10px;
+    }
+
+    .auth-header {
+        padding: 20px;
+    }
+
+        .auth-header h1 {
+            font-size: 22px;
+        }
+
+    .auth-card form {
+        padding: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .notification {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
 }
-====================================================================Остальные
-<!DOCTYPE html>
+
+/* ==================== АНИМАЦИИ ==================== */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.main-header {
+    animation: fadeInDown 0.6s ease-out;
+}
+
+.main-content {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.welcome-card {
+    animation: fadeInUp 0.7s ease-out;
+}
+
+.stat-card {
+    animation: fadeInUp 0.9s ease-out;
+    animation-fill-mode: both;
+}
+
+    .stat-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .stat-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .stat-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .stat-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    .stat-card:nth-child(5) {
+        animation-delay: 0.5s;
+    }
+
+.section-card {
+    animation: fadeInUp 0.8s ease-out;
+    animation-fill-mode: both;
+}
+
+    .section-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .section-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .section-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .section-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    .section-card:nth-child(5) {
+        animation-delay: 0.5s;
+    }
+
+    .section-card:nth-child(6) {
+        animation-delay: 0.6s;
+    }
+
+.btn:hover {
+    animation: pulse 0.3s ease-in-out;
+}
+
+.data-table tr {
+    transition: all 0.3s ease;
+}
+
+    .data-table tr:hover {
+        transform: scale(1.01);
+        box-shadow: 0 2px 8px rgba(0, 86, 179, 0.15);
+    }
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 86, 179, 0.25);
+}
+
+.section-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 6px 25px rgba(0, 86, 179, 0.2);
+}
+
+.main-footer {
+    animation: fadeInUp 1s ease-out;
+}
+
+.error, .success {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+.hidden {
+    display: none;
+}
+
+.fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.required::after {
+    content: " *";
+    color: #e53e3e;
+}
+
+/* Адаптивные анимации */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+/* ==================== ИСПРАВЛЕНИЕ СТРАНИЦЫ ВХОДА ==================== */
+
+.auth-header {
+    background: linear-gradient(135deg, #054226 0%, #065732 100%) !important;
+    color: white !important;
+    padding: 20px 30px !important;
+    text-align: center !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+    .auth-header .auth-logo {
+        margin-bottom: 0px !important;
+    }
+
+        .auth-header .auth-logo .auth-emblem {
+            width: 250px !important;
+            height: 120px !important;
+            display: block !important;
+            margin: 0 auto !important;
+            object-fit: contain !important;
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+    .auth-header h1 {
+        color: white !important;
+        font-size: 28px !important;
+        margin: 5px 0 8px 0 !important;
+        font-weight: 700 !important;
+    }
+
+    .auth-header p {
+        color: rgba(255, 255, 255, 0.9) !important;
+        margin: 0 !important;
+        opacity: 0.9 !important;
+        font-size: 14px !important;
+    }
+
+/* Убираем белый фон у auth-card */
+.auth-card {
+    overflow: hidden !important;
+}
+
+    .auth-card .auth-header {
+        margin: 0 !important;
+    }
+	<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
@@ -13185,7 +12909,10 @@ small {
     <header class="main-header">
         <div class="header-container">
             <div class="logo-section">
-                <div class="logo">🎓</div>
+                <div class="logo">
+                    <img src="~/images/polessu-emblem.png" alt="PolesSU Emblem" class="emblem" />
+                    <span>PolesSU Sports</span>
+                </div>
                 <div class="logo-text">
                     <h1>PolesSU Sports</h1>
                     <span>Система управления спортивными секциями</span>
@@ -13272,7 +12999,7 @@ small {
 
 <div class="student-dashboard">
     <div class="welcome-card">
-        <h1>👋 Добро пожаловать, @Model.StudentName!</h1>
+        <h1>Добро пожаловать, @Model.StudentName!</h1>
         <p class="group">Группа: @Model.GroupName</p>
     </div>
 
@@ -13405,7 +13132,7 @@ namespace PolesSU_Sports.Web.Pages.Student
                     SectionID = Convert.ToInt32(row["SectionID"]),
                     SectionName = row["SectionName"].ToString(),
                     SportID = Convert.ToInt32(row["SportID"]),
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
+                    TrainerID = row["TrainerID"].ToString(),
                     MaxStudents = row["MaxStudents"] != System.DBNull.Value ? Convert.ToInt32(row["MaxStudents"]) : null,
                     PricePerMonth = Convert.ToDecimal(row["PricePerMonth"]),
                     Description = row["Description"].ToString()
@@ -13714,8 +13441,8 @@ namespace PolesSU_Sports.Web.Pages.Student
 {
     public class ScheduleModel : PageModel
     {
-        public DataTable Schedule { get; set; }
-        public string StudentName { get; set; }
+        public DataTable Schedule { get; set; } = new DataTable();  // ✅ Инициализация
+        public string StudentName { get; set; } = "";  // ✅ Инициализация
 
         public IActionResult OnGet()
         {
@@ -13724,6 +13451,10 @@ namespace PolesSU_Sports.Web.Pages.Student
                 return RedirectToPage("/Index");
 
             var studentCardNumber = HttpContext.Session.GetString("UserLogin");
+
+            // ✅ Проверка на null
+            if (string.IsNullOrEmpty(studentCardNumber))
+                return RedirectToPage("/Index");
 
             var student = DBConnection.Instance.ExecuteQuery(
                 "SELECT LastName, FirstName FROM Students WHERE StudentCardNumber = @CardNumber",
@@ -13734,33 +13465,38 @@ namespace PolesSU_Sports.Web.Pages.Student
                 StudentName = $"{student.Rows[0]["LastName"]} {student.Rows[0]["FirstName"]}";
             }
 
-            Schedule = DBConnection.Instance.ExecuteQuery(@"
-            SELECT 
-                CASE sc.DayOfWeek
-                    WHEN 1 THEN 'Понедельник'
-                    WHEN 2 THEN 'Вторник'
-                    WHEN 3 THEN 'Среда'
-                    WHEN 4 THEN 'Четверг'
-                    WHEN 5 THEN 'Пятница'
-                    WHEN 6 THEN 'Суббота'
-                    WHEN 7 THEN 'Воскресенье'
-                    ELSE 'Неизвестно'
-                END AS [День недели],
-                CONVERT(VARCHAR(5), sc.StartTime, 108) AS [Начало],
-                CONVERT(VARCHAR(5), sc.EndTime, 108) AS [Окончание],
-                sec.SectionName AS [Секция],
-                sp.SportName AS [Вид спорта],
-                t.LastName + ' ' + t.FirstName AS [Тренер],
-                ISNULL(NULLIF(LTRIM(RTRIM(sc.Room)), ''), 'Не указано') AS [Кабинет]
-            FROM Schedule sc
-            JOIN Sections sec ON sc.SectionID = sec.SectionID
-            JOIN Sports sp ON sec.SportID = sp.SportID
-            JOIN Trainers t ON sec.TrainerID = t.TrainerID
-            JOIN StudentSections ss ON sec.SectionID = ss.SectionID 
-                AND ss.StudentCardNumber = @CardNumber 
-                AND ss.IsActive = 1
-            ORDER BY sc.DayOfWeek, sc.StartTime",
-            new[] { new Microsoft.Data.SqlClient.SqlParameter("@CardNumber", studentCardNumber) });
+            var scheduleData = DBConnection.Instance.ExecuteQuery(@"
+                SELECT 
+                    CASE sc.DayOfWeek
+                        WHEN 1 THEN 'Понедельник'
+                        WHEN 2 THEN 'Вторник'
+                        WHEN 3 THEN 'Среда'
+                        WHEN 4 THEN 'Четверг'
+                        WHEN 5 THEN 'Пятница'
+                        WHEN 6 THEN 'Суббота'
+                        WHEN 7 THEN 'Воскресенье'
+                        ELSE 'Неизвестно'
+                    END AS [День недели],
+                    CONVERT(VARCHAR(5), sc.StartTime, 108) AS [Начало],
+                    CONVERT(VARCHAR(5), sc.EndTime, 108) AS [Окончание],
+                    sec.SectionName AS [Секция],
+                    sp.SportName AS [Вид спорта],
+                    t.LastName + ' ' + t.FirstName AS [Тренер],
+                    ISNULL(NULLIF(LTRIM(RTRIM(sc.Room)), ''), 'Не указано') AS [Кабинет]
+                FROM Schedule sc
+                JOIN Sections sec ON sc.SectionID = sec.SectionID
+                JOIN Sports sp ON sec.SportID = sp.SportID
+                JOIN Trainers t ON sec.TrainerID = t.DocumentNumber  -- ✅ Правильно
+                JOIN StudentSections ss ON sec.SectionID = ss.SectionID 
+                    AND ss.StudentCardNumber = @CardNumber 
+                    AND ss.IsActive = 1
+                ORDER BY sc.DayOfWeek, sc.StartTime",
+                new[] { new Microsoft.Data.SqlClient.SqlParameter("@CardNumber", studentCardNumber) });
+
+            if (scheduleData != null && scheduleData.Rows.Count > 0)
+            {
+                Schedule = scheduleData;
+            }
 
             return Page();
         }
@@ -14173,11 +13909,11 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                     return Page();
                 }
 
-                int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+                string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
                 // Получаем имя тренера
                 var trainer = DBConnection.Instance.ExecuteQuery(
-                    "SELECT LastName, FirstName FROM Trainers WHERE TrainerID = @TrainerID",
+                    "SELECT LastName, FirstName FROM Trainers WHERE DocumentNumber = @TrainerID",
                     new[] { new SqlParameter("@TrainerID", trainerId) });
 
                 if (trainer.Rows.Count > 0)
@@ -14228,12 +13964,12 @@ namespace PolesSU_Sports.Web.Pages.Trainer
 @model PolesSU_Sports.Web.Pages.Trainer.IndexModel
 @{
     Layout = "~/Pages/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Дашборд тренера";
+    ViewData["Title"] = "Главная тренера";
 }
 
 <div class="trainer-dashboard">
     <div class="welcome-card">
-        <h1>👋 Добро пожаловать, @Model.TrainerName!</h1>
+        <h1>Добро пожаловать, @Model.TrainerName!</h1>
         <p class="role">Тренер спортивных секций</p>
     </div>
 
@@ -14330,12 +14066,12 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                 return RedirectToPage("/Index");
             }
 
-            int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+            string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
             // ✅ Получаем данные тренера
             var trainer = DBConnection.Instance.ExecuteQuery(
-                "SELECT LastName, FirstName, MiddleName FROM Trainers WHERE TrainerID = @TrainerID",
-                new[] { new SqlParameter("@TrainerID", trainerId) });
+            "SELECT LastName, FirstName, MiddleName FROM Trainers WHERE DocumentNumber = @DocumentNumber",  
+            new[] { new SqlParameter("@DocumentNumber", trainerId) });
 
             if (trainer.Rows.Count > 0)
             {
@@ -14850,7 +14586,7 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                 "SELECT TrainerID FROM Accounts WHERE AccountID = @AccountID",
                 new[] { new SqlParameter("@AccountID", accountId) });
 
-            int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+            string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
             try
             {
@@ -14898,10 +14634,10 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                 "SELECT TrainerID FROM Accounts WHERE AccountID = @AccountID",
                 new[] { new SqlParameter("@AccountID", accountId) });
 
-            int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+            string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
             var trainer = DBConnection.Instance.ExecuteQuery(
-                "SELECT LastName, FirstName FROM Trainers WHERE TrainerID = @TrainerID",
+                "SELECT LastName, FirstName FROM Trainers WHERE DocumentNumber = @TrainerID",
                 new[] { new SqlParameter("@TrainerID", trainerId) });
 
             if (trainer.Rows.Count > 0)
@@ -15043,7 +14779,7 @@ namespace PolesSU_Sports.Web.Pages.Trainer
 {
     public class ScheduleModel : PageModel
     {
-        public DataTable WeeklySchedule { get; set; }
+        public DataTable WeeklySchedule { get; set; } = new DataTable();
         public string TrainerName { get; set; }
         public string CurrentWeek { get; set; }
 
@@ -15065,11 +14801,11 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                 if (accountData.Rows.Count == 0 || accountData.Rows[0]["TrainerID"] == DBNull.Value)
                     return RedirectToPage("/Index");
 
-                int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+                string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
                 // Получаем имя тренера
                 var trainer = DBConnection.Instance.ExecuteQuery(
-                    "SELECT LastName, FirstName FROM Trainers WHERE TrainerID = @TrainerID",
+                    "SELECT LastName, FirstName FROM Trainers WHERE DocumentNumber = @TrainerID",
                     new[] { new SqlParameter("@TrainerID", trainerId) });
 
                 if (trainer.Rows.Count > 0)
@@ -15133,7 +14869,9 @@ namespace PolesSU_Sports.Web.Pages.Trainer
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <div class="auth-logo">🏆</div>
+            <div class="auth-logo">
+                <img src="~/images/polessu-emblem.png" alt="PolesSU Emblem" class="auth-emblem" />
+            </div>
             <h1>PolesSU Sports</h1>
             <p>Система управления спортивными секциями</p>
         </div>
@@ -15607,26 +15345,6 @@ namespace PolesSU_Sports.Web.Pages.Account
         {
             HttpContext.Session.Clear();
             return RedirectToPage("/Index");
-        }
-    }
-}
-using Microsoft.Extensions.Configuration;
-using PolesSU_Sports.Lib.DB;
-
-namespace PolesSU_Sports.Web.Services
-{
-    public class WebDbConnectionFactory : IDbConnectionFactory
-    {
-        private readonly IConfiguration _configuration;
-
-        public WebDbConnectionFactory(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public string GetConnectionString()
-        {
-            return _configuration.GetConnectionString("DefaultConnection");
         }
     }
 }

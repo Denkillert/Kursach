@@ -76,7 +76,7 @@ namespace PolesSU_Sports.Admin
                 AutoSize = false,
                 Size = new Size(220, 120),
                 Location = new Point(20, 10),  // ✅ Текст ВВЕРХУ
-                TextAlign = ContentAlignment.TopRight
+                TextAlign = ContentAlignment.TopCenter
                 
             };
 
@@ -283,23 +283,23 @@ namespace PolesSU_Sports.Admin
 
             AddModernStatCard(statsPanel, "🏛️ Факультеты",
                 Count("SELECT COUNT(*) FROM Faculties"),
-                Color.FromArgb(0, 102, 204), "факультет(ов)");
+                Color.FromArgb(0, 102, 204), "");
 
             AddModernStatCard(statsPanel, "👨‍ Тренеры",
                 Count("SELECT COUNT(*) FROM Trainers"),
-                Color.FromArgb(40, 167, 69), "тренер(ов)");
+                Color.FromArgb(40, 167, 69), "");
 
             AddModernStatCard(statsPanel, "🎓 Студенты",
                 Count("SELECT COUNT(*) FROM Students"),
-                Color.FromArgb(255, 193, 7), "студент(ов)");
+                Color.FromArgb(255, 193, 7), "");
 
             AddModernStatCard(statsPanel, "⚽ Секции",
                 Count("SELECT COUNT(*) FROM Sections"),
-                Color.FromArgb(220, 53, 69), "секцй(и)");
+                Color.FromArgb(220, 53, 69), "");
 
             AddModernStatCard(statsPanel, "📋 Посещаемость",
                 Count("SELECT COUNT(*) FROM Attendance"),
-                Color.FromArgb(108, 117, 125), "записей");
+                Color.FromArgb(108, 117, 125), "");
 
             contentPanel.Controls.Add(statsPanel);
 
@@ -582,7 +582,9 @@ namespace PolesSU_Sports.Admin
                 },
                 RowHeadersVisible = false,
                 BorderStyle = BorderStyle.None,
-                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
+                ColumnHeadersHeight = 40
             };
             // ✅ RowTemplate.Height задаём ОТДЕЛЬНО:
             currentDgv.RowTemplate.Height = 40;
@@ -698,7 +700,7 @@ namespace PolesSU_Sports.Admin
                         break;
                     case "Тренеры":
                         query = @"
-                            SELECT TrainerID AS [ID], DocumentNumber AS [Документ],
+                            SELECT DocumentNumber AS [Документ],
                             LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS [ФИО],
                             Qualification AS [Квалификация], Specialization AS [Специализация],
                             Phone AS [Телефон], HireDate AS [Дата приёма]
@@ -712,7 +714,7 @@ namespace PolesSU_Sports.Admin
                             sec.MaxStudents AS [Макс. студентов], sec.PricePerMonth AS [Цена]
                             FROM Sections sec
                             JOIN Sports sp ON sec.SportID = sp.SportID
-                            JOIN Trainers t ON sec.TrainerID = t.TrainerID
+                            JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
                             ORDER BY sec.SectionName";
                         break;
                     case "Посещаемость":
@@ -859,16 +861,6 @@ namespace PolesSU_Sports.Admin
                 BackColor = Color.Transparent
             };
 
-            var arrowLabel = new Label
-            {
-                Text = "→",
-                Font = new Font("Segoe UI", 24),
-                ForeColor = accent,
-                Location = new Point(260, 20),
-                AutoSize = true,
-                BackColor = Color.Transparent
-            };
-
             card.MouseEnter += (s, e) => card.BackColor = Color.FromArgb(250, 250, 250);
             card.MouseLeave += (s, e) => card.BackColor = Color.White;
 
@@ -876,9 +868,8 @@ namespace PolesSU_Sports.Admin
             iconLabel.Click += (s, e) => click();
             titleLabel.Click += (s, e) => click();
             descLabel.Click += (s, e) => click();
-            arrowLabel.Click += (s, e) => click();
 
-            card.Controls.AddRange(new Control[] { iconLabel, titleLabel, descLabel, arrowLabel });
+            card.Controls.AddRange(new Control[] { iconLabel, titleLabel, descLabel });
             grid.Controls.Add(card);
         }
 
