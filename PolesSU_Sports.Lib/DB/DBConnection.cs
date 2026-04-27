@@ -211,13 +211,8 @@ namespace PolesSU_Sports.Lib.DB
             object result = null;
             try
             {
-                // ✅ Сначала убеждаемся, что соединение открыто
-                if (_connection.State != ConnectionState.Open)
-                {
-                    _connection.Open();
-                }
-
-                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
+                // ✅ Используем соединение из транзакции, а не поле _connection
+                using (SqlCommand cmd = new SqlCommand(query, transaction.Connection, transaction))
                 {
                     cmd.CommandType = CommandType.Text;
                     if (parameters != null)
@@ -798,7 +793,6 @@ namespace PolesSU_Sports.Lib.DB
                 throw new Exception("Ошибка обработки заявки: " + ex.Message);
             }
             
-                transaction?.Dispose();
                 if (connection.State == ConnectionState.Open)
                     connection.Close();
                 connection.Dispose();

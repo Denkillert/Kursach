@@ -69,7 +69,7 @@ namespace PolesSU_Sports.Web.Pages.Student
                     SectionID = Convert.ToInt32(row["SectionID"]),
                     SectionName = row["SectionName"].ToString(),
                     SportID = Convert.ToInt32(row["SportID"]),
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
+                    TrainerID = row["TrainerID"].ToString(),
                     MaxStudents = row["MaxStudents"] != System.DBNull.Value ? Convert.ToInt32(row["MaxStudents"]) : null,
                     PricePerMonth = Convert.ToDecimal(row["PricePerMonth"]),
                     Description = row["Description"].ToString()

@@ -209,11 +209,10 @@ namespace PolesSU_Sports.Admin.Sections
             try
             {
                 DataTable dt = DBConnection.Instance.ExecuteQuery(
-                    "SELECT TrainerID, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Trainers ORDER BY LastName");
-
+                     "SELECT DocumentNumber, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Trainers ORDER BY LastName");
                 cmbTrainer.DataSource = dt;
                 cmbTrainer.DisplayMember = "FullName";
-                cmbTrainer.ValueMember = "TrainerID";
+                cmbTrainer.ValueMember = "DocumentNumber";
             }
             catch (Exception ex)
             {

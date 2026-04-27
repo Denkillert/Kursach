@@ -937,7 +937,7 @@ namespace PolesSU_Sports.Admin
                         }
                         break;
                     case "Тренеры":
-                        int tid = Convert.ToInt32(currentDgv.SelectedRows[0].Cells["ID"].Value);
+                        string tid = currentDgv.SelectedRows[0].Cells["ID"].Value.ToString();
                         using (var form = new PolesSU_Sports.Admin.Trainers.TrainerForm(tid))
                         {
                             if (form.ShowDialog() == DialogResult.OK) LoadGridData();
@@ -987,7 +987,7 @@ namespace PolesSU_Sports.Admin
                         deleted = DBConnection.Instance.DeleteStudent(card);
                         break;
                     case "Тренеры":
-                        int tid = Convert.ToInt32(currentDgv.SelectedRows[0].Cells["ID"].Value);
+                        string tid = currentDgv.SelectedRows[0].Cells["ID"].Value.ToString();
                         deleted = DBConnection.Instance.DeleteTrainer(tid);
                         break;
                     case "Секции":

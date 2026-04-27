@@ -1691,9 +1691,12 @@ namespace PolesSU_Sports.Management
                 NULLIF(COUNT(DISTINCT sec.SectionID), 0) AS [Ср. занятий/секцию],
             ISNULL(SUM(sec.PricePerMonth * sc.Count), 0) AS [Доход секций]
         FROM Trainers t
-        LEFT JOIN Sections sec ON t.TrainerID = sec.TrainerID
+        LEFT JOIN Sections sec ON t.DocumentNumber = sec.TrainerID
         LEFT JOIN StudentCount sc ON sec.SectionID = sc.SectionID
         LEFT JOIN AttendanceCount ac ON sec.SectionID = ac.SectionID
+        LEFT JOIN Attendance a ON sec.SectionID = (
+            SELECT SectionID FROM Schedule WHERE ScheduleID = a.ScheduleID
+        )
         WHERE a.VisitDate BETWEEN @StartDate AND @EndDate
         GROUP BY t.LastName, t.FirstName, t.Qualification, t.Specialization
         ORDER BY [Доход секций] DESC";
@@ -1725,7 +1728,7 @@ namespace PolesSU_Sports.Management
                  ELSE 0 END AS [Заполненность %]
         FROM Sections sec
         JOIN Sports sp ON sec.SportID = sp.SportID
-        JOIN Trainers t ON sec.TrainerID = t.TrainerID
+        JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
         LEFT JOIN StudentSections ss ON sec.SectionID = ss.SectionID AND ss.IsActive = 1
         WHERE (@SportID IS NULL OR @SportID = 0 OR sp.SportID = @SportID)
         GROUP BY sec.SectionName, sp.SportName, t.LastName, t.FirstName, 
@@ -1807,35 +1810,6 @@ namespace PolesSU_Sports.Management
             dgv.SelectionChanged += (s, e) => dgv.ClearSelection();
         }
         
-        private void UpdateAvailableFields(Panel filterPanel)
-        {
-            var cmbTable = GetControl<ComboBox>(filterPanel, "cmbTable");
-            var fldPanel = GetControl<FlowLayoutPanel>(filterPanel, "fldPanel");
-            if (cmbTable == null || fldPanel == null) return;
-            fldPanel.Controls.Clear();
-
-            var tableFields = new Dictionary<string, string[]>
-            {
-                ["🎓 Students"] = new[] { "StudentCardNumber", "LastName", "FirstName", "GroupName", "Course", "FacultyID" },
-                ["📋 Attendance"] = new[] { "AttendanceID", "StudentCardNumber", "VisitDate", "Status", "Notes" },
-                ["⚽ Sections"] = new[] { "SectionID", "SectionName", "PricePerMonth", "MaxStudents", "TrainerID" },
-                ["👨‍🏫 Trainers"] = new[] { "TrainerID", "LastName", "FirstName", "Qualification", "Specialization" },
-                ["🏛️ Faculties"] = new[] { "FacultyID", "FacultyName", "DeanName" },
-                ["🏆 Achievements"] = new[] { "AchievementID", "CompetitionName", "Place", "AwardType", "CompetitionDate" }
-            };
-
-            string selectedTable = cmbTable.SelectedItem?.ToString() ?? "";
-            if (tableFields.TryGetValue(selectedTable, out string[] fields))
-            {
-                foreach (var field in fields)
-                {
-                    var chk = new CheckBox { Text = field, AutoSize = true, Margin = new Padding(3), Tag = field };
-                    chk.Checked = field.Contains("ID") || field.Contains("Name");
-                    fldPanel.Controls.Add(chk);
-                }
-            }
-        }
-
         // ======================================== ПОДСВЕТКА ПРОБЛЕМНЫХ СТУДЕНТОВ
         private void DgvReport_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {

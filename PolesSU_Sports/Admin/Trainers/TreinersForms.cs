@@ -10,7 +10,7 @@ namespace PolesSU_Sports.Admin.Trainers
     public partial class TrainerForm : Form
     {
         private bool isEditMode = false;
-        private int currentTrainerID = 0;
+        private string currentDocumentNumber = null;  
 
         // Элементы управления
         private TextBox txtDocumentNumber;
@@ -31,13 +31,13 @@ namespace PolesSU_Sports.Admin.Trainers
         }
 
         // Конструктор для редактирования
-        public TrainerForm(int trainerID) : this()
+        public TrainerForm(string documentNumber) : this()
         {
             isEditMode = true;
-            currentTrainerID = trainerID;
-            LoadTrainerData(trainerID);
+            currentDocumentNumber = documentNumber;  // ✅ Теперь присваиваем string
+            LoadTrainerData(documentNumber);
             this.Text = "Редактирование тренера";
-            txtDocumentNumber.Enabled = false; // Нельзя менять номер документа
+            txtDocumentNumber.Enabled = false;  // Нельзя менять номер документа
         }
 
         private void InitializeComponent()
@@ -56,7 +56,7 @@ namespace PolesSU_Sports.Admin.Trainers
 
             // Номер документа
             CreateLabel("Номер документа*:", 20, y, labelWidth);
-            txtDocumentNumber = CreateTextBox(inputX, y, inputWidth, "MP3567890");
+            txtDocumentNumber = CreateTextBox(inputX, y, inputWidth, "АВ1234567");
             y += 45;
 
             // Фамилия
@@ -161,13 +161,13 @@ namespace PolesSU_Sports.Admin.Trainers
             return txt;
         }
 
-        private void LoadTrainerData(int trainerID)
+        private void LoadTrainerData(string documentNumber)
         {
             try
             {
                 DataTable dt = DBConnection.Instance.ExecuteQuery(
-                    "SELECT * FROM Trainers WHERE TrainerID = @TrainerID",
-                    new[] { new SqlParameter("@TrainerID", trainerID) });
+                    "SELECT * FROM Trainers WHERE DocumentNumber = @DocumentNumber",
+                    new[] { new SqlParameter("@DocumentNumber", documentNumber) });
 
                 if (dt.Rows.Count > 0)
                 {
@@ -175,12 +175,12 @@ namespace PolesSU_Sports.Admin.Trainers
                     txtDocumentNumber.Text = row["DocumentNumber"].ToString();
                     txtLastName.Text = row["LastName"].ToString();
                     txtFirstName.Text = row["FirstName"].ToString();
-                    txtMiddleName.Text = row["MiddleName"].ToString();
+                    txtMiddleName.Text = row["MiddleName"] != DBNull.Value ? row["MiddleName"].ToString() : "";
                     dtpBirthDate.Value = Convert.ToDateTime(row["BirthDate"]);
-                    txtPhone.Text = row["Phone"].ToString();
-                    txtEmail.Text = row["Email"].ToString();
-                    txtQualification.Text = row["Qualification"].ToString();
-                    txtSpecialization.Text = row["Specialization"].ToString();
+                    txtPhone.Text = row["Phone"] != DBNull.Value ? row["Phone"].ToString() : "";
+                    txtEmail.Text = row["Email"] != DBNull.Value ? row["Email"].ToString() : "";
+                    txtQualification.Text = row["Qualification"] != DBNull.Value ? row["Qualification"].ToString() : "";
+                    txtSpecialization.Text = row["Specialization"] != DBNull.Value ? row["Specialization"].ToString() : "";
                 }
             }
             catch (Exception ex)
@@ -205,7 +205,7 @@ namespace PolesSU_Sports.Admin.Trainers
             try
             {
                 SqlParameter[] parameters = {
-                    new SqlParameter("@DocumentNumber", txtDocumentNumber.Text),
+                    new SqlParameter("@DocumentNumber", txtDocumentNumber.Text),  // ✅ Добавляем @DocumentNumber
                     new SqlParameter("@LastName", txtLastName.Text),
                     new SqlParameter("@FirstName", txtFirstName.Text),
                     new SqlParameter("@MiddleName", string.IsNullOrEmpty(txtMiddleName.Text) ? (object)DBNull.Value : txtMiddleName.Text),
@@ -218,7 +218,7 @@ namespace PolesSU_Sports.Admin.Trainers
 
                 if (isEditMode)
                 {
-                    // Обновление
+                    // ✅ Обновление: НЕ обновляем DocumentNumber, только WHERE по нему
                     DBConnection.Instance.ExecuteCommand(@"
                         UPDATE Trainers SET
                             LastName = @LastName,
@@ -229,15 +229,15 @@ namespace PolesSU_Sports.Admin.Trainers
                             Email = @Email,
                             Qualification = @Qualification,
                             Specialization = @Specialization
-                        WHERE TrainerID = @TrainerID",
-                        AddParameter(parameters, "@TrainerID", currentTrainerID));
+                        WHERE DocumentNumber = @DocumentNumber",
+                        parameters);  // ✅ parameters уже содержит @DocumentNumber
 
                     MessageBox.Show("✅ Тренер успешно обновлён!", "Успех",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    // Добавление
+                    // Добавление нового тренера
                     DBConnection.Instance.ExecuteCommand(@"
                         INSERT INTO Trainers (DocumentNumber, LastName, FirstName, MiddleName, BirthDate, Phone, Email, Qualification, Specialization)
                         VALUES (@DocumentNumber, @LastName, @FirstName, @MiddleName, @BirthDate, @Phone, @Email, @Qualification, @Specialization)",
@@ -255,15 +255,6 @@ namespace PolesSU_Sports.Admin.Trainers
                 MessageBox.Show("❌ Ошибка сохранения: " + ex.Message, "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        // Вспомогательный метод для добавления параметра
-        private SqlParameter[] AddParameter(SqlParameter[] parameters, string name, object value)
-        {
-            SqlParameter[] newParams = new SqlParameter[parameters.Length + 1];
-            parameters.CopyTo(newParams, 0);
-            newParams[parameters.Length] = new SqlParameter(name, value);
-            return newParams;
         }
     }
 }

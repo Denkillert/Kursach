@@ -355,17 +355,35 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
 
         private void BtnDelete_Click(object sender, EventArgs e)
         {
-            if (currentScheduleID == 0) { MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-            if (MessageBox.Show("Удалить запись расписания?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (currentScheduleID == 0)
+            {
+                MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show("Удалить запись расписания?\n\n⚠️ Все связанные записи о посещаемости также будут удалены!",
+                "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 try
                 {
-                    DBConnection.Instance.ExecuteCommand("DELETE FROM Schedule WHERE ScheduleID = @ScheduleID", new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+                    // ✅ Сначала удаляем связанные записи из Attendance
+                    DBConnection.Instance.ExecuteCommand(
+                        "DELETE FROM Attendance WHERE ScheduleID = @ScheduleID",
+                        new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+
+                    // ✅ Затем удаляем запись из Schedule
+                    DBConnection.Instance.ExecuteCommand(
+                        "DELETE FROM Schedule WHERE ScheduleID = @ScheduleID",
+                        new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+
                     MessageBox.Show("✅ Удалено", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadSchedule();
                     ClearForm();
                 }
-                catch (Exception ex) { MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
