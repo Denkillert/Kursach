@@ -1,0 +1,89 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Student.ScheduleModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Моё расписание";
+}
+@using System.Data
+
+<div class="schedule-page">
+    <div class="page-header">
+        <h1>📅 Расписание занятий</h1>
+        <p class="subtitle">@Model.StudentName</p>
+    </div>
+
+    @if (Model.Schedule.Rows.Count > 0)
+    {
+        <!-- Desktop View -->
+        <div class="desktop-table-view">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>📅 День недели</th>
+                            <th>⏰ Время</th>
+                            <th>🏐 Секция</th>
+                            <th>🏆 Вид спорта</th>
+                            <th>👨‍🏫 Тренер</th>
+                            <th>📍 Кабинет</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (DataRow row in Model.Schedule.Rows)
+                        {
+                            <tr>
+                                <td><strong>@row["День недели"]</strong></td>
+                                <td class="time-cell">@row["Начало"] - @row["Окончание"]</td>
+                                <td>@row["Секция"]</td>
+                                <td>@row["Вид спорта"]</td>
+                                <td>@row["Тренер"]</td>
+                                <td>@row["Кабинет"]</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Mobile View -->
+        <div class="mobile-card-view">
+            @{
+                string currentDay = "";
+            }
+            @foreach (DataRow row in Model.Schedule.Rows)
+            {
+                var day = row["День недели"].ToString();
+                var isNewDay = day != currentDay;
+                currentDay = day;
+
+                if (isNewDay)
+                {
+                    <div class="day-header-mobile">
+                        <h3>@day</h3>
+                    </div>
+                }
+
+                <div class="schedule-item-mobile">
+                    <div class="item-time">
+                        <span class="time-badge-mobile">@row["Начало"] - @row["Окончание"]</span>
+                    </div>
+                    <div class="item-info">
+                        <h4>@row["Секция"]</h4>
+                        <p>🏆 @row["Вид спорта"]</p>
+                        <p>👨‍🏫 @row["Тренер"]</p>
+                        <p>📍 @row["Кабинет"]</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h2>У вас пока нет запланированных занятий</h2>
+            <p>Запишитесь в спортивную секцию, чтобы увидеть расписание</p>
+            <a href="/Student/Sections" class="btn">🔍 Все секции</a>
+        </div>
+    }
+</div>

@@ -1,0 +1,71 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Student.IndexModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Главная студента";
+}
+
+<div class="student-dashboard">
+    <div class="welcome-card">
+        <h1>Добро пожаловать, @Model.StudentName!</h1>
+        <p class="group">Группа: @Model.GroupName</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">⚽</div>
+            <div class="stat-value">@Model.EnrolledSectionsCount</div>
+            <div class="stat-label">Секций</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">@Model.TotalAttendance</div>
+            <div class="stat-label">Посещений</div>
+        </div>
+    </div>
+
+    <div class="sections-block">
+        <h2>📋 Мои секции</h2>
+        @if (Model.EnrolledSections.Count > 0)
+        {
+            <!-- Desktop View -->
+            <div class="desktop-table-view">
+                <div class="sections-list">
+                    @foreach (var sec in Model.EnrolledSections)
+                    {
+                        <div class="section-card">
+                            <h3>@sec.SectionName</h3>
+                            <p>💰 @sec.PricePerMonth BYN/мес</p>
+                            <a href="/Student/Schedule" class="btn btn-sm">📅 Расписание</a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Mobile View -->
+            <div class="mobile-card-view">
+                @foreach (var sec in Model.EnrolledSections)
+                {
+                    <div class="section-card-mobile">
+                        <h3>@sec.SectionName</h3>
+                        <div class="mobile-section-info">
+                            <span class="price">💰 @sec.PricePerMonth BYN/мес</span>
+                        </div>
+                        <a href="/Student/Schedule" class="btn btn-block">📅 Расписание</a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h2>Вы пока не записаны ни в одну секцию</h2>
+                <p>Запишитесь в спортивную секцию, чтобы начать посещать занятия</p>
+            </div>
+        }
+        <div class="actions-block">
+            <a href="/Student/Sections" class="btn">🔍 Все секции</a>
+        </div>
+    </div>
+</div>

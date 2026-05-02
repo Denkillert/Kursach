@@ -3,7 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.DB;
 
 namespace PolesSU_Sports.Admin.Forms.Dictionary.Achievements
 {
@@ -183,7 +183,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary.Achievements
                 Text = "💾 Сохранить",
                 Location = new Point(150, 410),
                 Size = new Size(120, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };

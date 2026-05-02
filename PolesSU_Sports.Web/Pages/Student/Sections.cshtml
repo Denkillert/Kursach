@@ -1,0 +1,142 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Student.SectionsModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Все секции";
+}
+
+<div class="sections-page">
+    <div class="page-header">
+        <h1>⚽ Все секции</h1>
+        <p class="subtitle">Выберите секцию для записи</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="success">✅ @Model.SuccessMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="error">⚠️ @Model.ErrorMessage</div>
+    }
+
+    <!-- Desktop View -->
+    <div class="desktop-table-view">
+        <div class="sections-grid">
+            @foreach (var sec in Model.AllSections)
+            {
+                var isEnrolled = Model.EnrolledSectionIds.Contains(sec.SectionID);
+                var hasPendingRequest = Model.PendingRequestSectionIds.Contains(sec.SectionID);
+
+                <div class="section-card">
+                    <h3>@sec.SectionName</h3>
+                    <p class="sport">🏆 @sec.SportName</p>
+                    <p class="trainer">👨‍🏫 @sec.TrainerName</p>
+                    <p class="price">💰 @sec.PricePerMonth BYN/мес</p>
+                    <p class="description">@sec.Description</p>
+
+                    @if (isEnrolled)
+                    {
+                        <button class="btn btn-disabled" disabled>✅ Записан</button>
+                    }
+                    else if (hasPendingRequest)
+                    {
+                        <button class="btn btn-pending" disabled>⏳ Заявка отправлена</button>
+                    }
+                    else
+                    {
+                        <form method="post">
+                            <input type="hidden" name="sectionId" value="@sec.SectionID" />
+                            <button type="submit" asp-page-handler="RequestJoin" class="btn">📝 Подать заявку</button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Mobile View -->
+    <div class="mobile-card-view">
+        @foreach (var sec in Model.AllSections)
+        {
+            var isEnrolled = Model.EnrolledSectionIds.Contains(sec.SectionID);
+            var hasPendingRequest = Model.PendingRequestSectionIds.Contains(sec.SectionID);
+
+            <div class="section-card-mobile-full">
+                <div class="mobile-card-header">
+                    <h3>@sec.SectionName</h3>
+                    @if (isEnrolled)
+                    {
+                        <span class="enrolled-badge">✅ Записан</span>
+                    }
+                    else if (hasPendingRequest)
+                    {
+                        <span class="pending-badge">⏳ Заявка</span>
+                    }
+                </div>
+                <div class="mobile-card-body">
+                    <p class="sport">🏆 @sec.SportName</p>
+                    <p class="trainer">👨‍🏫 @sec.TrainerName</p>
+                    <p class="price">💰 @sec.PricePerMonth <span>BYN/мес</span></p>
+                    @if (!string.IsNullOrEmpty(sec.Description))
+                    {
+                        <p class="description">@sec.Description</p>
+                    }
+                </div>
+                <div class="mobile-card-actions">
+                    @if (isEnrolled)
+                    {
+                        <button class="btn btn-disabled btn-block" disabled>Вы уже записаны</button>
+                    }
+                    else if (hasPendingRequest)
+                    {
+                        <button class="btn btn-pending btn-block" disabled>Заявка на рассмотрении</button>
+                    }
+                    else
+                    {
+                        <form method="post">
+                            <input type="hidden" name="sectionId" value="@sec.SectionID" />
+                            <button type="submit" asp-page-handler="RequestJoin" class="btn btn-block">📝 Подать заявку</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="my-requests-link">
+        <a href="/Student/MyRequests" class="btn btn-secondary">📋 Мои заявки</a>
+    </div>
+</div>
+
+<style>
+    .btn-pending {
+        background: #f59e0b;
+        color: white;
+    }
+    .btn-pending:hover {
+        background: #d97706;
+    }
+    .pending-badge {
+        background: #f59e0b;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .my-requests-link {
+        margin-top: 30px;
+        text-align: center;
+    }
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        text-decoration: none;
+        display: inline-block;
+    }
+</style>

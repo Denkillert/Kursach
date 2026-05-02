@@ -1,4 +1,4 @@
-﻿using PolesSU_Sports.Shared.DB;
+﻿using PolesSU_Sports.Lib.DB;
 using System;
 using System.Data;
 using System.Windows.Forms;
@@ -115,7 +115,7 @@ namespace PolesSU_Sports.Admin.Report
                 Text = "🔍 Сформировать",
                 Location = new System.Drawing.Point(10, 10),
                 Size = new System.Drawing.Size(130, 30),
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat
             };

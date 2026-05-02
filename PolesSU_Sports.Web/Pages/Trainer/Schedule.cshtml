@@ -1,0 +1,110 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Trainer.ScheduleModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Расписание";
+}
+@using System.Data
+
+<div class="schedule-page">
+    <div class="page-header">
+        <h1>📅 Расписание занятий</h1>
+        <p class="subtitle">@Model.TrainerName | @Model.CurrentWeek</p>
+    </div>
+
+    @if (Model.WeeklySchedule.Rows.Count > 0)
+    {
+        <!-- Desktop View -->
+        <div class="desktop-table-view">
+            <div class="schedule-container">
+                <table class="data-table schedule-table">
+                    <thead>
+                        <tr>
+                            <th>День недели</th>
+                            <th>Время</th>
+                            <th>Секция</th>
+                            <th>Вид спорта</th>
+                            <th>Кабинет</th>
+                            <th>Студентов</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            string currentDay = "";
+                        }
+                        @foreach (DataRow row in Model.WeeklySchedule.Rows)
+                        {
+                            var day = row["День недели"].ToString();
+                            var isNewDay = day != currentDay;
+                            currentDay = day;
+
+                            <tr class="@(isNewDay ? "new-day" : "")">
+                                @if (isNewDay)
+                                {
+                                    <td rowspan="@(Model.WeeklySchedule.AsEnumerable().Count(r => r["День недели"].ToString() == day))"
+                                        class="day-cell">
+                                        <strong>@day</strong>
+                                    </td>
+                                }
+                                <td>
+                                    <span class="time">@row["Начало"] - @row["Окончание"]</span>
+                                </td>
+                                <td><strong>@row["Секция"]</strong></td>
+                                <td>@row["Вид спорта"]</td>
+                                <td>@row["Кабинет"]</td>
+                                <td><span class="badge">@row["Студентов"]</span></td>
+                                <td>
+                                    <a href="/Trainer/MarkAttendance" class="btn-sm btn-attendance">📝 Отметить</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Mobile View -->
+        <div class="mobile-card-view">
+            @{
+                string mobileCurrentDay = "";
+            }
+            @foreach (DataRow row in Model.WeeklySchedule.Rows)
+            {
+                var day = row["День недели"].ToString();
+                var isNewDay = day != mobileCurrentDay;
+                mobileCurrentDay = day;
+
+                if (isNewDay)
+                {
+                    <div class="day-header-mobile">
+                        <h3>@day</h3>
+                    </div>
+                }
+
+                <div class="schedule-item-mobile">
+                    <div class="item-time">
+                        <span class="time-badge-mobile">@row["Начало"] - @row["Окончание"]</span>
+                    </div>
+                    <div class="item-info">
+                        <h4>@row["Секция"]</h4>
+                        <p>🏆 @row["Вид спорта"]</p>
+                        <p>📍 @row["Кабинет"]</p>
+                        <p>👥 @row["Студентов"] студ.</p>
+                    </div>
+                    <div class="item-action">
+                        <a href="/Trainer/MarkAttendance" class="btn btn-sm btn-block">📝 Отметить</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <h2>Расписание пустое</h2>
+            <p>На эту неделю занятий пока нет</p>
+        </div>
+    }
+</div>

@@ -1,0 +1,71 @@
+﻿@page
+@model PolesSU_Sports.Web.Pages.Trainer.IndexModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Главная тренера";
+}
+
+<div class="trainer-dashboard">
+    <div class="welcome-card">
+        <h1>Добро пожаловать, @Model.TrainerName!</h1>
+        <p class="role">Тренер спортивных секций</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">@Model.TotalStudents</div>
+            <div class="stat-label">Студентов</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏐</div>
+            <div class="stat-value">@Model.TotalSections</div>
+            <div class="stat-label">Секций</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">@Model.TodayAttendance</div>
+            <div class="stat-label">Посетили сегодня</div>
+        </div>
+    </div>
+
+    <div class="sections-block">
+        <h2>📋 Мои секции</h2>
+        @if (Model.MySections.Count > 0)
+        {
+            <!-- Desktop View -->
+            <div class="desktop-table-view">
+                <div class="sections-list">
+                    @foreach (var sec in Model.MySections)
+                    {
+                        <div class="section-card">
+                            <h3>@sec.SectionName</h3>
+                            <p>🏆 @sec.SportName</p>
+                            <p>💰 @sec.PricePerMonth BYN/мес</p>
+                            <a href="/Trainer/Attendance" class="btn btn-sm">📝 Отметить посещаемость</a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Mobile View -->
+            <div class="mobile-card-view">
+                @foreach (var sec in Model.MySections)
+                {
+                    <div class="section-card-mobile">
+                        <h3>@sec.SectionName</h3>
+                        <p class="mobile-section-info">
+                            <span>🏆 @sec.SportName</span>
+                            <span>💰 @sec.PricePerMonth BYN/мес</span>
+                        </p>
+                        <a href="/Trainer/Attendance" class="btn btn-block">📝 Отметить посещаемость</a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="empty">У вас пока нет секций</p>
+        }
+    </div>
+</div>

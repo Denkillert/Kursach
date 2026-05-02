@@ -1,5 +1,7 @@
 using System;
 using System.Windows.Forms;
+using PolesSU_Sports.Management;
+using PolesSU_Sports.Admin;
 
 namespace PolesSU_Sports
 {

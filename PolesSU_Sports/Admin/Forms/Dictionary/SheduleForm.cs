@@ -2,7 +2,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.DB;
 using System.Linq;
 
 namespace PolesSU_Sports.Admin.Forms.Dictionary
@@ -158,7 +158,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
                 Text = "💾 Сохранить",
                 Width = 140,
                 Height = 35,
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new System.Drawing.Font("Microsoft Sans Serif", 9),
@@ -199,10 +199,10 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                    BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                     ForeColor = System.Drawing.Color.White,
                     Font = new System.Drawing.Font("Microsoft Sans Serif", 9, System.Drawing.FontStyle.Bold),
-                    SelectionBackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                    SelectionBackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                     SelectionForeColor = System.Drawing.Color.White
                 },
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
@@ -355,17 +355,35 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
 
         private void BtnDelete_Click(object sender, EventArgs e)
         {
-            if (currentScheduleID == 0) { MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-            if (MessageBox.Show("Удалить запись расписания?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (currentScheduleID == 0)
+            {
+                MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show("Удалить запись расписания?\n\n⚠️ Все связанные записи о посещаемости также будут удалены!",
+                "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 try
                 {
-                    DBConnection.Instance.ExecuteCommand("DELETE FROM Schedule WHERE ScheduleID = @ScheduleID", new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+                    // ✅ Сначала удаляем связанные записи из Attendance
+                    DBConnection.Instance.ExecuteCommand(
+                        "DELETE FROM Attendance WHERE ScheduleID = @ScheduleID",
+                        new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+
+                    // ✅ Затем удаляем запись из Schedule
+                    DBConnection.Instance.ExecuteCommand(
+                        "DELETE FROM Schedule WHERE ScheduleID = @ScheduleID",
+                        new[] { new SqlParameter("@ScheduleID", currentScheduleID) });
+
                     MessageBox.Show("✅ Удалено", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadSchedule();
                     ClearForm();
                 }
-                catch (Exception ex) { MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

@@ -3,7 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.DB;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -33,7 +33,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 Location = new Point(20, 20),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(45, 55, 75)
+                ForeColor = Color.FromArgb(0, 61, 130)
             };
 
             // Панель кнопок
@@ -43,7 +43,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Size = new Size(400, 40)
             };
 
-            Button btnAdd = CreateButton("➕ Добавить", Color.FromArgb(0, 122, 204), 0);
+            Button btnAdd = CreateButton("➕ Добавить", Color.FromArgb(0, 86, 179), 0);
             btnAdd.Click += BtnAdd_Click;
 
             Button btnEdit = CreateButton("✏️ Изменить", Color.FromArgb(40, 167, 69), 120);
@@ -67,7 +67,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 }
@@ -106,25 +106,28 @@ namespace PolesSU_Sports.Management.SettingsForms
             try
             {
                 dgvUsers.DataSource = DBConnection.Instance.ExecuteQuery(@"
-                    SELECT 
-                        a.AccountID AS [ID],
-                        a.Login AS [Логин],
-                        CASE 
-                            WHEN a.Role = 1 THEN 'Администратор'
-                            WHEN a.Role = 2 THEN 'Менеджер'
-                            WHEN a.Role = 3 THEN 'Тренер'
-                            WHEN a.Role = 4 THEN 'Студент'
-                            ELSE 'Неизвестно'
-                        END AS [Роль],
-                        CASE WHEN a.IsActive = 1 THEN '✅ Активен' ELSE '❌ Заблокирован' END AS [Статус],
-                        a.CreatedDate AS [Создан],
-                        a.LastLogin AS [Последний вход]
-                    FROM Accounts a
-                    ORDER BY a.Login");
+            SELECT 
+                a.AccountID AS [ID],
+                a.Login AS [Логин],
+                CASE 
+                    WHEN a.Role = 'Administrator' THEN 'Администратор'
+                    WHEN a.Role = 'Manager' THEN 'Менеджер'
+                    WHEN a.Role = 'Trainer' THEN 'Тренер'
+                    WHEN a.Role = 'Student' THEN 'Студент'
+                    ELSE ISNULL(a.Role, 'Неизвестно')
+                END AS [Роль],
+                CASE 
+                    WHEN a.IsActive = 'True' THEN '✅ Активен' 
+                    ELSE '❌ Заблокирован' 
+                END AS [Статус],
+                a.CreatedDate AS [Создан],
+                a.LastLogin AS [Последний вход]
+            FROM Accounts a
+            ORDER BY a.Login");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки: " + ex.Message, "Ошибка",
+                MessageBox.Show("Ошибка загрузки пользователей: " + ex.Message, "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -225,7 +228,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 Location = new Point(20, 15),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(45, 55, 75)
+                ForeColor = Color.FromArgb(0, 61, 130)
             };
 
             Label lblLogin = new Label { Text = "Логин:", Location = new Point(20, 60), AutoSize = true };
@@ -248,7 +251,7 @@ namespace PolesSU_Sports.Management.SettingsForms
                 Text = "💾 Сохранить",
                 Location = new Point(0, 0),
                 Size = new Size(120, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10)
@@ -283,13 +286,29 @@ namespace PolesSU_Sports.Management.SettingsForms
                 if (dt.Rows.Count > 0)
                 {
                     txtLogin.Text = dt.Rows[0]["Login"].ToString();
-                    cmbRole.SelectedIndex = Convert.ToInt32(dt.Rows[0]["Role"]) - 1;
-                    chkActive.Checked = Convert.ToBoolean(dt.Rows[0]["IsActive"]);
+
+                    // ✅ Определяем роль по строке или числу
+                    string roleValue = dt.Rows[0]["Role"].ToString().ToLower();
+
+                    if (roleValue == "1" || roleValue == "administrator" || roleValue == "администратор")
+                        cmbRole.SelectedIndex = 0;  // Администратор
+                    else if (roleValue == "2" || roleValue == "manager" || roleValue == "менеджер")
+                        cmbRole.SelectedIndex = 1;  // Менеджер
+                    else if (roleValue == "3" || roleValue == "trainer" || roleValue == "тренер")
+                        cmbRole.SelectedIndex = 2;  // Тренер
+                    else if (roleValue == "4" || roleValue == "student" || roleValue == "студент")
+                        cmbRole.SelectedIndex = 3;  // Студент
+                    else
+                        cmbRole.SelectedIndex = 1;  // По умолчанию Менеджер
+
+                    // ✅ IsActive тоже может быть строкой
+                    string activeValue = dt.Rows[0]["IsActive"].ToString().ToLower();
+                    chkActive.Checked = (activeValue == "1" || activeValue == "true" || activeValue == "True");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки: " + ex.Message, "Ошибка",
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message, "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -325,22 +344,69 @@ namespace PolesSU_Sports.Management.SettingsForms
             try
             {
                 string login = txtLogin.Text.Trim();
-                int role = cmbRole.SelectedIndex + 1;
-                bool isActive = chkActive.Checked;
+
+                // ✅ Определяем тип данных в поле Role и сохраняем соответствующее значение
+                string roleName = "";
+                int roleNumber = cmbRole.SelectedIndex + 1;
+
+                // Проверяем, какой формат используется в БД
+                var checkType = DBConnection.Instance.ExecuteQuery("SELECT TOP 1 Role FROM Accounts");
+                if (checkType.Rows.Count > 0)
+                {
+                    string sampleValue = checkType.Rows[0]["Role"].ToString();
+                    int testInt;
+
+                    if (int.TryParse(sampleValue, out testInt))
+                    {
+                        // ✅ Числовой формат (1, 2, 3, 4)
+                        roleName = roleNumber.ToString();
+                    }
+                    else
+                    {
+                        // ✅ Текстовый формат ('Administrator', 'Manager', etc.)
+                        switch (cmbRole.SelectedIndex)
+                        {
+                            case 0: roleName = "Administrator"; break;
+                            case 1: roleName = "Manager"; break;
+                            case 2: roleName = "Trainer"; break;
+                            case 3: roleName = "Student"; break;
+                            default: roleName = "Manager"; break;
+                        }
+                    }
+                }
 
                 if (accountID == null)
                 {
                     // Добавление
                     string passwordHash = HashPassword(txtPassword.Text);
-                    DBConnection.Instance.ExecuteCommand(@"
-                        INSERT INTO Accounts (Login, PasswordHash, Role, IsActive, CreatedDate)
-                        VALUES (@Login, @Password, @Role, @Active, GETDATE())",
-                        new[] {
-                            new SqlParameter("@Login", login),
-                            new SqlParameter("@Password", passwordHash),
-                            new SqlParameter("@Role", role),
-                            new SqlParameter("@Active", isActive)
-                        });
+
+                    if (int.TryParse(roleName, out _))
+                    {
+                        // Числовой формат
+                        DBConnection.Instance.ExecuteCommand(@"
+                    INSERT INTO Accounts (Login, PasswordHash, Role, IsActive, CreatedDate)
+                    VALUES (@Login, @Password, @Role, @Active, GETDATE())",
+                            new[] {
+                        new SqlParameter("@Login", login),
+                        new SqlParameter("@Password", passwordHash),
+                        new SqlParameter("@Role", roleName),
+                        new SqlParameter("@Active", chkActive.Checked ? 1 : 0)
+                            });
+                    }
+                    else
+                    {
+                        // Текстовый формат
+                        DBConnection.Instance.ExecuteCommand(@"
+                    INSERT INTO Accounts (Login, PasswordHash, Role, IsActive, CreatedDate)
+                    VALUES (@Login, @Password, @Role, @Active, GETDATE())",
+                            new[] {
+                        new SqlParameter("@Login", login),
+                        new SqlParameter("@Password", passwordHash),
+                        new SqlParameter("@Role", roleName),
+                        new SqlParameter("@Active", chkActive.Checked ? "true" : "false")
+                            });
+                    }
+
                     MessageBox.Show("✅ Пользователь добавлен", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
@@ -349,29 +415,62 @@ namespace PolesSU_Sports.Management.SettingsForms
                     if (!string.IsNullOrWhiteSpace(txtPassword.Text))
                     {
                         string passwordHash = HashPassword(txtPassword.Text);
-                        DBConnection.Instance.ExecuteCommand(@"
-                            UPDATE Accounts SET Login = @Login, PasswordHash = @Password, Role = @Role, IsActive = @Active
-                            WHERE AccountID = @ID",
-                            new[] {
-                                new SqlParameter("@Login", login),
-                                new SqlParameter("@Password", passwordHash),
-                                new SqlParameter("@Role", role),
-                                new SqlParameter("@Active", isActive),
-                                new SqlParameter("@ID", accountID.Value)
-                            });
+
+                        if (int.TryParse(roleName, out _))
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, PasswordHash = @Password, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Password", passwordHash),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? 1 : 0),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
+                        else
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, PasswordHash = @Password, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Password", passwordHash),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? "true" : "false"),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
                     }
                     else
                     {
-                        DBConnection.Instance.ExecuteCommand(@"
-                            UPDATE Accounts SET Login = @Login, Role = @Role, IsActive = @Active
-                            WHERE AccountID = @ID",
-                            new[] {
-                                new SqlParameter("@Login", login),
-                                new SqlParameter("@Role", role),
-                                new SqlParameter("@Active", isActive),
-                                new SqlParameter("@ID", accountID.Value)
-                            });
+                        if (int.TryParse(roleName, out _))
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? 1 : 0),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
+                        else
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? "true" : "false"),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
                     }
+
                     MessageBox.Show("✅ Данные обновлены", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 

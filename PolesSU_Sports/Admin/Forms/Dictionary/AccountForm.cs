@@ -1,317 +1,329 @@
 ﻿using System;
 using System.Data;
+using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
-using PolesSU_Sports.Shared.DB;
-using PolesSU_Sports.Shared.Model;
+using PolesSU_Sports.Lib.DB;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace PolesSU_Sports.Admin.Forms.Dictionary
 {
     public partial class AccountForm : Form
     {
-        private DataGridView dgvAccounts;
-        private TextBox txtLogin;
-        private TextBox txtPassword;
-        private ComboBox cmbRole;
-        private ComboBox cmbStudent;
-        private ComboBox cmbTrainer;
-        private CheckBox chkIsActive;
-        private Button btnSave;
-        private Button btnDelete;
-        private Button btnClear;
-        private int currentAccountID = 0;
+        private DataGridView dgvUsers;
 
         public AccountForm()
         {
-            InitializeComponent();
-            LoadAccounts();
-            LoadStudents();
-            LoadTrainers();
+            SetupUI();
+            LoadUsers();
         }
 
-        private void InitializeComponent()
+        private void SetupUI()
         {
-            this.Text = "Управление учётными записями";
-            this.Size = new System.Drawing.Size(1000, 650);
+            this.Text = "Управление пользователями";
+            this.Size = new Size(900, 600);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.MinimumSize = new System.Drawing.Size(900, 600);
-            this.BackColor = System.Drawing.Color.White;
+            this.Font = new Font("Segoe UI", 9);
 
-            // ВЕРХНЯЯ ПАНЕЛЬ 
-            Panel pnlTop = new Panel
+            // Заголовок
+            Label lblTitle = new Label
             {
-                Dock = DockStyle.Top,
-                Height = 160,
-                Padding = new Padding(15),
-                BackColor = System.Drawing.Color.FromArgb(245, 245, 245)
-            };
-
-            int y = 10;
-            int labelWidth = 100;
-            int inputWidth = 200;
-            int inputX = 120;
-
-            // Логин
-            Label lblLogin = new Label
-            {
-                Text = "Логин:",
-                Location = new System.Drawing.Point(10, y),
-                Size = new System.Drawing.Size(labelWidth, 25),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            txtLogin = new TextBox
-            {
-                Location = new System.Drawing.Point(inputX, y),
-                Size = new System.Drawing.Size(inputWidth, 23),
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            pnlTop.Controls.AddRange(new Control[] { lblLogin, txtLogin });
-            y += 35;
-
-            // Пароль
-            Label lblPassword = new Label
-            {
-                Text = "Пароль:",
-                Location = new System.Drawing.Point(10, y),
-                Size = new System.Drawing.Size(labelWidth, 25),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            txtPassword = new TextBox
-            {
-                Location = new System.Drawing.Point(inputX, y),
-                Size = new System.Drawing.Size(inputWidth, 23),
-                PasswordChar = '*',
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            pnlTop.Controls.AddRange(new Control[] { lblPassword, txtPassword });
-            y += 35;
-
-            // Роль
-            Label lblRole = new Label
-            {
-                Text = "Роль:",
-                Location = new System.Drawing.Point(10, y),
-                Size = new System.Drawing.Size(labelWidth, 25),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            cmbRole = new ComboBox
-            {
-                Location = new System.Drawing.Point(inputX, y),
-                Size = new System.Drawing.Size(inputWidth, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            cmbRole.Items.AddRange(new[] { "Administrator", "Manager", "Trainer", "Student" });
-            cmbRole.SelectedIndex = 0;
-            cmbRole.SelectedIndexChanged += CmbRole_SelectedIndexChanged;
-            pnlTop.Controls.AddRange(new Control[] { lblRole, cmbRole });
-
-            // Студент (справа)
-            Label lblStudent = new Label
-            {
-                Text = "Студент:",
-                Location = new System.Drawing.Point(350, 10),
-                Size = new System.Drawing.Size(labelWidth, 25),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            cmbStudent = new ComboBox
-            {
-                Location = new System.Drawing.Point(470, 10),
-                Size = new System.Drawing.Size(350, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Enabled = false,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            pnlTop.Controls.AddRange(new Control[] { lblStudent, cmbStudent });
-
-            // Тренер (справа)
-            Label lblTrainer = new Label
-            {
-                Text = "Тренер:",
-                Location = new System.Drawing.Point(350, 45),
-                Size = new System.Drawing.Size(labelWidth, 25),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            cmbTrainer = new ComboBox
-            {
-                Location = new System.Drawing.Point(470, 45),
-                Size = new System.Drawing.Size(350, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Enabled = false,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            pnlTop.Controls.AddRange(new Control[] { lblTrainer, cmbTrainer });
-
-            // Активен (справа)
-            chkIsActive = new CheckBox
-            {
-                Text = "Активен",
-                Location = new System.Drawing.Point(470, 80),
-                Size = new System.Drawing.Size(150, 25),
-                Checked = true,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9)
-            };
-            pnlTop.Controls.Add(chkIsActive);
-
-            // КНОПКИ 
-            FlowLayoutPanel pnlButtons = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Right,
-                Width = 150,
-                Height = 140,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
-                Padding = new Padding(5, 10, 5, 5),
-                BackColor = System.Drawing.Color.Transparent
+                Text = "👥 Управление пользователями",
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                Location = new Point(20, 20),
+                AutoSize = true,
+                ForeColor = Color.FromArgb(0, 61, 130)
             };
 
-            btnSave = new Button
+            // Панель кнопок
+            Panel btnPanel = new Panel
             {
-                Text = "Сохранить",
-                Width = 140,
-                Height = 35,
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9),
-                Margin = new Padding(3, 0, 3, 5)
+                Location = new Point(20, 60),
+                Size = new Size(400, 40)
             };
-            btnSave.Click += BtnSave_Click;
 
-            btnDelete = new Button
-            {
-                Text = "Удалить",
-                Width = 140,
-                Height = 35,
-                BackColor = System.Drawing.Color.FromArgb(220, 53, 69),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9),
-                Margin = new Padding(3, 0, 3, 5)
-            };
+            Button btnAdd = CreateButton("➕ Добавить", Color.FromArgb(0, 86, 179), 0);
+            btnAdd.Click += BtnAdd_Click;
+
+            Button btnEdit = CreateButton("✏️ Изменить", Color.FromArgb(40, 167, 69), 120);
+            btnEdit.Click += BtnEdit_Click;
+
+            Button btnDelete = CreateButton("🗑️ Удалить", Color.FromArgb(220, 53, 69), 240);
             btnDelete.Click += BtnDelete_Click;
 
-            btnClear = new Button
-            {
-                Text = "Очистить",
-                Width = 140,
-                Height = 35,
-                FlatStyle = FlatStyle.Flat,
-                Font = new System.Drawing.Font("Microsoft Sans Serif", 9),
-                Margin = new Padding(3)
-            };
-            btnClear.Click += (s, e) => ClearForm();
+            btnPanel.Controls.AddRange(new Control[] { btnAdd, btnEdit, btnDelete });
 
-            pnlButtons.Controls.AddRange(new Control[] { btnSave, btnDelete, btnClear });
-            pnlTop.Controls.Add(pnlButtons);
-
-            dgvAccounts = new DataGridView
+            // Таблица пользователей
+            dgvUsers = new DataGridView
             {
-                Dock = DockStyle.Fill,
+                Location = new Point(20, 110),
+                Size = new Size(850, 400),
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
-                BackgroundColor = System.Drawing.Color.White,
-                BorderStyle = BorderStyle.Fixed3D,
+                BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
-                    ForeColor = System.Drawing.Color.White,
-                    Font = new System.Drawing.Font("Microsoft Sans Serif", 9, System.Drawing.FontStyle.Bold)
+                    BackColor = Color.FromArgb(0, 86, 179),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
                 }
             };
-            dgvAccounts.CellClick += DgvAccounts_CellClick;
 
-            this.Controls.Add(dgvAccounts);
-            this.Controls.Add(pnlTop);
+            Button btnClose = new Button
+            {
+                Text = "Закрыть",
+                Location = new Point(20, 520),
+                Size = new Size(100, 35),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(108, 117, 125),
+                ForeColor = Color.White
+            };
+            btnClose.Click += (s, e) => this.Close();
+
+            this.Controls.AddRange(new Control[] { lblTitle, btnPanel, dgvUsers, btnClose });
         }
 
-        private void LoadAccounts()
+        private Button CreateButton(string text, Color color, int x)
+        {
+            return new Button
+            {
+                Text = text,
+                Location = new Point(x, 0),
+                Size = new Size(110, 35),
+                BackColor = color,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9)
+            };
+        }
+
+        private void LoadUsers()
         {
             try
             {
-                DataTable dt = DBConnection.Instance.ExecuteQuery(@"
-                    SELECT 
-                        a.AccountID AS [ID],
-                        a.Login AS [Логин],
-                        a.Role AS [Роль],
-                        CASE WHEN a.StudentCardNumber IS NOT NULL THEN s.LastName + ' ' + s.FirstName ELSE '' END AS [Студент],
-                        CASE WHEN a.TrainerID IS NOT NULL THEN t.LastName + ' ' + t.FirstName ELSE '' END AS [Тренер],
-                        CASE WHEN a.IsActive = 1 THEN 'Да' ELSE 'Нет' END AS [Активен],
-                        a.CreatedDate AS [Создан],
-                        a.LastLogin AS [Последний вход]
-                    FROM Accounts a
-                    LEFT JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
-                    LEFT JOIN Trainers t ON a.TrainerID = t.TrainerID
-                    ORDER BY a.Login");
-                dgvAccounts.DataSource = dt;
+                dgvUsers.DataSource = DBConnection.Instance.ExecuteQuery(@"
+            SELECT 
+                a.AccountID AS [ID],
+                a.Login AS [Логин],
+                CASE 
+                    WHEN a.Role = 'Administrator' THEN 'Администратор'
+                    WHEN a.Role = 'Manager' THEN 'Менеджер'
+                    WHEN a.Role = 'Trainer' THEN 'Тренер'
+                    WHEN a.Role = 'Student' THEN 'Студент'
+                    ELSE ISNULL(a.Role, 'Неизвестно')
+                END AS [Роль],
+                CASE 
+                    WHEN a.IsActive = 'True' THEN '✅ Активен' 
+                    ELSE '❌ Заблокирован' 
+                END AS [Статус],
+                a.CreatedDate AS [Создан],
+                a.LastLogin AS [Последний вход]
+            FROM Accounts a
+            ORDER BY a.Login");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки аккаунтов: " + ex.Message, "Ошибка",
+                MessageBox.Show("Ошибка загрузки пользователей: " + ex.Message, "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void LoadStudents()
+        private void BtnAdd_Click(object sender, EventArgs e)
+        {
+            using (var form = new UserEditForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                    LoadUsers();
+            }
+        }
+
+        private void BtnEdit_Click(object sender, EventArgs e)
+        {
+            if (dgvUsers.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите пользователя", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int accountID = Convert.ToInt32(dgvUsers.SelectedRows[0].Cells["ID"].Value);
+            using (var form = new UserEditForm(accountID))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                    LoadUsers();
+            }
+        }
+
+        private void BtnDelete_Click(object sender, EventArgs e)
+        {
+            if (dgvUsers.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите пользователя", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show("Удалить пользователя?\nЭто действие нельзя отменить!", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                int accountID = Convert.ToInt32(dgvUsers.SelectedRows[0].Cells["ID"].Value);
+                DBConnection.Instance.ExecuteCommand(
+                    "DELETE FROM Accounts WHERE AccountID = @ID",
+                    new[] { new SqlParameter("@ID", accountID) });
+
+                MessageBox.Show("✅ Пользователь удалён", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadUsers();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+
+    // ==================== ФОРМА РЕДАКТИРОВАНИЯ ====================
+    public class UserEditForm : Form
+    {
+        private int? accountID;
+        private TextBox txtLogin;
+        private TextBox txtPassword;
+        private ComboBox cmbRole;
+        private CheckBox chkActive;
+
+        public UserEditForm()
+        {
+            accountID = null;
+            SetupUI("Добавить пользователя");
+        }
+
+        public UserEditForm(int id)
+        {
+            accountID = id;
+            SetupUI("Редактировать пользователя");
+            LoadUserData();
+        }
+
+        private void SetupUI(string title)
+        {
+            this.Text = title;
+            this.Size = new Size(400, 380);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Font = new Font("Segoe UI", 9);
+
+            Label lblTitle = new Label
+            {
+                Text = title,
+                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                Location = new Point(20, 15),
+                AutoSize = true,
+                ForeColor = Color.FromArgb(0, 61, 130)
+            };
+
+            Label lblLogin = new Label { Text = "Логин:", Location = new Point(20, 60), AutoSize = true };
+            txtLogin = new TextBox { Location = new Point(20, 80), Size = new Size(340, 25), Font = new Font("Segoe UI", 10) };
+
+            Label lblPassword = new Label { Text = "Пароль:" + (accountID == null ? " (обязательно)" : " (оставьте пустым, чтобы не менять)"), Location = new Point(20, 120), AutoSize = true };
+            txtPassword = new TextBox { Location = new Point(20, 140), Size = new Size(340, 25), PasswordChar = '•', Font = new Font("Segoe UI", 10) };
+
+            Label lblRole = new Label { Text = "Роль:", Location = new Point(20, 180), AutoSize = true };
+            cmbRole = new ComboBox { Location = new Point(20, 200), Size = new Size(340, 25), DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10) };
+            cmbRole.Items.AddRange(new object[] { "Администратор", "Менеджер", "Тренер", "Студент" });
+            cmbRole.SelectedIndex = 1;
+
+            chkActive = new CheckBox { Text = "✅ Активен", Location = new Point(20, 240), AutoSize = true, Checked = true, Font = new Font("Segoe UI", 10) };
+
+            Panel btnPanel = new Panel { Location = new Point(20, 280), Size = new Size(340, 40) };
+
+            Button btnSave = new Button
+            {
+                Text = "💾 Сохранить",
+                Location = new Point(0, 0),
+                Size = new Size(120, 35),
+                BackColor = Color.FromArgb(0, 86, 179),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnSave.Click += BtnSave_Click;
+
+            Button btnCancel = new Button
+            {
+                Text = "❌ Отмена",
+                Location = new Point(130, 0),
+                Size = new Size(100, 35),
+                BackColor = Color.FromArgb(108, 117, 125),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10)
+            };
+            btnCancel.Click += (s, e) => this.DialogResult = DialogResult.Cancel;
+
+            btnPanel.Controls.AddRange(new Control[] { btnSave, btnCancel });
+
+            this.Controls.AddRange(new Control[] { lblTitle, lblLogin, txtLogin, lblPassword, txtPassword, lblRole, cmbRole, chkActive, btnPanel });
+        }
+
+        private void LoadUserData()
         {
             try
             {
                 DataTable dt = DBConnection.Instance.ExecuteQuery(
-                    "SELECT StudentCardNumber, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Students ORDER BY LastName");
-                cmbStudent.DataSource = dt;
-                cmbStudent.DisplayMember = "FullName";
-                cmbStudent.ValueMember = "StudentCardNumber";
+                    "SELECT Login, Role, IsActive FROM Accounts WHERE AccountID = @ID",
+                    new[] { new SqlParameter("@ID", accountID.Value) });
+
+                if (dt.Rows.Count > 0)
+                {
+                    txtLogin.Text = dt.Rows[0]["Login"].ToString();
+
+                    // ✅ Определяем роль по строке или числу
+                    string roleValue = dt.Rows[0]["Role"].ToString().ToLower();
+
+                    if (roleValue == "1" || roleValue == "administrator" || roleValue == "администратор")
+                        cmbRole.SelectedIndex = 0;  // Администратор
+                    else if (roleValue == "2" || roleValue == "manager" || roleValue == "менеджер")
+                        cmbRole.SelectedIndex = 1;  // Менеджер
+                    else if (roleValue == "3" || roleValue == "trainer" || roleValue == "тренер")
+                        cmbRole.SelectedIndex = 2;  // Тренер
+                    else if (roleValue == "4" || roleValue == "student" || roleValue == "студент")
+                        cmbRole.SelectedIndex = 3;  // Студент
+                    else
+                        cmbRole.SelectedIndex = 1;  // По умолчанию Менеджер
+
+                    // ✅ IsActive тоже может быть строкой
+                    string activeValue = dt.Rows[0]["IsActive"].ToString().ToLower();
+                    chkActive.Checked = (activeValue == "1" || activeValue == "true" || activeValue == "True");
+                }
             }
-            catch { }
-        }
-
-        private void LoadTrainers()
-        {
-            try
+            catch (Exception ex)
             {
-                DataTable dt = DBConnection.Instance.ExecuteQuery(
-                    "SELECT TrainerID, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Trainers ORDER BY LastName");
-                cmbTrainer.DataSource = dt;
-                cmbTrainer.DisplayMember = "FullName";
-                cmbTrainer.ValueMember = "TrainerID";
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            catch { }
         }
 
-        private void CmbRole_SelectedIndexChanged(object sender, EventArgs e)
+        private string HashPassword(string password)
         {
-            string role = cmbRole.SelectedItem?.ToString();
-            cmbStudent.Enabled = (role == "Student");
-            cmbTrainer.Enabled = (role == "Trainer");
-
-            // ✅ ПРАВИЛЬНО: только SelectedIndex = -1
-            if (role != "Student")
-                cmbStudent.SelectedIndex = -1;
-
-            if (role != "Trainer")
-                cmbTrainer.SelectedIndex = -1;
-        }
-
-        private void DgvAccounts_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
+            using (SHA256 sha256 = SHA256.Create())
             {
-                DataGridViewRow row = dgvAccounts.Rows[e.RowIndex];
-                currentAccountID = Convert.ToInt32(row.Cells["ID"].Value);
-                txtLogin.Text = row.Cells["Логин"].Value.ToString();
-                txtPassword.Text = "";
-                cmbRole.Text = row.Cells["Роль"].Value.ToString();
-                chkIsActive.Checked = row.Cells["Активен"].Value.ToString() == "Да";
-
-                CmbRole_SelectedIndexChanged(null, null);
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
 
@@ -319,87 +331,156 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
         {
             if (string.IsNullOrWhiteSpace(txtLogin.Text))
             {
-                MessageBox.Show("Введите логин", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtLogin.Focus();
+                MessageBox.Show("Введите логин", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtPassword.Text) && currentAccountID == 0)
+            if (accountID == null && string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                MessageBox.Show("Введите пароль", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtPassword.Focus();
+                MessageBox.Show("Введите пароль для нового пользователя", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
-                Account account = new Account
-                {
-                    AccountID = currentAccountID,
-                    Login = txtLogin.Text,
-                    PasswordHash = txtPassword.Text,
-                    Role = (AccountRole)Enum.Parse(typeof(AccountRole), cmbRole.SelectedItem.ToString()),
-                    StudentCardNumber = cmbStudent.Enabled ? cmbStudent.SelectedValue?.ToString() : null,
-                    TrainerID = cmbTrainer.Enabled ? (int?)cmbTrainer.SelectedValue : null,
-                    IsActive = chkIsActive.Checked
-                };
+                string login = txtLogin.Text.Trim();
 
-                if (currentAccountID > 0)
+                // ✅ Определяем тип данных в поле Role и сохраняем соответствующее значение
+                string roleName = "";
+                int roleNumber = cmbRole.SelectedIndex + 1;
+
+                // Проверяем, какой формат используется в БД
+                var checkType = DBConnection.Instance.ExecuteQuery("SELECT TOP 1 Role FROM Accounts");
+                if (checkType.Rows.Count > 0)
                 {
-                    DBConnection.Instance.UpdateAccount(account);
-                    MessageBox.Show("Аккаунт обновлён", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string sampleValue = checkType.Rows[0]["Role"].ToString();
+                    int testInt;
+
+                    if (int.TryParse(sampleValue, out testInt))
+                    {
+                        // ✅ Числовой формат (1, 2, 3, 4)
+                        roleName = roleNumber.ToString();
+                    }
+                    else
+                    {
+                        // ✅ Текстовый формат ('Administrator', 'Manager', etc.)
+                        switch (cmbRole.SelectedIndex)
+                        {
+                            case 0: roleName = "Administrator"; break;
+                            case 1: roleName = "Manager"; break;
+                            case 2: roleName = "Trainer"; break;
+                            case 3: roleName = "Student"; break;
+                            default: roleName = "Manager"; break;
+                        }
+                    }
+                }
+
+                if (accountID == null)
+                {
+                    // Добавление
+                    string passwordHash = HashPassword(txtPassword.Text);
+
+                    if (int.TryParse(roleName, out _))
+                    {
+                        // Числовой формат
+                        DBConnection.Instance.ExecuteCommand(@"
+                    INSERT INTO Accounts (Login, PasswordHash, Role, IsActive, CreatedDate)
+                    VALUES (@Login, @Password, @Role, @Active, GETDATE())",
+                            new[] {
+                        new SqlParameter("@Login", login),
+                        new SqlParameter("@Password", passwordHash),
+                        new SqlParameter("@Role", roleName),
+                        new SqlParameter("@Active", chkActive.Checked ? 1 : 0)
+                            });
+                    }
+                    else
+                    {
+                        // Текстовый формат
+                        DBConnection.Instance.ExecuteCommand(@"
+                    INSERT INTO Accounts (Login, PasswordHash, Role, IsActive, CreatedDate)
+                    VALUES (@Login, @Password, @Role, @Active, GETDATE())",
+                            new[] {
+                        new SqlParameter("@Login", login),
+                        new SqlParameter("@Password", passwordHash),
+                        new SqlParameter("@Role", roleName),
+                        new SqlParameter("@Active", chkActive.Checked ? "true" : "false")
+                            });
+                    }
+
+                    MessageBox.Show("✅ Пользователь добавлен", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    DBConnection.Instance.CreateAccount(account);
-                    MessageBox.Show("Аккаунт создан", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Обновление
+                    if (!string.IsNullOrWhiteSpace(txtPassword.Text))
+                    {
+                        string passwordHash = HashPassword(txtPassword.Text);
+
+                        if (int.TryParse(roleName, out _))
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, PasswordHash = @Password, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Password", passwordHash),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? 1 : 0),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
+                        else
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, PasswordHash = @Password, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Password", passwordHash),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? "true" : "false"),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
+                    }
+                    else
+                    {
+                        if (int.TryParse(roleName, out _))
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? 1 : 0),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
+                        else
+                        {
+                            DBConnection.Instance.ExecuteCommand(@"
+                        UPDATE Accounts SET Login = @Login, Role = @Role, IsActive = @Active
+                        WHERE AccountID = @ID",
+                                new[] {
+                            new SqlParameter("@Login", login),
+                            new SqlParameter("@Role", roleName),
+                            new SqlParameter("@Active", chkActive.Checked ? "true" : "false"),
+                            new SqlParameter("@ID", accountID.Value)
+                                });
+                        }
+                    }
+
+                    MessageBox.Show("✅ Данные обновлены", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
-                LoadAccounts();
-                ClearForm();
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void BtnDelete_Click(object sender, EventArgs e)
-        {
-            if (currentAccountID == 0)
-            {
-                MessageBox.Show("Выберите аккаунт для удаления", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (MessageBox.Show("Удалить учётную запись?", "Подтверждение",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                try
-                {
-                    DBConnection.Instance.DeleteAccount(currentAccountID);
-                    MessageBox.Show("Аккаунт удалён", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadAccounts();
-                    ClearForm();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void ClearForm()
-        {
-            currentAccountID = 0;
-            txtLogin.Clear();
-            txtPassword.Clear();
-            cmbRole.SelectedIndex = 0;
-            cmbStudent.SelectedIndex = -1;
-            cmbTrainer.SelectedIndex = -1;
-
-            chkIsActive.Checked = true;
-            CmbRole_SelectedIndexChanged(null, null);
         }
     }
 }

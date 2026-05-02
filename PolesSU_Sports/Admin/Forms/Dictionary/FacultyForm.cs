@@ -2,7 +2,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.DB;
 
 namespace PolesSU_Sports.Admin.Forms.Dictionary
 {
@@ -62,7 +62,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
                 Text = "💾 Сохранить",
                 Dock = DockStyle.Top,
                 Height = 35,
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat
             };

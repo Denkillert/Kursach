@@ -2,8 +2,8 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
-using PolesSU_Sports.Shared.Model;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.Model;
+using PolesSU_Sports.Lib.DB;
 
 namespace PolesSU_Sports.Admin.Students
 {
@@ -133,7 +133,7 @@ namespace PolesSU_Sports.Admin.Students
                 Text = "💾 Сохранить",
                 Location = new System.Drawing.Point(160, y),
                 Size = new System.Drawing.Size(110, 40),
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new System.Drawing.Font("Microsoft Sans Serif", 10)

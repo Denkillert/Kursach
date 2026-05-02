@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.DB;
 
 namespace PolesSU_Sports.Admin.Attendance
 {
@@ -70,7 +70,7 @@ namespace PolesSU_Sports.Admin.Attendance
                 Text = "💾 Сохранить",
                 Location = new Point(20, 180),
                 Size = new Size(120, 35),
-                BackColor = Color.FromArgb(0, 122, 204),
+                BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };

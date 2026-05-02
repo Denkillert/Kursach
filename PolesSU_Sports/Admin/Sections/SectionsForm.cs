@@ -2,8 +2,8 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
-using PolesSU_Sports.Shared.DB;
-using PolesSU_Sports.Shared.Model;
+using PolesSU_Sports.Lib.DB;
+using PolesSU_Sports.Lib.Model;
 
 namespace PolesSU_Sports.Admin.Sections
 {
@@ -137,7 +137,7 @@ namespace PolesSU_Sports.Admin.Sections
                 Text = "💾 Сохранить",
                 Location = new System.Drawing.Point(180, y),
                 Size = new System.Drawing.Size(110, 40),
-                BackColor = System.Drawing.Color.FromArgb(0, 122, 204),
+                BackColor = System.Drawing.Color.FromArgb(0, 86, 179),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new System.Drawing.Font("Microsoft Sans Serif", 10)
@@ -209,11 +209,10 @@ namespace PolesSU_Sports.Admin.Sections
             try
             {
                 DataTable dt = DBConnection.Instance.ExecuteQuery(
-                    "SELECT TrainerID, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Trainers ORDER BY LastName");
-
+                     "SELECT DocumentNumber, LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS FullName FROM Trainers ORDER BY LastName");
                 cmbTrainer.DataSource = dt;
                 cmbTrainer.DisplayMember = "FullName";
-                cmbTrainer.ValueMember = "TrainerID";
+                cmbTrainer.ValueMember = "DocumentNumber";
             }
             catch (Exception ex)
             {

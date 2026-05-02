@@ -2,7 +2,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
-using PolesSU_Sports.Shared.DB;
+using PolesSU_Sports.Lib.DB;
 
 namespace PolesSU_Sports.Admin.Forms.Dictionary
 {
@@ -41,7 +41,7 @@ namespace PolesSU_Sports.Admin.Forms.Dictionary
 
             Panel pnlButtons = new Panel { Location = new System.Drawing.Point(460, 10), Size = new System.Drawing.Size(120, 85), Height=120 };
 
-            btnSave = new Button { Text = "💾 Сохранить", Dock = DockStyle.Top, Height = 35, BackColor = System.Drawing.Color.FromArgb(0, 122, 204), ForeColor = System.Drawing.Color.White, FlatStyle = FlatStyle.Flat };
+            btnSave = new Button { Text = "💾 Сохранить", Dock = DockStyle.Top, Height = 35, BackColor = System.Drawing.Color.FromArgb(0, 86, 179), ForeColor = System.Drawing.Color.White, FlatStyle = FlatStyle.Flat };
             btnSave.Click += BtnSave_Click;
 
             btnDelete = new Button { Text = "🗑️ Удалить", Dock = DockStyle.Top, Height = 35, BackColor = System.Drawing.Color.FromArgb(220, 53, 69), ForeColor = System.Drawing.Color.White, FlatStyle = FlatStyle.Flat };
