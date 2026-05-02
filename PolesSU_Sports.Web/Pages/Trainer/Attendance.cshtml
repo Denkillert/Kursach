@@ -27,45 +27,92 @@
             </div>
         </div>
 
-        <div class="schedule-list">
+        <!-- Desktop View -->
+        <div class="desktop-table-view">
+            <div class="schedule-list">
+                @foreach (DataRow row in Model.TodaySchedule.Rows)
+                {
+                    var studentsCount = Convert.ToInt32(row["Студентов"]);
+                    var markedCount = Convert.ToInt32(row["Отмечено"]);
+                    var isMarked = markedCount > 0;
+
+                    <div class="schedule-card @(isMarked ? "marked" : "")">
+                        <div class="schedule-time">
+                            <div class="time-badge">
+                                <span class="time-start">@row["Начало"]</span>
+                                <span class="time-separator">—</span>
+                                <span class="time-end">@row["Окончание"]</span>
+                            </div>
+                        </div>
+
+                        <div class="schedule-info">
+                            <h3>@row["Секция"]</h3>
+                            <p class="sport">🏆 @row["Вид спорта"]</p>
+                            <p class="location">📍 @row["Кабинет"]</p>
+                            <div class="students-count">
+                                <span class="total">👥 @studentsCount студентов</span>
+                                @if (isMarked)
+                                {
+                                    <span class="marked">✅ @markedCount отмечено</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="schedule-action">
+                            @if (isMarked)
+                            {
+                                <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-edit">
+                                    ✏️ Изменить
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-primary">
+                                    📋 Отметить
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Mobile View -->
+        <div class="mobile-card-view">
             @foreach (DataRow row in Model.TodaySchedule.Rows)
             {
                 var studentsCount = Convert.ToInt32(row["Студентов"]);
                 var markedCount = Convert.ToInt32(row["Отмечено"]);
                 var isMarked = markedCount > 0;
 
-                <div class="schedule-card @(isMarked ? "marked" : "")">
-                    <div class="schedule-time">
-                        <div class="time-badge">
-                            <span class="time-start">@row["Начало"]</span>
-                            <span class="time-separator">—</span>
-                            <span class="time-end">@row["Окончание"]</span>
-                        </div>
+                <div class="schedule-card-mobile">
+                    <div class="mobile-time">
+                        <span class="time-label">⏰ @row["Начало"] - @row["Окончание"]</span>
                     </div>
 
-                    <div class="schedule-info">
+                    <div class="mobile-info">
                         <h3>@row["Секция"]</h3>
                         <p class="sport">🏆 @row["Вид спорта"]</p>
                         <p class="location">📍 @row["Кабинет"]</p>
-                        <div class="students-count">
-                            <span class="total">👥 @studentsCount студентов</span>
+                        <div class="students-info">
+                            <span>👥 @studentsCount студ.</span>
                             @if (isMarked)
                             {
-                                <span class="marked">✅ @markedCount отмечено</span>
+                                <span class="marked-badge">✅ @markedCount отмечено</span>
                             }
                         </div>
                     </div>
 
-                    <div class="schedule-action">
+                    <div class="mobile-action">
                         @if (isMarked)
                         {
-                            <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-edit">
+                            <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-block">
                                 ✏️ Изменить
                             </a>
                         }
                         else
                         {
-                            <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-primary">
+                            <a href="/Trainer/MarkAttendance?scheduleId=@row["ScheduleID"]" class="btn btn-primary btn-block">
                                 📋 Отметить
                             </a>
                         }
@@ -87,6 +134,6 @@
     }
 
     <div class="back-navigation">
-        <a href="/Trainer/Index" class="btn btn-secondary">↩️ На главную</a>
+        <a href="/Trainer/Index" class="btn btn-secondary">↩️ На дашборд</a>
     </div>
 </div>

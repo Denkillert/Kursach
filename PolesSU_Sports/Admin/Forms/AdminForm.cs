@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using PolesSU_Sports.Lib.DB;
 using PolesSU_Sports.Lib.Model;
@@ -20,6 +21,12 @@ namespace PolesSU_Sports.Admin
         private DateTimePicker dtpDate;
         private Panel filterPanel;
 
+        // ✅ ЦВЕТА ПОЛЕСГУ
+        private readonly Color GreenMain = Color.FromArgb(5, 66, 38);
+        private readonly Color GreenLight = Color.FromArgb(6, 87, 50);
+        private readonly Color BlueAccent = Color.FromArgb(0, 147, 197);
+        private readonly Color GrayBg = Color.FromArgb(245, 247, 250);
+
         public AdminForm()
         {
             InitializeComponent();
@@ -31,72 +38,109 @@ namespace PolesSU_Sports.Admin
         {
             this.Text = "PolesSU Sports: Панель Администратора";
             this.WindowState = FormWindowState.Maximized;
-            this.BackColor = Color.FromArgb(240, 240, 245);
+            this.BackColor = Color.White;
+            this.MinimumSize = new Size(1200, 700);
 
-            // 1. SIDEBAR (слева)
+            // 1. SIDEBAR (слева) - тёмно-зелёный
             sidebarPanel = new Panel
             {
                 Dock = DockStyle.Left,
-                Width = 280,
-                BackColor = Color.FromArgb(45, 55, 75),
-                Padding = new Padding(0, 0, 0, 20)
+                Width = 260,
+                BackColor = GreenMain,
+                Padding = new Padding(0)
             };
 
             // Логотип
             var logoPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 80,
-                BackColor = Color.FromArgb(35, 45, 65)
+                Height = 200,
+                BackColor = GreenMain,
+                Padding = new Padding(0)
             };
-            var logoLabel = new Label
+
+            var logoPictureBox = new PictureBox
             {
-                Text = "PolesSU\nSports",
-                Font = new Font("Segoe UI", 20, FontStyle.Bold),
+                Image = Properties.Resources.PolesSU_Emblem,
+                Size = new Size(160, 160),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent,
+                Location = new Point(40, 102)  // ✅ Эмблема НИЖЕ
+            };
+
+            var logoText = new Label
+            {
+                Text = "PolesSU Sports",
+                Font = new Font("Segoe UI", 28, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = false,
-                Size = new Size(280, 80),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.Fill
+                Size = new Size(220, 120),
+                Location = new Point(20, 10),  // ✅ Текст ВВЕРХУ
+                TextAlign = ContentAlignment.TopCenter
+                
             };
-            logoPanel.Controls.Add(logoLabel);
+
+            logoPanel.Controls.AddRange(new Control[] { logoText, logoPictureBox });
             sidebarPanel.Controls.Add(logoPanel);
 
+            // Разделитель
+            var separator1 = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 1,
+                BackColor = Color.FromArgb(10, 100, 60)
+            };
+            sidebarPanel.Controls.Add(separator1);
+
             // Кнопки меню
-            CreateMenuButton("📊 Дашборд", ShowDashboard);
-            CreateMenuButton("🎓 Студенты", () => ShowGrid("Студенты"));
-            CreateMenuButton("🏆 Тренеры", () => ShowGrid("Тренеры"));
-            CreateMenuButton("⚽ Секции", () => ShowGrid("Секции"));
-            CreateMenuButton("📋 Посещаемость", () => ShowGrid("Посещаемость"));
-            CreateMenuButton("🔧 Управление", ShowManagement);
+            CreateMenuButton("📊 Главная", ShowDashboard, true);
+            CreateMenuButton("🎓 Студенты", () => ShowGrid("Студенты"), false);
+            CreateMenuButton("🏆 Тренеры", () => ShowGrid("Тренеры"), false);
+            CreateMenuButton("⚽ Секции", () => ShowGrid("Секции"), false);
+            CreateMenuButton("📋 Посещаемость", () => ShowGrid("Посещаемость"), false);
+            CreateMenuButton("🔧 Управление", ShowManagement, false);
 
-            // Кнопка выхода
-            var separator = new Panel { Dock = DockStyle.Bottom, Height = 20, BackColor = Color.FromArgb(45, 55, 75) };
-            sidebarPanel.Controls.Add(separator);
+            // Spacer
+            var spacer = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent
+            };
+            sidebarPanel.Controls.Add(spacer);
 
+            // Кнопка выхода (внизу)
+            var exitPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 60,
+                BackColor = Color.FromArgb(180, 50, 50),
+                Padding = new Padding(10)
+            };
             var exitBtn = new Button
             {
-                Text = "🚪 Выйти",
-                Dock = DockStyle.Bottom,
-                Height = 45,
+                Text = "🚪 Выйти из системы",
+                Dock = DockStyle.Fill,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(192, 57, 43),
+                BackColor = Color.Transparent,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             exitBtn.FlatAppearance.BorderSize = 0;
-            exitBtn.Click += (s, e) => {
-                if (MessageBox.Show("Выйти из системы?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            exitBtn.Click += (s, e) =>
+            {
+                if (MessageBox.Show("Выйти из системы?", "Выход",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     User.Logout();
                     this.DialogResult = DialogResult.Retry;
                     this.Close();
                 }
             };
-            sidebarPanel.Controls.Add(exitBtn);
+            exitPanel.Controls.Add(exitBtn);
+            sidebarPanel.Controls.Add(exitPanel);
 
-            // 2. HEADER (сверху)
+            // 2. HEADER (сверху) - белый
             headerPanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -107,75 +151,104 @@ namespace PolesSU_Sports.Admin
 
             headerLabel = new Label
             {
-                Text = "Дашборд",
-                Font = new Font("Segoe UI", 18, FontStyle.Bold),
-                ForeColor = Color.FromArgb(45, 55, 75),
+                Text = "Главная",
+                Font = new Font("Segoe UI", 22, FontStyle.Bold),
+                ForeColor = GreenMain,
                 AutoSize = true,
-                Location = new Point(30, 20)
+                Location = new Point(30, 18)
             };
 
+            // Информация о пользователе (справа)
+            var userPanel = new Panel
+            {
+                Location = new Point(headerPanel.Width - 250, 15),
+                Size = new Size(240, 40),
+                BackColor = GrayBg,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            var userIcon = new Label
+            {
+                Text = "👤",
+                Font = new Font("Segoe UI", 16),
+                Location = new Point(10, 5),
+                Size = new Size(35, 30),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
             var userInfo = new Label
             {
-                Text = $"{User.CurrentUser?.FullName ?? "Пользователь"}\n{User.CurrentUser?.Role}",
-                Font = new Font("Segoe UI", 10),
-                ForeColor = Color.Gray,
-                AutoSize = true,
-                Location = new Point(headerPanel.Width - 200, 20),
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                TextAlign = ContentAlignment.MiddleRight
+                Text = $"{User.CurrentUser?.Login ?? "Admin"}\nAdministrator",
+                Font = new Font("Segoe UI", 9),
+                ForeColor = Color.FromArgb(80, 80, 80),
+                Location = new Point(50, 6),
+                Size = new Size(180, 30),
+                TextAlign = ContentAlignment.MiddleLeft
             };
+            userPanel.Controls.AddRange(new Control[] { userIcon, userInfo });
 
             headerPanel.Controls.Add(headerLabel);
-            headerPanel.Controls.Add(userInfo);
+            headerPanel.Controls.Add(userPanel);
 
-            // 3. CONTENT (основная область)
+            // 3. CONTENT (основная область) - светло-серый фон
             contentPanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 Padding = new Padding(30),
-                BackColor = Color.FromArgb(240, 240, 245),
+                BackColor = GrayBg,
                 AutoScroll = true
             };
 
-            // Порядок добавления важен!
-            this.Controls.Add(contentPanel);  // Fill
-            this.Controls.Add(headerPanel);   // Top
-            this.Controls.Add(sidebarPanel);  // Left
+            // Порядок добавления
+            this.Controls.Add(contentPanel);
+            this.Controls.Add(headerPanel);
+            this.Controls.Add(sidebarPanel);
         }
 
-        private void CreateMenuButton(string text, Action clickAction)
+        private void CreateMenuButton(string text, Action clickAction, bool isActive = false)
         {
             var btn = new Button
             {
                 Text = "  " + text,
                 Dock = DockStyle.Top,
-                Height = 55,
+                Height = 50,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(45, 55, 75),
-                ForeColor = Color.FromArgb(200, 200, 200),
-                Font = new Font("Segoe UI", 11),
+                BackColor = isActive ? GreenLight : GreenMain,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 11, isActive ? FontStyle.Bold : FontStyle.Regular),
                 TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(20, 0, 0, 0),
+                Padding = new Padding(25, 0, 0, 0),
                 Cursor = Cursors.Hand
             };
             btn.FlatAppearance.BorderSize = 0;
-            btn.MouseEnter += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(55, 65, 85); };
-            btn.MouseLeave += (s, e) => { if (btn != currentActiveButton) btn.BackColor = Color.FromArgb(45, 55, 75); };
-            btn.Click += (s, e) => { SetActiveButton(btn); clickAction(); };
+            btn.MouseEnter += (s, e) =>
+            {
+                if (btn != currentActiveButton)
+                    btn.BackColor = GreenLight;
+            };
+            btn.MouseLeave += (s, e) =>
+            {
+                if (btn != currentActiveButton)
+                    btn.BackColor = GreenMain;
+            };
+            btn.Click += (s, e) =>
+            {
+                SetActiveButton(btn);
+                clickAction();
+            };
             sidebarPanel.Controls.Add(btn);
+
+            if (isActive)
+                currentActiveButton = btn;
         }
 
         private void SetActiveButton(Button btn)
         {
             if (currentActiveButton != null)
             {
-                currentActiveButton.BackColor = Color.FromArgb(45, 55, 75);
-                currentActiveButton.ForeColor = Color.FromArgb(200, 200, 200);
-                currentActiveButton.Font = new Font("Segoe UI", 11);
+                currentActiveButton.BackColor = GreenMain;
+                currentActiveButton.Font = new Font("Segoe UI", 11, FontStyle.Regular);
             }
             currentActiveButton = btn;
-            btn.BackColor = Color.FromArgb(60, 70, 90);
-            btn.ForeColor = Color.White;
+            btn.BackColor = GreenLight;
             btn.Font = new Font("Segoe UI", 11, FontStyle.Bold);
         }
 
@@ -183,6 +256,18 @@ namespace PolesSU_Sports.Admin
         private void ShowDashboard()
         {
             contentPanel.Controls.Clear();
+            headerLabel.Text = "Главная";
+
+            // Заголовок с датой
+            var dateLabel = new Label
+            {
+                Text = DateTime.Now.ToString("dd MMMM yyyy"),
+                Font = new Font("Segoe UI", 10),
+                ForeColor = Color.FromArgb(120, 120, 120),
+                Location = new Point(30, 5),
+                AutoSize = true
+            };
+            contentPanel.Controls.Add(dateLabel);
 
             // ✅ КАРТОЧКИ СТАТИСТИКИ
             FlowLayoutPanel statsPanel = new FlowLayoutPanel
@@ -190,35 +275,151 @@ namespace PolesSU_Sports.Admin
                 Dock = DockStyle.Top,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = true,
-                Padding = new Padding(20),
-                Height = 190,
+                Padding = new Padding(20, 20, 20, 30),
+                Height = 180,
                 AutoScroll = false,
-                BackColor = Color.FromArgb(245, 245, 245)
+                BackColor = Color.Transparent
             };
 
-            AddStatCard(statsPanel, "🏛️ Факультеты", Count("SELECT COUNT(*) FROM Faculties"), Color.FromArgb(0, 122, 204));
-            AddStatCard(statsPanel, "👨‍🏫 Тренеры", Count("SELECT COUNT(*) FROM Trainers"), Color.FromArgb(40, 167, 69));
-            AddStatCard(statsPanel, "🎓 Студенты", Count("SELECT COUNT(*) FROM Students"), Color.FromArgb(255, 193, 7));
-            AddStatCard(statsPanel, "⚽ Секции", Count("SELECT COUNT(*) FROM Sections"), Color.FromArgb(220, 53, 69));
-            AddStatCard(statsPanel, "📋 Посещаемость", Count("SELECT COUNT(*) FROM Attendance"), Color.FromArgb(108, 117, 125));
+            AddModernStatCard(statsPanel, "🏛️ Факультеты",
+                Count("SELECT COUNT(*) FROM Faculties"),
+                Color.FromArgb(0, 102, 204), "");
+
+            AddModernStatCard(statsPanel, "👨‍ Тренеры",
+                Count("SELECT COUNT(*) FROM Trainers"),
+                Color.FromArgb(40, 167, 69), "");
+
+            AddModernStatCard(statsPanel, "🎓 Студенты",
+                Count("SELECT COUNT(*) FROM Students"),
+                Color.FromArgb(255, 193, 7), "");
+
+            AddModernStatCard(statsPanel, "⚽ Секции",
+                Count("SELECT COUNT(*) FROM Sections"),
+                Color.FromArgb(220, 53, 69), "");
+
+            AddModernStatCard(statsPanel, "📋 Посещаемость",
+                Count("SELECT COUNT(*) FROM Attendance"),
+                Color.FromArgb(108, 117, 125), "");
 
             contentPanel.Controls.Add(statsPanel);
+
+           /* // Быстрые действия
+            var quickActionsLabel = new Label
+            {
+                Text = "Быстрые действия",
+                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                ForeColor = GreenMain,
+                Location = new Point(30, 210),
+                AutoSize = true
+            };
+            contentPanel.Controls.Add(quickActionsLabel);*/
+
+            var actionsPanel = new FlowLayoutPanel
+            {
+                Location = new Point(30, 245),
+                Size = new Size(contentPanel.Width - 60, 100),
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                AutoScroll = true
+            };
+
+           /* AddQuickActionButton(actionsPanel, "➕ Добавить студента",
+                () => new PolesSU_Sports.Admin.Students.StudentForm().ShowDialog(), BlueAccent);
+            AddQuickActionButton(actionsPanel, "📝 Отметить посещаемость",
+                () => new PolesSU_Sports.Admin.Attendance.AttendanceMarkForm(DateTime.Now).ShowDialog(),
+                Color.FromArgb(40, 167, 69));
+            AddQuickActionButton(actionsPanel, "📅 Расписание",
+                () => new PolesSU_Sports.Admin.Forms.Dictionary.ScheduleForm().ShowDialog(),
+                Color.FromArgb(255, 193, 7));
+
+            contentPanel.Controls.Add(actionsPanel);*/
         }
 
-        private void AddStatCard(FlowLayoutPanel p, string title, string val, Color c)
+        private void AddModernStatCard(FlowLayoutPanel p, string title, string val, Color c, string suffix)
         {
             var card = new Panel
             {
-                Size = new Size(200, 140),
+                Size = new Size(220, 140),
                 Margin = new Padding(15),
                 BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
+                Cursor = Cursors.Hand
             };
-            var t = new Label { Text = title, Location = new Point(15, 15), AutoSize = true, Font = new Font("Segoe UI", 10) };
-            var v = new Label { Text = val, Location = new Point(15, 50), Font = new Font("Segoe UI", 32, FontStyle.Bold), ForeColor = c, AutoSize = true };
-            card.Controls.AddRange(new Control[] { t, v });
+
+            // Тень
+            card.Paint += (s, e) =>
+            {
+                using (var path = new GraphicsPath())
+                {
+                    path.AddRectangle(new Rectangle(0, 0, card.Width - 1, card.Height - 1));
+                    using (var shadow = new PathGradientBrush(path))
+                    {
+                        shadow.CenterColor = Color.FromArgb(20, 0, 0, 0);
+                        shadow.SurroundColors = new[] { Color.Transparent };
+                        e.Graphics.FillRectangle(shadow, new Rectangle(0, 0, card.Width, card.Height));
+                    }
+                }
+                // Акцентная линия слева
+                using (var pen = new Pen(c, 4))
+                {
+                    e.Graphics.DrawLine(pen, 0, 10, 0, card.Height - 10);
+                }
+            };
+
+            var titleLabel = new Label
+            {
+                Text = title,
+                Location = new Point(20, 15),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10),
+                ForeColor = Color.FromArgb(100, 100, 100),
+                BackColor = Color.Transparent
+            };
+
+            var valueLabel = new Label
+            {
+                Text = val,
+                Location = new Point(20, 45),
+                Font = new Font("Segoe UI", 42, FontStyle.Bold),
+                ForeColor = c,
+                AutoSize = true,
+                BackColor = Color.Transparent
+            };
+
+            var suffixLabel = new Label
+            {
+                Text = suffix,
+                Location = new Point(20, 95),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9),
+                ForeColor = Color.FromArgb(150, 150, 150),
+                BackColor = Color.Transparent
+            };
+
+            card.Controls.AddRange(new Control[] { titleLabel, valueLabel, suffixLabel });
             p.Controls.Add(card);
         }
+
+        /*private void AddQuickActionButton(FlowLayoutPanel p, string text, Action click, Color color)
+        {
+            var btn = new Button
+            {
+                Text = text,
+                Size = new Size(220, 50),
+                Margin = new Padding(10),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = color,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(20, 0, 0, 0)
+            };
+            btn.FlatAppearance.BorderSize = 0;
+            btn.MouseEnter += (s, e) => btn.BackColor = ControlPaint.Dark(color);
+            btn.MouseLeave += (s, e) => btn.BackColor = color;
+            btn.Click += (s, e) => click();
+            p.Controls.Add(btn);
+        }*/
 
         private string Count(string q)
         {
@@ -237,25 +438,26 @@ namespace PolesSU_Sports.Admin
             var searchPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 60,
+                Height = 70,
                 Padding = new Padding(10),
                 BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
+                Margin = new Padding(0, 0, 0, 15)
             };
 
             var lblSearch = new Label
             {
                 Text = "🔍 Поиск:",
-                Location = new Point(15, 18),
+                Location = new Point(15, 22),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                ForeColor = GreenMain
             };
 
             txtSearch = new TextBox
             {
-                Location = new Point(80, 15),
-                Size = new Size(300, 25),
-                Font = new Font("Segoe UI", 9),
+                Location = new Point(100, 20),
+                Size = new Size(350, 30),
+                Font = new Font("Segoe UI", 10),
                 PlaceholderText = "Введите для поиска...",
                 BorderStyle = BorderStyle.FixedSingle
             };
@@ -264,8 +466,8 @@ namespace PolesSU_Sports.Admin
             var btnClear = new Button
             {
                 Text = "❌ Очистить",
-                Location = new Point(390, 14),
-                Size = new Size(100, 28),
+                Location = new Point(450, 19),
+                Size = new Size(110, 32),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(108, 117, 125),
                 ForeColor = Color.White,
@@ -279,10 +481,10 @@ namespace PolesSU_Sports.Admin
             filterPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 60,
+                Height = 70,
                 Padding = new Padding(10),
-                BackColor = Color.FromArgb(250, 250, 250),
-                BorderStyle = BorderStyle.FixedSingle,
+                BackColor = Color.White,
+                Margin = new Padding(0, 0, 0, 15),
                 Visible = (tableType == "Посещаемость")
             };
 
@@ -290,28 +492,29 @@ namespace PolesSU_Sports.Admin
             {
                 var lblDate = new Label
                 {
-                    Text = "📅 Дата посещения:",
-                    Location = new Point(15, 18),
+                    Text = "📅 Дата:",
+                    Location = new Point(15, 22),
                     AutoSize = true,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    ForeColor = GreenMain
                 };
 
                 dtpDate = new DateTimePicker
                 {
-                    Location = new Point(160, 15),
-                    Size = new Size(150, 25),
+                    Location = new Point(90, 20),
+                    Size = new Size(180, 30),
                     Format = DateTimePickerFormat.Short,
-                    Font = new Font("Segoe UI", 9)
+                    Font = new Font("Segoe UI", 10)
                 };
                 dtpDate.Value = DateTime.Now;
 
                 var btnLoad = new Button
                 {
                     Text = "📋 Загрузить",
-                    Location = new Point(325, 14),
-                    Size = new Size(110, 28),
+                    Location = new Point(285, 19),
+                    Size = new Size(120, 32),
                     FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = BlueAccent,
                     ForeColor = Color.White,
                     Font = new Font("Segoe UI", 9)
                 };
@@ -320,8 +523,8 @@ namespace PolesSU_Sports.Admin
                 var btnToday = new Button
                 {
                     Text = "📅 Сегодня",
-                    Location = new Point(445, 14),
-                    Size = new Size(100, 28),
+                    Location = new Point(415, 19),
+                    Size = new Size(110, 32),
                     FlatStyle = FlatStyle.Flat,
                     BackColor = Color.FromArgb(40, 167, 69),
                     ForeColor = Color.White,
@@ -339,23 +542,23 @@ namespace PolesSU_Sports.Admin
                 Height = 60,
                 Padding = new Padding(10),
                 BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
+                Margin = new Padding(0, 0, 0, 15)
             };
 
             var btnRefresh = CreateCrudButton("🔄 Обновить", 15, LoadGridData);
 
             if (tableType == "Посещаемость")
             {
-                var btnAdd = CreateCrudButton("➕ Отметить", 135, OnAddAttendance, Color.FromArgb(40, 167, 69));
-                var btnEdit = CreateCrudButton("✏️ Изменить", 255, OnEditAttendance);
-                var btnDelete = CreateCrudButton("🗑️ Удалить", 375, OnDeleteAttendance, Color.FromArgb(220, 53, 69));
+                var btnAdd = CreateCrudButton("➕ Отметить", 145, OnAddAttendance, Color.FromArgb(40, 167, 69));
+                var btnEdit = CreateCrudButton("✏️ Изменить", 275, OnEditAttendance);
+                var btnDelete = CreateCrudButton("🗑️ Удалить", 405, OnDeleteAttendance, Color.FromArgb(220, 53, 69));
                 btnPanel.Controls.AddRange(new Control[] { btnRefresh, btnAdd, btnEdit, btnDelete });
             }
             else
             {
-                var btnAdd = CreateCrudButton("➕ Добавить", 135, OnAdd, Color.FromArgb(40, 167, 69));
-                var btnEdit = CreateCrudButton("✏️ Изменить", 255, OnEdit);
-                var btnDelete = CreateCrudButton("🗑️ Удалить", 375, OnDelete, Color.FromArgb(220, 53, 69));
+                var btnAdd = CreateCrudButton("➕ Добавить", 145, OnAdd, Color.FromArgb(40, 167, 69));
+                var btnEdit = CreateCrudButton("✏️ Изменить", 275, OnEdit);
+                var btnDelete = CreateCrudButton("🗑️ Удалить", 405, OnDelete, Color.FromArgb(220, 53, 69));
                 btnPanel.Controls.AddRange(new Control[] { btnRefresh, btnAdd, btnEdit, btnDelete });
             }
 
@@ -371,17 +574,35 @@ namespace PolesSU_Sports.Admin
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = GreenMain,
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    Alignment = DataGridViewContentAlignment.MiddleLeft,
+                    Padding = new Padding(10)
                 },
                 RowHeadersVisible = false,
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.None,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
+                ColumnHeadersHeight = 40
             };
-            currentDgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(230, 230, 230);
-            currentDgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(45, 55, 75);
+            // ✅ RowTemplate.Height задаём ОТДЕЛЬНО:
+            currentDgv.RowTemplate.Height = 40;
+            currentDgv.DefaultCellStyle.SelectionBackColor = BlueAccent;
+            currentDgv.DefaultCellStyle.SelectionForeColor = Color.White;
+            currentDgv.DefaultCellStyle.Font = new Font("Segoe UI", 9);
+            currentDgv.DefaultCellStyle.Padding = new Padding(10, 5, 10, 5);
 
-            contentPanel.Controls.Add(currentDgv);
+            // Добавляем таблицу в панель с белым фоном
+            var tableContainer = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                Padding = new Padding(0)
+            };
+            tableContainer.Controls.Add(currentDgv);
+
+            contentPanel.Controls.Add(tableContainer);
             contentPanel.Controls.Add(btnPanel);
             if (filterPanel != null) contentPanel.Controls.Add(filterPanel);
             contentPanel.Controls.Add(searchPanel);
@@ -393,10 +614,10 @@ namespace PolesSU_Sports.Admin
         {
             return tableType switch
             {
-                "Студенты" => "🎓 Управление студентами",
-                "Тренеры" => "🏆 Управление тренерами",
-                "Секции" => "⚽ Управление секциями",
-                "Посещаемость" => "📋 Отметка посещаемости",
+                "Студенты" => "🎓 Студенты",
+                "Тренеры" => "🏆 Тренеры",
+                "Секции" => "⚽ Секции",
+                "Посещаемость" => "📋 Посещаемость",
                 _ => "Панель управления"
             };
         }
@@ -406,8 +627,8 @@ namespace PolesSU_Sports.Admin
             var btn = new Button
             {
                 Text = text,
-                Location = new Point(x, 15),
-                Size = new Size(110, 32),
+                Location = new Point(x, 14),
+                Size = new Size(120, 35),
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 9),
                 Cursor = Cursors.Hand
@@ -421,7 +642,7 @@ namespace PolesSU_Sports.Admin
             else
             {
                 btn.BackColor = Color.White;
-                btn.ForeColor = Color.FromArgb(45, 55, 75);
+                btn.ForeColor = GreenMain;
                 btn.FlatAppearance.BorderSize = 1;
                 btn.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
             }
@@ -479,7 +700,7 @@ namespace PolesSU_Sports.Admin
                         break;
                     case "Тренеры":
                         query = @"
-                            SELECT TrainerID AS [ID], DocumentNumber AS [Документ],
+                            SELECT DocumentNumber AS [Документ],
                             LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName, '') AS [ФИО],
                             Qualification AS [Квалификация], Specialization AS [Специализация],
                             Phone AS [Телефон], HireDate AS [Дата приёма]
@@ -493,7 +714,7 @@ namespace PolesSU_Sports.Admin
                             sec.MaxStudents AS [Макс. студентов], sec.PricePerMonth AS [Цена]
                             FROM Sections sec
                             JOIN Sports sp ON sec.SportID = sp.SportID
-                            JOIN Trainers t ON sec.TrainerID = t.TrainerID
+                            JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
                             ORDER BY sec.SectionName";
                         break;
                     case "Посещаемость":
@@ -505,7 +726,7 @@ namespace PolesSU_Sports.Admin
                             s.LastName + ' ' + s.FirstName AS [Студент],
                             sec.SectionName AS [Секция],
                             a.VisitDate AS [Дата],
-                            CASE WHEN a.Status = 1 THEN 'Присутствовал' ELSE 'Отсутствовал' END AS [Статус],
+                            CASE WHEN a.Status = 1 THEN '✅ Присутствовал' ELSE '❌ Отсутствовал' END AS [Статус],
                             ISNULL(a.Notes, '') AS [Примечание]
                             FROM Attendance a
                             JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
@@ -520,16 +741,17 @@ namespace PolesSU_Sports.Admin
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка загрузки: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        // ==================== НОВАЯ ВКЛАДКА: УПРАВЛЕНИЕ ====================
+
+        // ============================================================ УПРАВЛЕНИЕ
         private void ShowManagement()
         {
             headerLabel.Text = "🔧 Управление системой";
             contentPanel.Controls.Clear();
 
-            // ✅ Контейнер с сеткой (2 колонки)
             var gridPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -537,7 +759,7 @@ namespace PolesSU_Sports.Admin
                 RowCount = 3,
                 Padding = new Padding(30),
                 AutoScroll = true,
-                BackColor = Color.FromArgb(240, 240, 245)
+                BackColor = Color.Transparent
             };
             gridPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             gridPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -545,29 +767,28 @@ namespace PolesSU_Sports.Admin
             gridPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             gridPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            // ✅ Современные карточки (по принципам Material Design 3)
             AddModernCard(gridPanel, "🏛️", "Факультеты",
                 "Управление списком факультетов",
-                Color.FromArgb(0, 122, 204),
+                Color.FromArgb(0, 102, 204),
                 () => new PolesSU_Sports.Admin.Forms.Dictionary.FacultyForm().ShowDialog());
 
             AddModernCard(gridPanel, "⚽", "Виды спорта",
                 "Справочник видов спорта",
-                Color.FromArgb(0, 122, 204),
+                Color.FromArgb(0, 102, 204),
                 () => new PolesSU_Sports.Admin.Forms.Dictionary.SportForm().ShowDialog());
 
             AddModernCard(gridPanel, "📅", "Расписание",
                 "Настройка расписания занятий",
-                Color.FromArgb(0, 122, 204),
+                BlueAccent,
                 () => new PolesSU_Sports.Admin.Forms.Dictionary.ScheduleForm().ShowDialog());
 
             AddModernCard(gridPanel, "🔐", "Аккаунты",
-                "Управление пользователями и ролями",
+                "Управление пользователями",
                 Color.FromArgb(40, 167, 69),
                 () => new PolesSU_Sports.Admin.Forms.Dictionary.AccountForm().ShowDialog());
 
             AddModernCard(gridPanel, "📋", "Запись в секции",
-                "Зачисление студентов в секции",
+                "Зачисление студентов",
                 Color.FromArgb(255, 193, 7),
                 () => new PolesSU_Sports.Admin.Students.StudentSectionForm().ShowDialog());
 
@@ -579,75 +800,52 @@ namespace PolesSU_Sports.Admin
             contentPanel.Controls.Add(gridPanel);
         }
 
-        // ✅ СОВРЕМЕННАЯ КАРТОЧКА (по принципам Material Design 3) [[12]][[4]]
         private void AddModernCard(TableLayoutPanel grid, string icon, string title, string desc, Color accent, Action click)
         {
             var card = new Panel
             {
-                Size = new Size(280, 160),
-                Margin = new Padding(15),
+                Size = new Size(300, 150),
+                Margin = new Padding(20),
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
-                Cursor = Cursors.Hand,
-                Tag = accent
+                Cursor = Cursors.Hand
             };
 
-            // ✅ Тень (визуальная глубина)
+            // Тень и акцентная линия
             card.Paint += (s, e) =>
             {
-                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+                using (var path = new GraphicsPath())
                 {
                     path.AddRectangle(new Rectangle(0, 0, card.Width - 1, card.Height - 1));
-                    using (var shadow = new System.Drawing.Drawing2D.PathGradientBrush(path))
+                    using (var shadow = new PathGradientBrush(path))
                     {
-                        shadow.CenterColor = Color.FromArgb(30, 0, 0, 0);
+                        shadow.CenterColor = Color.FromArgb(25, 0, 0, 0);
                         shadow.SurroundColors = new[] { Color.Transparent };
                         e.Graphics.FillRectangle(shadow, new Rectangle(0, 0, card.Width, card.Height));
                     }
                 }
-                // ✅ Акцентная линия снизу
-                using (var pen = new Pen(accent, 3))
+                using (var pen = new Pen(accent, 4))
                 {
-                    e.Graphics.DrawLine(pen, 0, card.Height - 1, card.Width, card.Height - 1);
-                }
-            };
-
-            // ✅ Иконка в круге (Material Design)
-            var iconCircle = new Panel
-            {
-                Size = new Size(56, 56),
-                Location = new Point(20, 20),
-                BackColor = Color.Transparent,  // 15% прозрачности
-                BorderStyle = BorderStyle.None
-            };
-            iconCircle.Paint += (s, e) =>
-            {
-                using (var brush = new SolidBrush(Color.FromArgb(15, accent.R, accent.G, accent.B)))
-                using (var pen = new Pen(accent, 2))
-                {
-                    e.Graphics.FillEllipse(brush, 0, 0, 56, 56);
-                    e.Graphics.DrawEllipse(pen, 0, 0, 55, 55);
+                    e.Graphics.DrawLine(pen, 0, 0, card.Width, 0);
                 }
             };
 
             var iconLabel = new Label
             {
                 Text = icon,
-                Font = new Font("Segoe UI", 22, FontStyle.Regular),
-                AutoSize = false,
-                Size = new Size(56, 56),
+                Font = new Font("Segoe UI", 32),
+                Location = new Point(25, 20),
+                Size = new Size(60, 60),
                 TextAlign = ContentAlignment.MiddleCenter,
-                ForeColor = accent,
-                Dock = DockStyle.Fill
+                BackColor = Color.Transparent
             };
 
-            // ✅ Заголовок + описание
             var titleLabel = new Label
             {
                 Text = title,
-                Font = new Font("Segoe UI", 13, FontStyle.Bold),  // ✅ Bold - корректное значение
-                ForeColor = Color.FromArgb(45, 55, 75),
-                Location = new Point(90, 22),
+                Font = new Font("Segoe UI", 13, FontStyle.Bold),
+                ForeColor = GreenMain,
+                Location = new Point(100, 25),
                 AutoSize = true,
                 BackColor = Color.Transparent
             };
@@ -657,48 +855,21 @@ namespace PolesSU_Sports.Admin
                 Text = desc,
                 Font = new Font("Segoe UI", 9),
                 ForeColor = Color.FromArgb(120, 120, 120),
-                Location = new Point(90, 48),
-                Size = new Size(170, 40),
+                Location = new Point(100, 50),
+                Size = new Size(180, 40),
                 AutoSize = false,
                 BackColor = Color.Transparent
             };
 
-            // ✅ Индикатор перехода (стрелка)
-           /* var arrow = new Label
-            {
-                Text = "→",
-                Font = new Font("Segoe UI", 18, FontStyle.Regular),
-                ForeColor = Color.FromArgb(180, 180, 180),
-                Location = new Point(245, 20),
-                AutoSize = true,
-                BackColor = Color.Transparent
-            };*/
+            card.MouseEnter += (s, e) => card.BackColor = Color.FromArgb(250, 250, 250);
+            card.MouseLeave += (s, e) => card.BackColor = Color.White;
 
-            // ✅ Hover эффекты (плавные)
-            card.MouseEnter += (s, e) =>
-            {
-                card.BackColor = Color.FromArgb(252, 252, 252);
-                iconCircle.BackColor = Color.FromArgb(25, accent.R, accent.G, accent.B);
-                //arrow.ForeColor = accent;
-                //arrow.Font = new Font("Segoe UI", 18, FontStyle.Bold);
-            };
-
-            card.MouseLeave += (s, e) =>
-            {
-                card.BackColor = Color.White;
-                iconCircle.BackColor = Color.FromArgb(15, accent.R, accent.G, accent.B);
-               // arrow.ForeColor = Color.FromArgb(180, 180, 180);
-                //arrow.Font = new Font("Segoe UI", 18, FontStyle.Regular);
-            };
-
-            // ✅ Клик по всей карточке
             card.Click += (s, e) => click();
             iconLabel.Click += (s, e) => click();
             titleLabel.Click += (s, e) => click();
             descLabel.Click += (s, e) => click();
 
-            iconCircle.Controls.Add(iconLabel);
-            card.Controls.AddRange(new Control[] { iconCircle, titleLabel, descLabel, /*arrow*/ });
+            card.Controls.AddRange(new Control[] { iconLabel, titleLabel, descLabel });
             grid.Controls.Add(card);
         }
 
@@ -731,7 +902,8 @@ namespace PolesSU_Sports.Admin
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -739,7 +911,8 @@ namespace PolesSU_Sports.Admin
         {
             if (currentDgv?.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите запись", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -755,7 +928,7 @@ namespace PolesSU_Sports.Admin
                         }
                         break;
                     case "Тренеры":
-                        int tid = Convert.ToInt32(currentDgv.SelectedRows[0].Cells["ID"].Value);
+                        string tid = currentDgv.SelectedRows[0].Cells["ID"].Value.ToString();
                         using (var form = new PolesSU_Sports.Admin.Trainers.TrainerForm(tid))
                         {
                             if (form.ShowDialog() == DialogResult.OK) LoadGridData();
@@ -772,7 +945,8 @@ namespace PolesSU_Sports.Admin
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -780,11 +954,13 @@ namespace PolesSU_Sports.Admin
         {
             if (currentDgv?.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Выберите запись", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите запись", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (MessageBox.Show("Удалить запись?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            if (MessageBox.Show("Удалить запись?", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
             try
             {
@@ -795,13 +971,14 @@ namespace PolesSU_Sports.Admin
                         string card = currentDgv.SelectedRows[0].Cells["Номер билета"].Value.ToString();
                         if (!DBConnection.Instance.CanDeleteStudent(card))
                         {
-                            MessageBox.Show("❌ Есть связанные записи", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show("❌ Есть связанные записи", "Ошибка",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
                         deleted = DBConnection.Instance.DeleteStudent(card);
                         break;
                     case "Тренеры":
-                        int tid = Convert.ToInt32(currentDgv.SelectedRows[0].Cells["ID"].Value);
+                        string tid = currentDgv.SelectedRows[0].Cells["ID"].Value.ToString();
                         deleted = DBConnection.Instance.DeleteTrainer(tid);
                         break;
                     case "Секции":
@@ -812,13 +989,15 @@ namespace PolesSU_Sports.Admin
 
                 if (deleted)
                 {
-                    MessageBox.Show("✅ Удалено", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("✅ Удалено", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadGridData();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -837,7 +1016,8 @@ namespace PolesSU_Sports.Admin
         {
             if (currentDgv?.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Выберите запись для редактирования", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите запись для редактирования", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -857,7 +1037,8 @@ namespace PolesSU_Sports.Admin
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -865,12 +1046,13 @@ namespace PolesSU_Sports.Admin
         {
             if (currentDgv?.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Выберите запись для удаления", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите запись для удаления", "Внимание",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (MessageBox.Show("Удалить запись о посещении?\nЭто действие нельзя отменить!", "Подтверждение",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            if (MessageBox.Show("Удалить запись о посещении?\nЭто действие нельзя отменить!",
+                "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
             try
             {
@@ -881,17 +1063,20 @@ namespace PolesSU_Sports.Admin
 
                 if (result > 0)
                 {
-                    MessageBox.Show("✅ Запись о посещении удалена", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("✅ Запись о посещении удалена", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadGridData();
                 }
                 else
                 {
-                    MessageBox.Show("❌ Не удалось удалить", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("❌ Не удалось удалить", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("❌ Ошибка: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -900,12 +1085,20 @@ namespace PolesSU_Sports.Admin
             headerLabel.Text = "🏆 Достижения студентов";
             contentPanel.Controls.Clear();
 
-            var btnPanel = new Panel { Dock = DockStyle.Top, Height = 60, Padding = new Padding(10), BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
+            var btnPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 60,
+                Padding = new Padding(10),
+                BackColor = Color.White,
+                Margin = new Padding(0, 0, 0, 15)
+            };
+
             var btnAdd = new Button
             {
                 Text = "➕ Добавить достижение",
-                Location = new Point(15, 15),
-                Size = new Size(200, 32),
+                Location = new Point(15, 14),
+                Size = new Size(220, 35),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(40, 167, 69),
                 ForeColor = Color.White,
@@ -929,15 +1122,20 @@ namespace PolesSU_Sports.Admin
                 BackgroundColor = Color.White,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(0, 122, 204),
+                    BackColor = GreenMain,
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
                 },
                 RowHeadersVisible = false,
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.None
             };
+            // ✅ RowTemplate.Height задаём ОТДЕЛЬНО:
+            dgv.RowTemplate.Height = 40;
 
-            contentPanel.Controls.Add(dgv);
+            var container = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
+            container.Controls.Add(dgv);
+
+            contentPanel.Controls.Add(container);
             contentPanel.Controls.Add(btnPanel);
             LoadAchievements(dgv);
         }

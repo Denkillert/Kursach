@@ -33,12 +33,12 @@ namespace PolesSU_Sports.Web.Pages.Trainer
                 return RedirectToPage("/Index");
             }
 
-            int trainerId = Convert.ToInt32(accountData.Rows[0]["TrainerID"]);
+            string trainerId = accountData.Rows[0]["TrainerID"].ToString();
 
             // ✅ Получаем данные тренера
             var trainer = DBConnection.Instance.ExecuteQuery(
-                "SELECT LastName, FirstName, MiddleName FROM Trainers WHERE TrainerID = @TrainerID",
-                new[] { new SqlParameter("@TrainerID", trainerId) });
+            "SELECT LastName, FirstName, MiddleName FROM Trainers WHERE DocumentNumber = @DocumentNumber",  
+            new[] { new SqlParameter("@DocumentNumber", trainerId) });
 
             if (trainer.Rows.Count > 0)
             {

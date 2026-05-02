@@ -211,13 +211,8 @@ namespace PolesSU_Sports.Lib.DB
             object result = null;
             try
             {
-                // ✅ Сначала убеждаемся, что соединение открыто
-                if (_connection.State != ConnectionState.Open)
-                {
-                    _connection.Open();
-                }
-
-                using (SqlCommand cmd = new SqlCommand(query, _connection, transaction))
+                // ✅ Используем соединение из транзакции, а не поле _connection
+                using (SqlCommand cmd = new SqlCommand(query, transaction.Connection, transaction))
                 {
                     cmd.CommandType = CommandType.Text;
                     if (parameters != null)
@@ -275,7 +270,6 @@ namespace PolesSU_Sports.Lib.DB
             {
                 trainers.Add(new Trainer
                 {
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
                     DocumentNumber = row["DocumentNumber"].ToString(),
                     LastName = row["LastName"].ToString(),
                     FirstName = row["FirstName"].ToString(),
@@ -298,7 +292,7 @@ namespace PolesSU_Sports.Lib.DB
                 SELECT sec.*, sp.SportName, t.LastName + ' ' + t.FirstName AS TrainerName
                 FROM Sections sec
                 JOIN Sports sp ON sec.SportID = sp.SportID
-                JOIN Trainers t ON sec.TrainerID = t.TrainerID
+                JOIN Trainers t ON sec.TrainerID = t.DocumentNumber
                 ORDER BY sec.SectionName");
 
             foreach (DataRow row in dt.Rows)
@@ -309,7 +303,7 @@ namespace PolesSU_Sports.Lib.DB
                     SectionName = row["SectionName"].ToString(),
                     SportID = Convert.ToInt32(row["SportID"]),
                     SportName = row["SportName"].ToString(),
-                    TrainerID = Convert.ToInt32(row["TrainerID"]),
+                    TrainerID = row["TrainerID"].ToString(),
                     TrainerName = row["TrainerName"].ToString(),
                     MaxStudents = row["MaxStudents"] != DBNull.Value ? Convert.ToInt32(row["MaxStudents"]) : null,
                     PricePerMonth = Convert.ToDecimal(row["PricePerMonth"]),
@@ -401,13 +395,13 @@ namespace PolesSU_Sports.Lib.DB
             }
         }
 
-        public bool DeleteTrainer(int trainerID)
+        public bool DeleteTrainer(string DocumentNumber)
         {
             try
             {
                 int result = ExecuteCommand(
-                    "DELETE FROM Trainers WHERE TrainerID = @TrainerID",
-                    new[] { new SqlParameter("@TrainerID", trainerID) });
+                    "DELETE FROM Trainers WHERE DocumentNumber = @DocumentNumber",
+                    new[] { new SqlParameter("@DocumentNumber", DocumentNumber) });
                 return result > 0;
             }
             catch (Exception ex)
@@ -454,7 +448,7 @@ namespace PolesSU_Sports.Lib.DB
                         Login = row["Login"].ToString(),
                         Role = (AccountRole)Enum.Parse(typeof(AccountRole), row["Role"].ToString()),
                         StudentCardNumber = row["StudentCardNumber"] != DBNull.Value ? row["StudentCardNumber"].ToString() : null,
-                        TrainerID = row["TrainerID"] != DBNull.Value ? Convert.ToInt32(row["TrainerID"]) : null,
+                        TrainerID = row["TrainerID"] != DBNull.Value ? row["TrainerID"].ToString() : null,
                         IsActive = Convert.ToBoolean(row["IsActive"]),
                         CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
                         LastLogin = row["LastLogin"] != DBNull.Value ? Convert.ToDateTime(row["LastLogin"]) : null
@@ -478,7 +472,7 @@ namespace PolesSU_Sports.Lib.DB
                     t.LastName + ' ' + t.FirstName AS TrainerName
                 FROM Accounts a
                 LEFT JOIN Students s ON a.StudentCardNumber = s.StudentCardNumber
-                LEFT JOIN Trainers t ON a.TrainerID = t.TrainerID
+                LEFT JOIN Trainers t ON a.TrainerID = t.DocumentNumber  
                 ORDER BY a.Login");
 
             foreach (DataRow row in dt.Rows)
@@ -489,7 +483,7 @@ namespace PolesSU_Sports.Lib.DB
                     Login = row["Login"].ToString(),
                     Role = (AccountRole)Enum.Parse(typeof(AccountRole), row["Role"].ToString()),
                     StudentCardNumber = row["StudentCardNumber"] != DBNull.Value ? row["StudentCardNumber"].ToString() : null,
-                    TrainerID = row["TrainerID"] != DBNull.Value ? Convert.ToInt32(row["TrainerID"]) : null,
+                    TrainerID = row["TrainerID"] != DBNull.Value ? row["TrainerID"].ToString() : null,
                     IsActive = Convert.ToBoolean(row["IsActive"]),
                     CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
                     LastLogin = row["LastLogin"] != DBNull.Value ? Convert.ToDateTime(row["LastLogin"]) : null
@@ -625,6 +619,272 @@ namespace PolesSU_Sports.Lib.DB
                 return Convert.ToInt32(result) > 0;
             }
             catch { return false; }
+        }
+        // ==================== ЗАЯВКИ СТУДЕНТОВ ====================
+
+        public void CreateSectionRequest(string studentCard, int sectionID, string requestType)
+        {
+            try
+            {
+                ExecuteCommand(@"
+            INSERT INTO StudentSectionRequests (StudentCardNumber, SectionID, RequestType, Status)
+            VALUES (@StudentCard, @SectionID, @RequestType, 'Pending')",
+                    new[] {
+                new SqlParameter("@StudentCard", studentCard),
+                new SqlParameter("@SectionID", sectionID),
+                new SqlParameter("@RequestType", requestType)
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка создания заявки: " + ex.Message);
+            }
+        }
+
+        public DataTable GetStudentRequests(string studentCard)
+        {
+            try
+            {
+                return ExecuteQuery(@"
+            SELECT 
+                r.RequestID,
+                r.RequestType,
+                r.Status,
+                r.RequestDate,
+                r.ResponseDate,
+                r.RejectionReason,
+                sec.SectionName,
+                sp.SportName
+            FROM StudentSectionRequests r
+            JOIN Sections sec ON r.SectionID = sec.SectionID
+            JOIN Sports sp ON sec.SportID = sp.SportID
+            WHERE r.StudentCardNumber = @StudentCard
+            ORDER BY r.RequestDate DESC",
+                    new[] { new SqlParameter("@StudentCard", studentCard) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка получения заявок: " + ex.Message);
+            }
+        }
+
+        public DataTable GetAllPendingRequests()
+        {
+            try
+            {
+                return ExecuteQuery(@"
+            SELECT 
+                r.RequestID,
+                r.StudentCardNumber,
+                s.LastName + ' ' + s.FirstName + ' ' + ISNULL(s.MiddleName, '') AS StudentName,
+                s.GroupName,
+                r.SectionID,
+                sec.SectionName,
+                sp.SportName,
+                r.RequestType,
+                r.RequestDate
+            FROM StudentSectionRequests r
+            JOIN Students s ON r.StudentCardNumber = s.StudentCardNumber
+            JOIN Sections sec ON r.SectionID = sec.SectionID
+            JOIN Sports sp ON sec.SportID = sp.SportID
+            WHERE r.Status = 'Pending'
+            ORDER BY r.RequestDate DESC",
+                    null);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка получения заявок: " + ex.Message);
+            }
+        }
+
+        public void ProcessRequest(int requestID, bool approved, int managerID, string reason = null)
+        {
+            var connection = GetConnection();
+
+            var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // Получаем данные заявки
+                var request = ExecuteQuery(@"
+            SELECT StudentCardNumber, SectionID, RequestType 
+            FROM StudentSectionRequests 
+            WHERE RequestID = @RequestID",
+                    new[] { new SqlParameter("@RequestID", requestID) }, transaction);
+
+                if (request.Rows.Count == 0)
+                    throw new Exception("Заявка не найдена");
+
+                var studentCard = request.Rows[0]["StudentCardNumber"].ToString();
+                var sectionID = Convert.ToInt32(request.Rows[0]["SectionID"]);
+                var requestType = request.Rows[0]["RequestType"].ToString();
+
+                // Обновляем статус заявки
+                ExecuteCommand(@"
+            UPDATE StudentSectionRequests 
+            SET Status = @Status, 
+                ResponseDate = GETDATE(),
+                ManagerID = @ManagerID,
+                RejectionReason = @Reason
+            WHERE RequestID = @RequestID",
+                    new[] {
+                new SqlParameter("@Status", approved ? "Approved" : "Rejected"),
+                new SqlParameter("@ManagerID", managerID),
+                new SqlParameter("@Reason", (object)reason ?? DBNull.Value),
+                new SqlParameter("@RequestID", requestID)
+                    }, transaction);
+
+                // Если одобрено — выполняем действие
+                if (approved)
+                {
+                    if (requestType == "Join")
+                    {
+                        // ✅ ПРОВЕРЯЕМ: есть ли запись с IsActive = 0
+                        var checkResult = ExecuteQuery(@"
+                    SELECT StudentSectionID FROM StudentSections 
+                    WHERE StudentCardNumber = @StudentCard AND SectionID = @SectionID",
+                            new[] {
+                        new SqlParameter("@StudentCard", studentCard),
+                        new SqlParameter("@SectionID", sectionID)
+                            }, transaction);
+
+                        if (checkResult.Rows.Count > 0)
+                        {
+                            // ✅ ЗАПИСЬ ЕСТЬ — просто активируем
+                            ExecuteCommand(@"
+                        UPDATE StudentSections 
+                        SET IsActive = 1 
+                        WHERE StudentCardNumber = @StudentCard AND SectionID = @SectionID",
+                                new[] {
+                            new SqlParameter("@StudentCard", studentCard),
+                            new SqlParameter("@SectionID", sectionID)
+                                }, transaction);
+                        }
+                        else
+                        {
+                            // ✅ ЗАПИСИ НЕТ — вставляем новую
+                            ExecuteCommand(@"
+                        INSERT INTO StudentSections (StudentCardNumber, SectionID, EnrollmentDate, IsActive)
+                        VALUES (@StudentCard, @SectionID, GETDATE(), 1)",
+                                new[] {
+                            new SqlParameter("@StudentCard", studentCard),
+                            new SqlParameter("@SectionID", sectionID)
+                                }, transaction);
+                        }
+                    }
+                    else if (requestType == "Leave")
+                    {
+                        ExecuteCommand(@"
+                    UPDATE StudentSections 
+                    SET IsActive = 0
+                    WHERE StudentCardNumber = @StudentCard AND SectionID = @SectionID",
+                            new[] {
+                        new SqlParameter("@StudentCard", studentCard),
+                        new SqlParameter("@SectionID", sectionID)
+                            }, transaction);
+                    }
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                throw new Exception("Ошибка обработки заявки: " + ex.Message);
+            }
+            
+                if (connection.State == ConnectionState.Open)
+                    connection.Close();
+                connection.Dispose();
+            
+        }
+
+        public bool HasPendingRequest(string studentCard, int sectionID, string requestType)
+        {
+            try
+            {
+                var result = ExecuteScalar(@"
+            SELECT COUNT(*) FROM StudentSectionRequests 
+            WHERE StudentCardNumber = @StudentCard 
+            AND SectionID = @SectionID 
+            AND RequestType = @RequestType 
+            AND Status = 'Pending'",
+                    new[] {
+                new SqlParameter("@StudentCard", studentCard),
+                new SqlParameter("@SectionID", sectionID),
+                new SqlParameter("@RequestType", requestType)
+                    });
+                return Convert.ToInt32(result) > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool IsEnrolledInSection(string studentCard, int sectionID)
+        {
+            try
+            {
+                var result = ExecuteScalar(@"
+            SELECT COUNT(*) FROM StudentSections 
+            WHERE StudentCardNumber = @StudentCard 
+            AND SectionID = @SectionID 
+            AND IsActive = 1",
+                    new[] {
+                new SqlParameter("@StudentCard", studentCard),
+                new SqlParameter("@SectionID", sectionID)
+                    });
+                return Convert.ToInt32(result) > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Удаление студента из секции (менеджером)
+        public void RemoveStudentFromSection(string studentCard, int sectionID)
+        {
+            try
+            {
+                ExecuteCommand(@"
+            UPDATE StudentSections 
+            SET IsActive = 0, ExitDate = GETDATE()
+            WHERE StudentCardNumber = @StudentCard AND SectionID = @SectionID",
+                    new[] {
+                new SqlParameter("@StudentCard", studentCard),
+                new SqlParameter("@SectionID", sectionID)
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка удаления: " + ex.Message);
+            }
+        }
+
+        public DataTable GetSectionStudents(int sectionID)
+        {
+            try
+            {
+                return ExecuteQuery(@"
+            SELECT 
+                s.StudentCardNumber,
+                s.LastName + ' ' + s.FirstName + ' ' + ISNULL(s.MiddleName, '') AS FullName,
+                s.GroupName,
+                f.FacultyName,
+                ss.EnrollmentDate
+            FROM StudentSections ss
+            JOIN Students s ON ss.StudentCardNumber = s.StudentCardNumber
+            JOIN Faculties f ON s.FacultyID = f.FacultyID
+            WHERE ss.SectionID = @SectionID AND ss.IsActive = 1
+            ORDER BY s.LastName",
+                    new[] { new SqlParameter("@SectionID", sectionID) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка получения студентов: " + ex.Message);
+            }
         }
     }
 }

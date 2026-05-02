@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="theme-color" content="#054226" />
     <title>@ViewData["Title"] - PolesSU Sports</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -10,7 +11,10 @@
     <header class="main-header">
         <div class="header-container">
             <div class="logo-section">
-                <div class="logo">🎓</div>
+                <div class="logo">
+                    <img src="~/images/polessu-emblem.png" alt="PolesSU Emblem" class="emblem" />
+                    <span>PolesSU Sports</span>
+                </div>
                 <div class="logo-text">
                     <h1>PolesSU Sports</h1>
                     <span>Система управления спортивными секциями</span>
@@ -32,7 +36,7 @@
                         <a href="/Trainer/Schedule">📅 Расписание</a>
                         <a href="/Trainer/Notes">📝 Заметки</a>
                     }
-                    <a href="/Logout" class="logout">🚪 Выход (@Context.Session.GetString("UserLogin"))</a>
+                    <a href="/Logout" class="logout">🚪 Выход</a>
                 }
                 else
                 {
