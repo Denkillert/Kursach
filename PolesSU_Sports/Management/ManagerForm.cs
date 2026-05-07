@@ -850,7 +850,7 @@ namespace PolesSU_Sports.Management
             var chartArea = new ChartArea("MainArea");
             chartArea.Position.X = 5;
             chartArea.Position.Y = 15;
-            chartArea.Position.Width = 55;  // ✅ Место для легенды
+            chartArea.Position.Width = 55;  
             chartArea.Position.Height = 80;
             chart.ChartAreas.Add(chartArea);
 
@@ -897,10 +897,8 @@ namespace PolesSU_Sports.Management
 
                 point.Color = colors[colorIndex % colors.Length];
 
-                // ✅ Текст, который пойдет в легенду
                 point.LegendText = label;
 
-                // ✅ Формат метки на самой диаграмме (проценты)
                 // #PERCENT — автоматический расчет процента от общей суммы
                 point.Label = "#PERCENT{P0}";
 
@@ -1869,7 +1867,7 @@ namespace PolesSU_Sports.Management
             DateTime startDate = dtpStart?.Value ?? DateTime.Now.AddMonths(-1);
             DateTime endDate = dtpEnd?.Value ?? DateTime.Now;
 
-            // ✅ Вызываем оригинальный ExportReport с 4 аргументами
+            // Вызываем оригинальный ExportReport с 4 аргументами
             ExportReport(data, reportType, startDate, endDate);
         }
         
@@ -1919,15 +1917,15 @@ namespace PolesSU_Sports.Management
 
                         if (ext == ".csv")
                         {
-                            ExportToCSV(data, filePath);  // ✅ 2 аргумента
+                            ExportToCSV(data, filePath); 
                         }
                         else if (ext == ".xlsx")
                         {
-                            ExportToExcelInterop(data, filePath);
+                            ExportToExcelInterop(data, filePath, reportType);
                         }
                         else if (ext == ".pdf")
                         {
-                            ExportToPDF(data, filePath);
+                            ExportToPDF(data, filePath, reportType);
                         }
 
                         MessageBox.Show($"✅ Отчёт сохранён:\n{filePath}", "Успех",
@@ -1940,6 +1938,22 @@ namespace PolesSU_Sports.Management
                 MessageBox.Show("❌ Ошибка экспорта: " + ex.Message, "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        private string GetFriendlyReportName(string reportType)
+        {
+            // Очищаем от эмодзи для сравнения
+            string type = reportType.Replace("🏛️", "").Replace("🎓", "").Replace("👨‍🏫", "").Replace("💰", "").Replace("📊", "").Replace("⚙️", "").Trim();
+
+            return type switch
+            {
+                "Для ректората" => "Отчет для ректората",
+                "Для факультета" => "Отчет по факультету",
+                "Для кафедры (нагрузка)" => "Отчет по нагрузке кафедры",
+                "Финансовый" => "Отчет по финансам",
+                "По посещаемости" => "Отчет по посещаемости студентов",
+                "Настраиваемый" => "Пользовательский отчет",
+                _ => $"Отчет: {type}" // На случай, если появится новый тип
+            };
         }
 
         // ======================================== ЭКСПОРТ В CSV
@@ -1971,7 +1985,7 @@ namespace PolesSU_Sports.Management
         }
 
         //======================================================= ЭКСПОРТ В .XLXS
-        private void ExportToExcelInterop(DataTable dt, string filePath)
+        private void ExportToExcelInterop(DataTable dt, string filePath, string reportType)
         {
             Excel.Application excelApp = new Excel.Application();
             if (excelApp == null)
@@ -1986,13 +2000,35 @@ namespace PolesSU_Sports.Management
 
             try
             {
-                // 1. Заполняем заголовки
+                // === 1. СОЗДАНИЕ ШАПКИ ===
+                string displayTitle = GetFriendlyReportName(reportType);
+
+                // Заголовок (Строка 1)
+                Excel.Range titleRange = worksheet.get_Range("A1", GetExcelColumnName(dt.Columns.Count) + "1");
+                titleRange.Merge(); // Объединяем ячейки по ширине таблицы
+                titleRange.Value = displayTitle.ToUpper();
+                titleRange.Font.Bold = true;
+                titleRange.Font.Size = 16;
+                titleRange.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                // Информация об организации и дате (Строки 2-3)
+                worksheet.Cells[2, 1] = "Организация: Полесский Государственный Университет";
+                worksheet.Cells[3, 1] = $"Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}";
+
+                Excel.Range infoRange = worksheet.get_Range("A2", "A3");
+                infoRange.Font.Size = 11;
+                infoRange.Font.Italic = true;
+
+                // Смещение данных: заголовки таблицы теперь начнутся с 5-й строки
+                int startRow = 5;
+
+                // === 2. ЗАГОЛОВКИ ТАБЛИЦЫ ===
                 for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    worksheet.Cells[1, i + 1] = dt.Columns[i].ColumnName;
+                    worksheet.Cells[startRow, i + 1] = dt.Columns[i].ColumnName;
                 }
 
-                // 2. Подготавливаем данные (в виде двумерного массива для скорости)
+                // === 3. ПОДГОТОВКА И ВСТАВКА ДАННЫХ ===
                 object[,] arr = new object[dt.Rows.Count, dt.Columns.Count];
                 for (int r = 0; r < dt.Rows.Count; r++)
                 {
@@ -2002,19 +2038,28 @@ namespace PolesSU_Sports.Management
                     }
                 }
 
-                // 3. Вставляем массив в Excel одной операцией (быстрый способ)
-                Excel.Range startCell = (Excel.Range)worksheet.Cells[2, 1];
-                Excel.Range endCell = (Excel.Range)worksheet.Cells[dt.Rows.Count + 1, dt.Columns.Count];
+                Excel.Range startCell = (Excel.Range)worksheet.Cells[startRow + 1, 1];
+                Excel.Range endCell = (Excel.Range)worksheet.Cells[startRow + dt.Rows.Count, dt.Columns.Count];
                 Excel.Range writeRange = worksheet.get_Range(startCell, endCell);
                 writeRange.Value = arr;
 
-                // 4. Оформление: жирный шрифт для шапки и автоподбор ширины
-                Excel.Range headerRange = worksheet.get_Range("A1", GetExcelColumnName(dt.Columns.Count) + "1");
-                headerRange.Font.Bold = true;
-                headerRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+                // === 4. ОФОРМЛЕНИЕ ТАБЛИЦЫ ===
+                // Стили для шапки таблицы
+                Excel.Range tableHeaderRange = worksheet.get_Range(
+                    GetExcelColumnName(1) + startRow,
+                    GetExcelColumnName(dt.Columns.Count) + startRow
+                );
+                tableHeaderRange.Font.Bold = true;
+                tableHeaderRange.Interior.Color = ColorTranslator.ToOle(Color.LightGray);
+                tableHeaderRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+
+                // Сетка для данных
+                writeRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+
                 worksheet.Columns.AutoFit();
 
                 // 5. Сохранение
+                excelApp.DisplayAlerts = false; // Чтобы не спрашивал подтверждение при перезаписи
                 workbook.SaveAs(filePath);
             }
             catch (Exception ex)
@@ -2025,45 +2070,62 @@ namespace PolesSU_Sports.Management
             {
                 workbook.Close(false);
                 excelApp.Quit();
-                // Очистка памяти (чтобы excel.exe не висел в диспетчере)
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(worksheet);
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook);
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
             }
         }
 
-        //======================================================= ЭКСПОРТ В .XLXS
-        private void ExportToPDF(DataTable dt, string filePath)
+        //======================================================= ЭКСПОРТ В PDF
+        private void ExportToPDF(DataTable dt, string filePath, string reportType)
         {
-            // Явно указываем iTextSharp.text.Document и PageSize
-            iTextSharp.text.Document document = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4.Rotate(), 10f, 10f, 10f, 10f);
+            // 1. Создаем документ. Rotate() делает его альбомным.
+            iTextSharp.text.Document document = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4.Rotate(), 20f, 20f, 30f, 50f);
 
             try
             {
                 iTextSharp.text.pdf.PdfWriter.GetInstance(document, new FileStream(filePath, FileMode.Create));
                 document.Open();
 
-                // Настройка шрифта с явным указанием типов iTextSharp
+                // --- ШРИФТЫ (Объявляем их строго ВНУТРИ метода, чтобы не было ошибки CS0103) ---
                 string fontPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "Arial.ttf");
                 iTextSharp.text.pdf.BaseFont bf = iTextSharp.text.pdf.BaseFont.CreateFont(fontPath, iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
 
-                // Используем полные пути к классам Font, чтобы не было путаницы с System.Drawing
+                iTextSharp.text.Font titleFont = new iTextSharp.text.Font(bf, 16, iTextSharp.text.Font.BOLD);
                 iTextSharp.text.Font font = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.NORMAL);
-                iTextSharp.text.Font boldFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD);
+                iTextSharp.text.Font boldFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD); // Вот он!
+                iTextSharp.text.Font microFont = new iTextSharp.text.Font(bf, 7, iTextSharp.text.Font.NORMAL);
 
-                iTextSharp.text.pdf.PdfPTable table = new iTextSharp.text.pdf.PdfPTable(dt.Columns.Count);
+                // === 1. ШАПКА ===
+                string displayTitle = GetFriendlyReportName(reportType);
+                var title = new iTextSharp.text.Paragraph(displayTitle.ToUpper(), titleFont);
+                title.Alignment = iTextSharp.text.Element.ALIGN_CENTER;
+                title.SpacingAfter = 10f;
+                document.Add(title);
+
+                var info = new iTextSharp.text.Paragraph($"Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}\n" +
+                                                         $"Организация: Полесский Государственный Университет\n ", font);
+                document.Add(info);
+
+                // === 2. ТАБЛИЦА С ДАННЫМИ ===
+                // Явно приводим количество колонок к int, чтобы избежать CS1503
+                int columnCount = dt.Columns.Count;
+                iTextSharp.text.pdf.PdfPTable table = new iTextSharp.text.pdf.PdfPTable(columnCount);
                 table.WidthPercentage = 100f;
+                table.SpacingBefore = 15f;
 
-                // Заголовки
+                // Заголовки таблицы
                 foreach (DataColumn column in dt.Columns)
                 {
-                    iTextSharp.text.pdf.PdfPCell cell = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(column.ColumnName, boldFont));
+                    // Используем именно iTextSharp.text.Phrase
+                    var cell = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(column.ColumnName, boldFont));
                     cell.BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY;
                     cell.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+                    cell.PaddingBottom = 5f;
                     table.AddCell(cell);
                 }
 
-                // Данные
+                // Данные таблицы
                 foreach (DataRow row in dt.Rows)
                 {
                     foreach (var item in row.ItemArray)
@@ -2073,6 +2135,24 @@ namespace PolesSU_Sports.Management
                 }
 
                 document.Add(table);
+
+                // === 3. ФУТЕР (ПОДПИСЬ) ===
+                document.Add(new iTextSharp.text.Paragraph("\n\n"));
+                iTextSharp.text.pdf.PdfPTable footerTable = new iTextSharp.text.pdf.PdfPTable(3);
+                footerTable.WidthPercentage = 100f;
+                footerTable.SetWidths(new float[] { 20f, 30f, 50f });
+
+                // Ряд 1: Линии
+                footerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Менеджер:", font)) { Border = iTextSharp.text.Rectangle.NO_BORDER });
+                footerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(" ", font)) { Border = iTextSharp.text.Rectangle.BOTTOM_BORDER });
+                footerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(" / ", font)) { Border = iTextSharp.text.Rectangle.BOTTOM_BORDER });
+
+                // Ряд 2: Подстрочники
+                footerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("", microFont)) { Border = iTextSharp.text.Rectangle.NO_BORDER });
+                footerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("(Подпись)", microFont)) { Border = iTextSharp.text.Rectangle.NO_BORDER, HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER });
+                footerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("(Фамилия И.О.)", microFont)) { Border = iTextSharp.text.Rectangle.NO_BORDER, HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER });
+
+                document.Add(footerTable);
             }
             catch (Exception ex)
             {
