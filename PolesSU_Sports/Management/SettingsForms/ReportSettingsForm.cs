@@ -52,7 +52,7 @@ namespace PolesSU_Sports.Management.SettingsForms
 
             Label lblFormat = new Label { Text = "Формат по умолчанию:", Location = new Point(15, 30), AutoSize = true };
             ComboBox cmbFormat = new ComboBox { Location = new Point(150, 27), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbFormat.Items.AddRange(new object[] { "CSV (Excel)", "PDF", "Word", "XLSX" });
+            cmbFormat.Items.AddRange(new object[] { "CSV (Excel)", "PDF", "XLSX" });
             cmbFormat.SelectedIndex = 0;
 
             Label lblFolder = new Label { Text = "Папка для отчётов:", Location = new Point(15, 70), AutoSize = true };

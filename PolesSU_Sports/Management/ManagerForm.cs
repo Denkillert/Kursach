@@ -11,6 +11,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using Excel = Microsoft.Office.Interop.Excel;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.IO;
 
 namespace PolesSU_Sports.Management
 {
@@ -70,7 +74,7 @@ namespace PolesSU_Sports.Management
             var logoLabel = new Label
             {
                 Text = "PolesSU\nSports",
-                Font = new Font("Segoe UI", 22, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 22, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = false,
                 Size = new Size(220, 80),
@@ -122,7 +126,7 @@ namespace PolesSU_Sports.Management
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.Transparent,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 11, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             exitBtn.FlatAppearance.BorderSize = 0;
@@ -151,7 +155,7 @@ namespace PolesSU_Sports.Management
             headerLabel = new Label
             {
                 Text = "Дашборд",
-                Font = new Font("Segoe UI", 22, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 22, FontStyle.Bold),
                 ForeColor = GreenMain,
                 AutoSize = true,
                 Location = new Point(30, 18)
@@ -168,7 +172,7 @@ namespace PolesSU_Sports.Management
             var userIcon = new Label
             {
                 Text = "👤",
-                Font = new Font("Segoe UI", 16),
+                Font = new System.Drawing.Font("Segoe UI", 16),
                 Location = new Point(10, 5),
                 Size = new Size(35, 30),
                 TextAlign = ContentAlignment.MiddleCenter
@@ -176,7 +180,7 @@ namespace PolesSU_Sports.Management
             var userInfo = new Label
             {
                 Text = $"{User.CurrentUser?.Login ?? "Manager"}\nManager",
-                Font = new Font("Segoe UI", 9),
+                Font = new System.Drawing.Font("Segoe UI", 9),
                 ForeColor = Color.FromArgb(80, 80, 80),
                 Location = new Point(50, 6),
                 Size = new Size(180, 30),
@@ -212,7 +216,7 @@ namespace PolesSU_Sports.Management
                 FlatStyle = FlatStyle.Flat,
                 BackColor = isActive ? GreenLight : GreenMain,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 11, isActive ? FontStyle.Bold : FontStyle.Regular),
+                Font = new System.Drawing.Font("Segoe UI", 11, isActive ? FontStyle.Bold : FontStyle.Regular),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(25, 0, 0, 0),
                 Cursor = Cursors.Hand
@@ -244,11 +248,11 @@ namespace PolesSU_Sports.Management
             if (currentActiveButton != null)
             {
                 currentActiveButton.BackColor = GreenMain;
-                currentActiveButton.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+                currentActiveButton.Font = new System.Drawing.Font("Segoe UI", 11, FontStyle.Regular);
             }
             currentActiveButton = btn;
             btn.BackColor = GreenLight;
-            btn.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            btn.Font = new System.Drawing.Font("Segoe UI", 11, FontStyle.Bold);
         }
 
         // ==================== ДАШБОРД ====================
@@ -261,7 +265,7 @@ namespace PolesSU_Sports.Management
             var dateLabel = new Label
             {
                 Text = DateTime.Now.ToString("dd MMMM yyyy"),
-                Font = new Font("Segoe UI", 10),
+                Font = new System.Drawing.Font("Segoe UI", 10),
                 ForeColor = Color.FromArgb(120, 120, 120),
                 Location = new Point(0, 5),
                 AutoSize = true
@@ -329,12 +333,12 @@ namespace PolesSU_Sports.Management
             {
                 using (var path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
-                    path.AddRectangle(new Rectangle(0, 0, card.Width - 1, card.Height - 1));
+                    path.AddRectangle(new System.Drawing.Rectangle(0, 0, card.Width - 1, card.Height - 1));
                     using (var shadow = new System.Drawing.Drawing2D.PathGradientBrush(path))
                     {
                         shadow.CenterColor = Color.FromArgb(20, 0, 0, 0);
                         shadow.SurroundColors = new[] { Color.Transparent };
-                        e.Graphics.FillRectangle(shadow, new Rectangle(0, 0, card.Width, card.Height));
+                        e.Graphics.FillRectangle(shadow, new System.Drawing.Rectangle(0, 0, card.Width, card.Height));
                     }
                 }
                 // Акцентная линия слева
@@ -349,7 +353,7 @@ namespace PolesSU_Sports.Management
                 Text = title,
                 Location = new Point(20, 15),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 10),
+                Font = new System.Drawing.Font("Segoe UI", 10),
                 ForeColor = Color.FromArgb(100, 100, 100),
                 BackColor = Color.Transparent,
                 Cursor = Cursors.Hand
@@ -359,7 +363,7 @@ namespace PolesSU_Sports.Management
             {
                 Text = val,
                 Location = new Point(20, 45),
-                Font = new Font("Segoe UI", 42, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 42, FontStyle.Bold),
                 ForeColor = c,
                 AutoSize = true,
                 BackColor = Color.Transparent,
@@ -371,7 +375,7 @@ namespace PolesSU_Sports.Management
                 Text = GetSuffix(title),
                 Location = new Point(20, 95),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 9),
+                Font = new System.Drawing.Font("Segoe UI", 9),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 BackColor = Color.Transparent
             };
@@ -382,7 +386,7 @@ namespace PolesSU_Sports.Management
                 Text = "▼",
                 Location = new Point(185, 15),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 10),
+                Font = new System.Drawing.Font("Segoe UI", 10),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 Tag = "arrow",
                 Cursor = Cursors.Hand
@@ -470,7 +474,7 @@ namespace PolesSU_Sports.Management
                     Text = string.Join(" — ", columns.Select(col => row[col]?.ToString())),
                     AutoSize = false,
                     Size = new Size(190, 40),
-                    Font = new Font("Segoe UI", 9),
+                    Font = new System.Drawing.Font("Segoe UI", 9),
                     BackColor = Color.White,
                     TextAlign = ContentAlignment.MiddleLeft,
                     Padding = new Padding(12, 0, 0, 0),
@@ -610,7 +614,7 @@ namespace PolesSU_Sports.Management
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var lblType = new Label { Text = "Тип аналитики:", Location = new Point(15, 15), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var lblType = new Label { Text = "Тип аналитики:", Location = new Point(15, 15), AutoSize = true, Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold) };
             var cmbType = new ComboBox { Name = "cmbType", Location = new Point(120, 12), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbType.Items.AddRange(new object[] {
         "📊 Посещаемость по секциям",
@@ -636,7 +640,7 @@ namespace PolesSU_Sports.Management
                 BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             btnShow.Click += (s, e) => ShowAnalyticsWithCharts(cmbType, cmbSec, cmbFaculty);
 
@@ -657,13 +661,13 @@ namespace PolesSU_Sports.Management
 
             // График 1
             var chart1Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart1 = new Label { Text = "📊", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
+            var lblChart1 = new Label { Text = "📊", Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
             var chart1 = new Chart { Name = "chart1", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart1Panel.Controls.AddRange(new Control[] { lblChart1, chart1 });
 
             // График 2
             var chart2Panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White };
-            var lblChart2 = new Label { Text = "📈", Font = new Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
+            var lblChart2 = new Label { Text = "📈", Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold), Location = new Point(30, 10), AutoSize = true };
             var chart2 = new Chart { Name = "chart2", Dock = DockStyle.Fill, Location = new Point(0, 30) };
             chart2Panel.Controls.AddRange(new Control[] { lblChart2, chart2 });
 
@@ -691,7 +695,7 @@ namespace PolesSU_Sports.Management
                 {
                     BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold)
                 },
                 RowHeadersVisible = false
             };
@@ -716,7 +720,7 @@ namespace PolesSU_Sports.Management
 
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
-                new Font("Segoe UI", 11, FontStyle.Bold),
+                new System.Drawing.Font("Segoe UI", 11, FontStyle.Bold),
                 Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
@@ -728,12 +732,12 @@ namespace PolesSU_Sports.Management
             chartArea.Position.Width = 90;
             chartArea.Position.Height = 70;
 
-            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 8);
+            chartArea.AxisX.LabelStyle.Font = new System.Drawing.Font("Segoe UI", 8);
             chartArea.AxisX.LabelStyle.Angle = -45;
             chartArea.AxisX.Interval = 1;
             chartArea.AxisX.IsLabelAutoFit = true;
 
-            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 8);
+            chartArea.AxisY.LabelStyle.Font = new System.Drawing.Font("Segoe UI", 8);
             chartArea.AxisY.Minimum = 0;
 
             chart.ChartAreas.Add(chartArea);
@@ -743,7 +747,7 @@ namespace PolesSU_Sports.Management
             {
                 Docking = Docking.Bottom,
                 Alignment = StringAlignment.Center,
-                Font = new Font("Segoe UI", 9),
+                Font = new System.Drawing.Font("Segoe UI", 9),
                 IsTextAutoFit = true
             };
             chart.Legends.Add(legend);
@@ -763,7 +767,7 @@ namespace PolesSU_Sports.Management
                     Color = colors[i % colors.Length],
                     Legend = "MainLegend",
                     IsValueShownAsLabel = false,
-                    Font = new Font("Segoe UI", 7)
+                    Font = new System.Drawing.Font("Segoe UI", 7)
                 };
 
                 foreach (DataRow row in data.Rows)
@@ -781,7 +785,7 @@ namespace PolesSU_Sports.Management
 
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
-                new Font("Segoe UI", 11, FontStyle.Bold),
+                new System.Drawing.Font("Segoe UI", 11, FontStyle.Bold),
                 Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
@@ -801,7 +805,7 @@ namespace PolesSU_Sports.Management
                 ChartType = SeriesChartType.Pie,
                 IsValueShownAsLabel = true,
                 Label = "#PERCENT{P1}",
-                Font = new Font("Segoe UI", 8)
+                Font = new System.Drawing.Font("Segoe UI", 8)
             };
 
             // ✅ ЦВЕТА: топ-5 разные, остальные - серый
@@ -837,7 +841,7 @@ namespace PolesSU_Sports.Management
 
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
-                new Font("Segoe UI", 11, FontStyle.Bold),
+                new System.Drawing.Font("Segoe UI", 11, FontStyle.Bold),
                 Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
@@ -855,7 +859,7 @@ namespace PolesSU_Sports.Management
             {
                 Docking = Docking.Right,
                 Alignment = StringAlignment.Far,
-                Font = new Font("Segoe UI", 8),
+                Font = new System.Drawing.Font("Segoe UI", 8),
                 IsTextAutoFit = true,
                 LegendStyle = LegendStyle.Table
             };
@@ -866,7 +870,7 @@ namespace PolesSU_Sports.Management
                 ChartType = SeriesChartType.Pie,
                 Legend = "MainLegend",
                 IsValueShownAsLabel = true,
-                Font = new Font("Segoe UI", 8)
+                Font = new System.Drawing.Font("Segoe UI", 8)
             };
 
             var colors = new[] {
@@ -912,7 +916,7 @@ namespace PolesSU_Sports.Management
 
             chart.Titles.Clear();
             chart.Titles.Add(new Title(title, Docking.Top,
-                new Font("Segoe UI", 11, FontStyle.Bold),
+                new System.Drawing.Font("Segoe UI", 11, FontStyle.Bold),
                 Color.FromArgb(0, 61, 130)));
 
             chart.Series.Clear();
@@ -924,12 +928,12 @@ namespace PolesSU_Sports.Management
             chartArea.Position.Width = 90;
             chartArea.Position.Height = 70;
 
-            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 8);
+            chartArea.AxisX.LabelStyle.Font = new System.Drawing.Font("Segoe UI", 8);
             chartArea.AxisX.LabelStyle.Angle = -45;
             chartArea.AxisX.Interval = 1;
             chartArea.AxisX.IsLabelAutoFit = true;
 
-            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 8);
+            chartArea.AxisY.LabelStyle.Font = new System.Drawing.Font("Segoe UI", 8);
             chartArea.AxisY.Minimum = 0;
 
             chart.ChartAreas.Add(chartArea);
@@ -939,7 +943,7 @@ namespace PolesSU_Sports.Management
             {
                 Docking = Docking.Bottom,
                 Alignment = StringAlignment.Center,
-                Font = new Font("Segoe UI", 9),
+                Font = new System.Drawing.Font("Segoe UI", 9),
                 IsTextAutoFit = true
             };
             chart.Legends.Add(legend);
@@ -959,7 +963,7 @@ namespace PolesSU_Sports.Management
                     Color = colors[yAxes.ToList().IndexOf(yAxis) % colors.Length],
                     Legend = "MainLegend",
                     IsValueShownAsLabel = false,
-                    Font = new Font("Segoe UI", 7),
+                    Font = new System.Drawing.Font("Segoe UI", 7),
                     BorderWidth = 2
                 };
 
@@ -1246,7 +1250,7 @@ namespace PolesSU_Sports.Management
                                 }
 
                                 dgv.Rows[i].Cells["ColorMarker"].Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                                dgv.Rows[i].Cells["ColorMarker"].Style.Font = new Font("Segoe UI", 14, FontStyle.Bold);
+                                dgv.Rows[i].Cells["ColorMarker"].Style.Font = new System.Drawing.Font("Segoe UI", 14, FontStyle.Bold);
                                 dgv.Rows[i].Cells["ColorMarker"].ReadOnly = true;
                             }
 
@@ -1312,7 +1316,7 @@ namespace PolesSU_Sports.Management
                 Text = "📋 Выберите тип отчёта:",
                 Location = new Point(15, 15),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold)
             };
 
             var cmbReportType = new ComboBox
@@ -1321,7 +1325,7 @@ namespace PolesSU_Sports.Management
                 Location = new Point(15, 38),
                 Width = 250,
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             cmbReportType.Items.AddRange(new object[] {
         "🏛️ Для ректората",
@@ -1368,7 +1372,7 @@ namespace PolesSU_Sports.Management
                 {
                     BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold)
                 },
                 RowHeadersVisible = false
             };
@@ -1394,7 +1398,7 @@ namespace PolesSU_Sports.Management
                 BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnGenerate.Click += (s, e) =>
             {
@@ -1419,7 +1423,7 @@ namespace PolesSU_Sports.Management
                 BackColor = Color.FromArgb(40, 167, 69),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10),
+                Font = new System.Drawing.Font("Segoe UI", 10),
                 Enabled = false,
                 Name = "btnExport"
             };
@@ -1453,7 +1457,7 @@ namespace PolesSU_Sports.Management
             int y = 20;
 
             // Общие фильтры: период
-            controls.Add(new Label { Text = "📅 Период:", Location = new Point(15, y), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) });
+            controls.Add(new Label { Text = "📅 Период:", Location = new Point(15, y), AutoSize = true, Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold) });
             var dtpStart = new DateTimePicker { Name = "dtpStart", Location = new Point(90, y - 3), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now.AddMonths(-1) };
             var lblTo = new Label { Text = "по", Location = new Point(230, y), AutoSize = true };
             var dtpEnd = new DateTimePicker { Name = "dtpEnd", Location = new Point(255, y - 3), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now };
@@ -1470,7 +1474,7 @@ namespace PolesSU_Sports.Management
                         Location = new Point(15, y),
                         AutoSize = true,
                         ForeColor = Color.Gray,
-                        Font = new Font("Segoe UI", 9)
+                        Font = new System.Drawing.Font("Segoe UI", 9)
                     });
                     break;
 
@@ -1687,9 +1691,8 @@ namespace PolesSU_Sports.Management
             COUNT(DISTINCT sec.SectionID) AS [Ведёт секций],
             ISNULL(SUM(sc.Count), 0) AS [Всего студентов],
             ISNULL(SUM(ac.VisitCount), 0) AS [Проведено занятий],
-            CAST(ISNULL(SUM(ac.VisitCount), 0) AS DECIMAL(10,1)) / 
-                NULLIF(COUNT(DISTINCT sec.SectionID), 0) AS [Ср. занятий/секцию],
-            ISNULL(SUM(sec.PricePerMonth * sc.Count), 0) AS [Доход секций]
+            CAST(ISNULL(SUM(ac.VisitCount), 0.0) / NULLIF(COUNT(DISTINCT sec.SectionID), 0) AS DECIMAL(10,1)) AS [Ср. занятий/секцию],
+            ISNULL(SUM(sec.PricePerMonth * sc.Count), 0) AS [Доход секций, BYN]
         FROM Trainers t
         LEFT JOIN Sections sec ON t.DocumentNumber = sec.TrainerID
         LEFT JOIN StudentCount sc ON sec.SectionID = sc.SectionID
@@ -1699,7 +1702,7 @@ namespace PolesSU_Sports.Management
         )
         WHERE a.VisitDate BETWEEN @StartDate AND @EndDate
         GROUP BY t.LastName, t.FirstName, t.Qualification, t.Specialization
-        ORDER BY [Доход секций] DESC";
+        ORDER BY [Доход секций, BYN] DESC";
                     break;
 
                 // 💰 ФИНАНСОВЫЙ
@@ -1718,10 +1721,10 @@ namespace PolesSU_Sports.Management
             sec.SectionName AS [Секция],
             sp.SportName AS [Вид спорта],
             t.LastName + ' ' + t.FirstName AS [Тренер],
-            sec.PricePerMonth AS [Цена/мес],
+            sec.PricePerMonth AS [Цена/мес, BYN],
             COUNT(DISTINCT ss.StudentCardNumber) AS [Активных студентов],
-            sec.PricePerMonth * COUNT(DISTINCT ss.StudentCardNumber) AS [Доход/мес],
-            sec.PricePerMonth * COUNT(DISTINCT ss.StudentCardNumber) * 6 AS [Доход/семестр],
+            sec.PricePerMonth * COUNT(DISTINCT ss.StudentCardNumber) AS [Доход/мес, BYN],
+            sec.PricePerMonth * COUNT(DISTINCT ss.StudentCardNumber) * 6 AS [Доход/семестр, BYN],
             sec.MaxStudents AS [Макс. мест],
             CASE WHEN sec.MaxStudents > 0 
                  THEN CAST(COUNT(DISTINCT ss.StudentCardNumber) * 100.0 / sec.MaxStudents AS DECIMAL(5,1))
@@ -1733,7 +1736,7 @@ namespace PolesSU_Sports.Management
         WHERE (@SportID IS NULL OR @SportID = 0 OR sp.SportID = @SportID)
         GROUP BY sec.SectionName, sp.SportName, t.LastName, t.FirstName, 
                  sec.PricePerMonth, sec.MaxStudents
-        ORDER BY [Доход/семестр] DESC";
+        ORDER BY [Доход/семестр, BYN] DESC";
                     break;
 
                 // 📊 ПО ПОСЕЩАЕМОСТИ (с подсветкой прогульщиков)
@@ -1774,7 +1777,7 @@ namespace PolesSU_Sports.Management
                     // ✅ Открываем отдельную форму
                     var customForm = new CustomReportForm();
                     customForm.ShowDialog();
-                    return null;  // Возвращаем null, так как данные показываются в отдельном окне
+                    return null;  
             }
 
             return DBConnection.Instance.ExecuteQuery(query, parameters.ToArray());
@@ -1825,7 +1828,7 @@ namespace PolesSU_Sports.Management
                 if (e.Value != null && Convert.ToInt32(e.Value) > 0)
                 {
                     row.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);  // Светло-красный
-                    row.DefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                    row.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold);
                 }
             }
 
@@ -1869,7 +1872,22 @@ namespace PolesSU_Sports.Management
             // ✅ Вызываем оригинальный ExportReport с 4 аргументами
             ExportReport(data, reportType, startDate, endDate);
         }
+        
 
+        // Вспомогательный метод (нужен для работы с диапазонами Excel)
+        private string GetExcelColumnName(int columnIndex)
+        {
+            int dividend = columnIndex;
+            string columnName = String.Empty;
+            int modifier;
+            while (dividend > 0)
+            {
+                modifier = (dividend - 1) % 26;
+                columnName = (char)(65 + modifier) + columnName;
+                dividend = (int)((dividend - modifier) / 26);
+            }
+            return columnName;
+        }
 
         // ======================================== ВСПОМОГАТЕЛЬНЫЙ МЕТОД ПОИСКА КОНТРОЛА
         private T GetControl<T>(Panel panel, string name) where T : Control
@@ -1905,25 +1923,15 @@ namespace PolesSU_Sports.Management
                         }
                         else if (ext == ".xlsx")
                         {
-                            MessageBox.Show("📄 Экспорт в Excel требует библиотеку EPPlus.\nДля курсовой используйте CSV.",
-                                "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            ExportToCSV(data, filePath.Replace(".xlsx", ".csv"));  // ✅ 2 аргумента
+                            ExportToExcelInterop(data, filePath);
                         }
                         else if (ext == ".pdf")
                         {
-                            MessageBox.Show("📄 Экспорт в PDF требует библиотеку iTextSharp.\nДля курсовой используйте CSV.",
-                                "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            ExportToCSV(data, filePath.Replace(".pdf", ".csv"));  // ✅ 2 аргумента
+                            ExportToPDF(data, filePath);
                         }
 
                         MessageBox.Show($"✅ Отчёт сохранён:\n{filePath}", "Успех",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        if (MessageBox.Show("Открыть файл?", "Отчёт готов",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        {
-                            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath), Path.GetFileName(filePath));
-                        }
                     }
                 }
             }
@@ -1962,6 +1970,121 @@ namespace PolesSU_Sports.Management
             File.WriteAllText(filePath, csvContent.ToString(), Encoding.GetEncoding("windows-1251"));
         }
 
+        //======================================================= ЭКСПОРТ В .XLXS
+        private void ExportToExcelInterop(DataTable dt, string filePath)
+        {
+            Excel.Application excelApp = new Excel.Application();
+            if (excelApp == null)
+            {
+                MessageBox.Show("Excel не установлен!");
+                return;
+            }
+
+            Excel.Workbook workbook = excelApp.Workbooks.Add();
+            Excel.Worksheet worksheet = (Excel.Worksheet)workbook.ActiveSheet;
+            worksheet.Name = "Отчёт";
+
+            try
+            {
+                // 1. Заполняем заголовки
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    worksheet.Cells[1, i + 1] = dt.Columns[i].ColumnName;
+                }
+
+                // 2. Подготавливаем данные (в виде двумерного массива для скорости)
+                object[,] arr = new object[dt.Rows.Count, dt.Columns.Count];
+                for (int r = 0; r < dt.Rows.Count; r++)
+                {
+                    for (int c = 0; c < dt.Columns.Count; c++)
+                    {
+                        arr[r, c] = dt.Rows[r][c];
+                    }
+                }
+
+                // 3. Вставляем массив в Excel одной операцией (быстрый способ)
+                Excel.Range startCell = (Excel.Range)worksheet.Cells[2, 1];
+                Excel.Range endCell = (Excel.Range)worksheet.Cells[dt.Rows.Count + 1, dt.Columns.Count];
+                Excel.Range writeRange = worksheet.get_Range(startCell, endCell);
+                writeRange.Value = arr;
+
+                // 4. Оформление: жирный шрифт для шапки и автоподбор ширины
+                Excel.Range headerRange = worksheet.get_Range("A1", GetExcelColumnName(dt.Columns.Count) + "1");
+                headerRange.Font.Bold = true;
+                headerRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+                worksheet.Columns.AutoFit();
+
+                // 5. Сохранение
+                workbook.SaveAs(filePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка внутри Excel: " + ex.Message);
+            }
+            finally
+            {
+                workbook.Close(false);
+                excelApp.Quit();
+                // Очистка памяти (чтобы excel.exe не висел в диспетчере)
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(worksheet);
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook);
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
+            }
+        }
+
+        //======================================================= ЭКСПОРТ В .XLXS
+        private void ExportToPDF(DataTable dt, string filePath)
+        {
+            // Явно указываем iTextSharp.text.Document и PageSize
+            iTextSharp.text.Document document = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4.Rotate(), 10f, 10f, 10f, 10f);
+
+            try
+            {
+                iTextSharp.text.pdf.PdfWriter.GetInstance(document, new FileStream(filePath, FileMode.Create));
+                document.Open();
+
+                // Настройка шрифта с явным указанием типов iTextSharp
+                string fontPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "Arial.ttf");
+                iTextSharp.text.pdf.BaseFont bf = iTextSharp.text.pdf.BaseFont.CreateFont(fontPath, iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
+
+                // Используем полные пути к классам Font, чтобы не было путаницы с System.Drawing
+                iTextSharp.text.Font font = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.NORMAL);
+                iTextSharp.text.Font boldFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD);
+
+                iTextSharp.text.pdf.PdfPTable table = new iTextSharp.text.pdf.PdfPTable(dt.Columns.Count);
+                table.WidthPercentage = 100f;
+
+                // Заголовки
+                foreach (DataColumn column in dt.Columns)
+                {
+                    iTextSharp.text.pdf.PdfPCell cell = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(column.ColumnName, boldFont));
+                    cell.BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY;
+                    cell.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+                    table.AddCell(cell);
+                }
+
+                // Данные
+                foreach (DataRow row in dt.Rows)
+                {
+                    foreach (var item in row.ItemArray)
+                    {
+                        table.AddCell(new iTextSharp.text.Phrase(item.ToString(), font));
+                    }
+                }
+
+                document.Add(table);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при создании PDF: " + ex.Message);
+            }
+            finally
+            {
+                document.Close();
+            }
+        }
+
+
         // ======================================== ПО ФАКУЛЬТЕТАМ
         private void LoadFacultyReports()
         {
@@ -1980,7 +2103,7 @@ namespace PolesSU_Sports.Management
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var lblFaculty = new Label { Text = "Факультет:", Location = new Point(15, 25), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var lblFaculty = new Label { Text = "Факультет:", Location = new Point(15, 25), AutoSize = true, Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold) };
             var cmbFaculty = new ComboBox { Name = "cmbFaculty", Location = new Point(90, 22), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
             LoadFacultiesToComboBox(cmbFaculty);
 
@@ -1993,7 +2116,7 @@ namespace PolesSU_Sports.Management
                 BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             btnShow.Click += (s, e) => ShowFacultyReport(cmbFaculty);
 
@@ -2020,7 +2143,7 @@ namespace PolesSU_Sports.Management
                 {
                     BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold)
                 },
                 RowHeadersVisible = false
             };
@@ -2138,7 +2261,7 @@ namespace PolesSU_Sports.Management
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var lblGroup = new Label { Text = "Группа:", Location = new Point(15, 25), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var lblGroup = new Label { Text = "Группа:", Location = new Point(15, 25), AutoSize = true, Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold) };
             var cmbGroup = new ComboBox { Name = "cmbGroup", Location = new Point(80, 22), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList };
 
             var groups = DBConnection.Instance.ExecuteQuery("SELECT DISTINCT GroupName FROM Students ORDER BY GroupName");
@@ -2155,7 +2278,7 @@ namespace PolesSU_Sports.Management
                 BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             btnShow.Click += (s, e) => ShowGroupReport(cmbGroup);
 
@@ -2182,7 +2305,7 @@ namespace PolesSU_Sports.Management
                 {
                     BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold)
                 },
                 RowHeadersVisible = false
             };
@@ -2264,11 +2387,11 @@ namespace PolesSU_Sports.Management
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var lblSection = new Label { Text = "Секция:", Location = new Point(15, 20), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var lblSection = new Label { Text = "Секция:", Location = new Point(15, 20), AutoSize = true, Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold) };
             var cmbSection = new ComboBox { Name = "cmbSection", Location = new Point(80, 17), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
             LoadSectionsToComboBox(cmbSection);
 
-            var lblPeriod = new Label { Text = "Период:", Location = new Point(350, 20), AutoSize = true, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            var lblPeriod = new Label { Text = "Период:", Location = new Point(350, 20), AutoSize = true, Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold) };
             var dtpStart = new DateTimePicker { Name = "dtpStart", Location = new Point(410, 17), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now.AddMonths(-1) };
             var lblTo = new Label { Text = "по", Location = new Point(550, 20), AutoSize = true };
             var dtpEnd = new DateTimePicker { Name = "dtpEnd", Location = new Point(575, 17), Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Now };
@@ -2282,7 +2405,7 @@ namespace PolesSU_Sports.Management
                 BackColor = Color.FromArgb(0, 86, 179),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             btnShow.Click += (s, e) => ShowSectionReport(cmbSection, dtpStart, dtpEnd);
 
@@ -2309,7 +2432,7 @@ namespace PolesSU_Sports.Management
                 {
                     BackColor = Color.FromArgb(0, 86, 179),
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                    Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold)
                 },
                 RowHeadersVisible = false
             };
@@ -2443,7 +2566,7 @@ namespace PolesSU_Sports.Management
             var lblTitle = new Label
             {
                 Text = "🎓 Заявки студентов на запись в секции",
-                Font = new Font("Segoe UI", 18, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 18, FontStyle.Bold),
                 ForeColor = GreenMain,
                 Location = new Point(0, 10),
                 AutoSize = true
@@ -2453,7 +2576,7 @@ namespace PolesSU_Sports.Management
             {
                 Text = "Ожидают обработки: 0 заявок",
                 Name = "lblInfo",
-                Font = new Font("Segoe UI", 11),
+                Font = new System.Drawing.Font("Segoe UI", 11),
                 ForeColor = Color.FromArgb(100, 100, 100),
                 Location = new Point(0, 45),
                 AutoSize = true
@@ -2467,7 +2590,7 @@ namespace PolesSU_Sports.Management
                 FlatStyle = FlatStyle.Flat,
                 BackColor = BlueAccent,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             btnRefresh.FlatAppearance.BorderSize = 0;
             btnRefresh.Click += (s, e) => LoadRequestsData();
@@ -2489,7 +2612,7 @@ namespace PolesSU_Sports.Management
                 {
                     BackColor = GreenMain,
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                    Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold)
                 },
                 RowHeadersVisible = false,
                 BorderStyle = BorderStyle.FixedSingle
@@ -2501,12 +2624,12 @@ namespace PolesSU_Sports.Management
                     if (e.Value?.ToString() == "📝 Вступление")
                     {
                         e.CellStyle.BackColor = Color.FromArgb(220, 255, 220);
-                        e.CellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                        e.CellStyle.Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold);
                     }
                     else if (e.Value?.ToString() == "🚪 Выход")
                     {
                         e.CellStyle.BackColor = Color.FromArgb(255, 240, 220);
-                        e.CellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                        e.CellStyle.Font = new System.Drawing.Font("Segoe UI", 9, FontStyle.Bold);
                     }
                 }
             };
@@ -2529,7 +2652,7 @@ namespace PolesSU_Sports.Management
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(40, 167, 69),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold),
                 Enabled = false
             };
             btnApprove.FlatAppearance.BorderSize = 0;
@@ -2544,7 +2667,7 @@ namespace PolesSU_Sports.Management
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(220, 53, 69),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold),
                 Enabled = false
             };
             btnReject.FlatAppearance.BorderSize = 0;
@@ -2680,16 +2803,18 @@ namespace PolesSU_Sports.Management
                 Padding = new Padding(20)
             };
 
+
+            // 1. Насыщенный синий (Royal Blue)
             AddSettingCard(settingsPanel, "👥 Управление пользователями", "Добавление, редактирование и удаление пользователей",
-                Color.FromArgb(0, 86, 179), () => new PolesSU_Sports.Management.SettingsForms.UserManagementForm().ShowDialog());
+                Color.FromArgb(65, 105, 225), () => new PolesSU_Sports.Management.SettingsForms.UserManagementForm().ShowDialog());
 
+            // 2. Бирюзовый / Морская волна (Переходный цвет)
             AddSettingCard(settingsPanel, "📊 Настройка отчётов", "Шаблоны и параметры генерации отчётов",
-                Color.FromArgb(40, 167, 69), () => new PolesSU_Sports.Management.SettingsForms.ReportSettingsForm().ShowDialog());
+                Color.FromArgb(46, 170, 160), () => new PolesSU_Sports.Management.SettingsForms.ReportSettingsForm().ShowDialog());
 
-            // ✅ НОВАЯ КНОПКА: Управление студентами в секциях
+            // 3. Свежий зеленый (Medium Sea Green)
             AddSettingCard(settingsPanel, "🎓 Студенты в секциях", "Добавление и удаление студентов из секций",
-                Color.FromArgb(255, 193, 7), () => ShowSectionStudentsManager());
-
+                Color.FromArgb(60, 179, 113), () => ShowSectionStudentsManager());
             contentPanel.Controls.Add(settingsPanel);
         }
 
@@ -2713,7 +2838,7 @@ namespace PolesSU_Sports.Management
                 Text = "Выберите секцию:",
                 Location = new Point(0, 10),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold),
                 ForeColor = GreenMain
             };
 
@@ -2723,7 +2848,7 @@ namespace PolesSU_Sports.Management
                 Location = new Point(0, 35),
                 Width = 400,
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             LoadSectionsToComboBox(cmbSection);
             cmbSection.SelectedIndexChanged += (s, e) => LoadSectionStudentsData();
@@ -2736,7 +2861,7 @@ namespace PolesSU_Sports.Management
                 FlatStyle = FlatStyle.Flat,
                 BackColor = BlueAccent,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10)
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
             btnLoad.FlatAppearance.BorderSize = 0;
             btnLoad.Click += (s, e) => LoadSectionStudentsData();
@@ -2758,7 +2883,7 @@ namespace PolesSU_Sports.Management
                 {
                     BackColor = GreenMain,
                     ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                    Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold)
                 },
                 RowHeadersVisible = false,
                 BorderStyle = BorderStyle.FixedSingle
@@ -2782,7 +2907,7 @@ namespace PolesSU_Sports.Management
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(220, 53, 69),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Font = new System.Drawing.Font("Segoe UI", 10, FontStyle.Bold),
                 Enabled = false
             };
             btnRemove.FlatAppearance.BorderSize = 0;
@@ -2883,8 +3008,8 @@ namespace PolesSU_Sports.Management
         private void AddSettingCard(FlowLayoutPanel parent, string title, string description, Color color, Action click)
         {
             var card = new Panel { Size = new Size(600, 100), Margin = new Padding(10), BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
-            var t = new Label { Text = title, Location = new Point(20, 15), Font = new Font("Segoe UI", 12, FontStyle.Bold), ForeColor = color, AutoSize = true };
-            var d = new Label { Text = description, Location = new Point(20, 45), Font = new Font("Segoe UI", 9), ForeColor = Color.Gray, AutoSize = true };
+            var t = new Label { Text = title, Location = new Point(20, 15), Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Bold), ForeColor = color, AutoSize = true };
+            var d = new Label { Text = description, Location = new Point(20, 45), Font = new System.Drawing.Font("Segoe UI", 9), ForeColor = Color.Gray, AutoSize = true };
             var btn = new Button { Text = "Открыть", Location = new Point(500, 35), Size = new Size(80, 30), FlatStyle = FlatStyle.Flat, BackColor = color, ForeColor = Color.White };
             btn.Click += (s, e) => click();
             card.Controls.AddRange(new Control[] { t, d, btn });
