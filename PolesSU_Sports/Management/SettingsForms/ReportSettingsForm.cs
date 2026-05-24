@@ -10,7 +10,6 @@ namespace PolesSU_Sports.Management.SettingsForms
         public ReportSettingsForm()
         {
             InitializeComponent();
-            LoadSettings();
         }
 
         private void InitializeComponent()
@@ -93,11 +92,6 @@ namespace PolesSU_Sports.Management.SettingsForms
             btnClose.Click += (s, e) => this.Close();
 
             this.Controls.AddRange(new Control[] { lblTitle, grpTemplates, grpExport, btnSave, btnClose });
-        }
-
-        private void LoadSettings()
-        {
-            // Загрузка настроек из файла конфигурации
         }
     }
 }
